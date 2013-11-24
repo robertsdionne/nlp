@@ -1,7 +1,7 @@
 require 'torch'
 
-EMBEDDING_COUNT = 130000
-EMBEDDING_DIMENSION = 50
+local EMBEDDING_COUNT = 130000
+local EMBEDDING_DIMENSION = 50
 
 function loadEmbeddings(embeddings_filename)
   embeddings_file = torch.DiskFile(embeddings_filename)
