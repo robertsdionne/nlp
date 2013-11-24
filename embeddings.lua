@@ -7,6 +7,7 @@ function loadEmbeddings(embeddings_filename)
   local embeddings_file = torch.DiskFile(embeddings_filename)
   local raw_embeddings = torch.Tensor(
     embeddings_file:readDouble(EMBEDDING_DIMENSION * EMBEDDING_COUNT))
+  embeddings_file:close()
   local embeddings = torch.Tensor(EMBEDDING_COUNT, EMBEDDING_DIMENSION)
   embeddings:copy(raw_embeddings)
   return embeddings:t()
