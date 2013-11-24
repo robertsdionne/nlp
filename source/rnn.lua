@@ -1,4 +1,5 @@
 require 'torch'
-require 'nn'
 
+loadfile('embeddings.lua')()
 
+embeddings = loadEmbeddings('../embeddings/embeddings.txt')
