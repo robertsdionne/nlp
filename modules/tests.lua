@@ -5,6 +5,7 @@ local totalInSize = leftInSize + rightInSize;
 
 local leftInput = torch.rand(leftInSize)
 local rightInput = torch.rand(rightInSize)
+local gradOutput = torch.rand(leftInSize)
 local concatenedInput = torch.rand(leftInSize + rightInSize)
 local sumedGradOutput = torch.Tensor(leftInSize):fill(1)
 
@@ -42,3 +43,9 @@ print("getGradWeight():");
 print(crossTag:getGradWeight());
 print("getGradInput():");
 print(crossTag:getGradInput());
+
+--test Cross
+dofile "Cross.lua"
+local testCross = nn.Cross(core,crossWord,crossTag)
+print(testCross:forward(leftInput))
+print(testCross:backward(leftInput,gradOutput))

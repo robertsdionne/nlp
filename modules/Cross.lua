@@ -16,37 +16,38 @@ end
 function Cross:updateOutput(input)
    -- concat the input with inModule's output
    local inOutput = self.inModule:getOutput() -- the input from inModule
-   self.concatedInput = torch.Tensor(input.size()[1]+inOutput.size()[1])
-   concatedInput[{1,input.size()[1]}]:copy(input)
-   concatedInput[{input.size()[1]+1,input.size()[1]+inOutput.size()[1]}]:copy(inOutput)
+   self.concatedInput = torch.Tensor(input:size()[1]+inOutput:size()[1])
+   self.concatedInput:sub(1,input:size()[1]):copy(input)
+   self.concatedInput:sub(input:size()[1]+1,input:size()[1]+inOutput:size()[1]):copy(inOutput)
    -- get the output from core module and give it to self.
-   self.output = coreModule:forward(concatedInput)
+   self.output = self.coreModule:forward(self.concatedInput)
    -- transfer output to outModule
-   outModule:forwardBackward(self.output)
+   self.outModule:forwardBackward(self.output)
    -- return the output of coreModule
    return self.output
 end
 
 function Cross:updateGradInput(input, gradOutput)
+   local inOutput = self.inModule:getOutput() 
    -- get the gradients( weight and input ) from outModule
-   local outGradInput = outModule:getGradInput()
-   self.gradOut = outModule:getGradWeight()
+   local outGradInput = self.outModule:getGradInput()
+   self .gradOut = self.outModule:getGradWeight()
    -- add the gradOutputs together
    local sumedGradOutput = gradOutput + outGradInput
    -- get the gradInput from coreModule
-   local coreGradInput = coreModule:backward(self.concatedInput, sumedGradOutput)
+   local coreGradInput = self.coreModule:backward(self.concatedInput, sumedGradOutput)
    -- separate the gradInput two parts: one for inModule one for real gradInput
-   local inGradOutput = coreGradInput[{input.size()[1]+1,input.size()[1]+inOutput.size()[1]}]
-   self.gradInput = coreGradInput[{1,input.size()[1]}]
+   local inGradOutput = coreGradInput:sub(input:size()[1]+1,input:size()[1]+inOutput:size()[1])
+   self.gradInput = coreGradInput:sub(1,input:size()[1])
    -- pass the gradInput to inModule and get the gradWeight from inModule
-   self.gradIn = inModule:getGradWeight(inGradOutput)
+   self.gradIn = self.inModule:getGradWeight(inGradOutput)
    -- return real gradInput
    return self.gradInput
 end
 
 function Cross:accGradParameters(input, gradOutput, scale)
    -- just get the gradWeights from core
-   self.gradCore = coreModule:getGradWeight()
+   self.gradCore = self.coreModule:getGradWeight()
 end
 
 -- we do not need to accumulate parameters when sharing
