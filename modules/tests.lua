@@ -1,3 +1,4 @@
+require "torch"
 require "nn"
 local leftInSize = 2;
 local rightInSize = 3;
@@ -11,7 +12,8 @@ local sumedGradOutput = torch.Tensor(leftInSize):fill(1)
 
 --test CrossCore --random test
 dofile "CrossCore.lua"
-local core = nn.CrossCore(torch.rand(leftInSize,totalInSize),torch.rand(leftInSize))
+local core = nn.CrossCore(
+    torch.rand(leftInSize,totalInSize),torch.rand(leftInSize))
 core:forward(concatenedInput)
 core:backward(concatenedInput,sumedGradOutput)
 print(core:parameters())
@@ -53,3 +55,16 @@ local testCross = nn.Cross(core,crossWord,crossTag)
 print(testCross:forward(leftInput))
 print(testCross:backward(leftInput,gradOutput))
 print(testCross:getGradParameters())
+
+--test LoadedLookupTable
+dofile "LoadedLookupTable.lua"
+local lookupTable = nn.LoadedLookupTable.load(
+    '../embeddings/embeddings.txt', '../embeddings/words.lst')
+print(lookupTable:forward(1))
+print(lookupTable:queryIndex('reply'))
+print(lookupTable:forward('reply'))
+lookupTable:reset(torch.Tensor(50, 50):zero())
+print(lookupTable:forward(1))
+print(lookupTable:backward('reply', torch.rand(50, 50), 0.1))
+--TODO(robertsdionne): fix backwardUpdate
+--print(lookupTable:backwardUpdate('reply', torch.rand(50, 50), 0.1))
