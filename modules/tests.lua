@@ -49,3 +49,4 @@ dofile "Cross.lua"
 local testCross = nn.Cross(core,crossWord,crossTag)
 print(testCross:forward(leftInput))
 print(testCross:backward(leftInput,gradOutput))
+print(testCross:getGradParameters())

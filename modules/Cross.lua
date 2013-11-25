@@ -50,5 +50,9 @@ function Cross:accGradParameters(input, gradOutput, scale)
    self.gradCore = self.coreModule:getGradWeight()
 end
 
+function Cross:getGradParameters()
+   return {self.gradIn,  self.gradCore, self.gradOut}
+end
+
 -- we do not need to accumulate parameters when sharing
 Cross.sharedAccUpdateGradParameters = Cross.accUpdateGradParameters
