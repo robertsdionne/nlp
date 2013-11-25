@@ -38,11 +38,14 @@ local bias = torch.rand(classesSize);
 local tag = 2;
 local crossTag = nn.CrossTag(weight, bias, tag);
 local nodeRepresentation = torch.rand(leftInSize);
-crossTag:forwardBackward(nodeRepresentation);
+crossTag:forward(nodeRepresentation);
+crossTag:backward(nodeRepresentation);
 print("getGradWeight():");
 print(crossTag:getGradWeight());
 print("getGradInput():");
 print(crossTag:getGradInput());
+print("getPredTag():");
+print(crossTag:getPredTag());
 
 --test Cross
 dofile "Cross.lua"

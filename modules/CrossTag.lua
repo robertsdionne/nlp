@@ -10,6 +10,9 @@ function CrossTag:__init(weight, bias, tag)
 	self.weight = weight
 	self.bias = bias
 	self.tag = tag
+	-- self.predTag
+	-- self.model
+	-- self.probs
 end
 
 function CrossTag:buildNet()
@@ -28,15 +31,20 @@ end
 --make sure call forwardBackward before getGradInput
 --forwardBackward will calculate the value and store it as self.gradient
 -- and getGradInput will simply return it
-function CrossTag:forwardBackward(input)
-	local model = self:buildNet();
+function CrossTag:forward(input)
+	self.model = self:buildNet();
+	self.probs = self.model:forward(input)
+	_, self.predTag = self.probs:max(1)--@BUG
+	self.predTag = self.predTag[1]
+end
+
+function CrossTag:backward(input)
 	local criterion = nn.ClassNLLCriterion()
-	local pred = model:forward(input)
-	local err = criterion:forward(pred, self.tag); 
-	local t = criterion:backward(pred, self.tag);
-	self.gradInput = model:backward(input, t);
-	self.weightGrad = model:get(1).gradWeight;
-	self.biasGrad = model:get(1).gradBias;
+	local err = criterion:forward(self.probs, self.tag); 
+	local t = criterion:backward(self.probs, self.tag);
+	self.gradInput = self.model:backward(input, t);
+	self.weightGrad = self.model:get(1).gradWeight;
+	self.biasGrad = self.model:get(1).gradBias;
 end
 
 --return the parameters of the current neurual network
@@ -45,6 +53,11 @@ function CrossTag:getGradWeight()
 	return parameters;
 end
 
-function CrossTag:getGradInput(input)
+function CrossTag:getGradInput()
 	return self.gradInput;
+end
+
+
+function CrossTag:getPredTag()
+	return self.predTag;
 end

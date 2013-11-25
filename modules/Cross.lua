@@ -11,6 +11,7 @@ function Cross:__init(coreModule, inModule, outModule)
    self.gradIn = {} -- grads from inMoudle
    self.gradOut = {} -- grads from outMoudle
    self.gradCore = {} -- grads from coreMoudle
+   --self.predTag
 end
 
 function Cross:updateOutput(input)
@@ -22,7 +23,8 @@ function Cross:updateOutput(input)
    -- get the output from core module and give it to self.
    self.output = self.coreModule:forward(self.concatedInput)
    -- transfer output to outModule
-   self.outModule:forwardBackward(self.output)
+   --@TODO split
+   self.outModule:forward(self.output)
    -- return the output of coreModule
    return self.output
 end
@@ -30,6 +32,7 @@ end
 function Cross:updateGradInput(input, gradOutput)
    local inOutput = self.inModule:getOutput() 
    -- get the gradients( weight and input ) from outModule
+   self.outModule:backward(self.output)
    local outGradInput = self.outModule:getGradInput()
    self .gradOut = self.outModule:getGradWeight()
    -- add the gradOutputs together
