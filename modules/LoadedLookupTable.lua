@@ -1,7 +1,7 @@
 local LoadedLookupTable, parent = torch.class(
     'nn.LoadedLookupTable', 'nn.LookupTable')
 
-dofile 'EmbeddingsUtils.lua'
+dofile 'EmbeddingsUtilities.lua'
 
 -- Converts a word or word index to a torch.Tensor containing the index.
 local function prepareInput(self, input)
