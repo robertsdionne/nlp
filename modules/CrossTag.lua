@@ -17,7 +17,10 @@ function CrossTag:buildNet()
 	local classes = self.weight.size(1);
 	mlp = {}
    	mlp = nn.Sequential()
-   	mlp:add( nn.Linear(features, classes) )
+   	local linearLayer = nn.Linear(features, classes);
+   	linearLayer.weight = self.weight;
+   	linearLayer.bias = self.bias;
+   	mlp:add(linearLayer);
    	mlp:add( nn.LogSoftMax() )
    	return mlp
 end
@@ -31,15 +34,17 @@ function forwardBackward(input)
   	local pred = model:forward(input)
   	local err = criterion:forward(pred, self.tag); 
   	local t = criterion:backward(pred, self.tag);
-  	self.gradient = model:backward(input, t);
+  	self.gradInput = model:backward(input, t);
+  	self.weightGrad = model:get(1).gradWeight;
+  	self.biasGrad = model:get(1).gradBias;
 end
 
 --return the parameters of the current neurual network
 function getGradWeight()
-	parameters = {weight, bias};
+	parameters = {self.weightGrad, self.biasGrad};
 	return parameters;
 end
 
 function getGradInput(input)
-	return self.gradient;
+	return self.gradInput;
 end
