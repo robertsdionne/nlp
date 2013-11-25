@@ -13,8 +13,8 @@ function CrossTag:__init(weight, bias, tag)
 end
 
 function CrossTag:buildNet()
-	local features = self.weight.size(2);
-	local classes = self.weight.size(1);
+	local features = self.weight:size(2);
+	local classes = self.weight:size(1);
 	mlp = {}
 	mlp = nn.Sequential()
 	local linearLayer = nn.Linear(features, classes);
@@ -29,7 +29,7 @@ end
 --forwardBackward will calculate the value and store it as self.gradient
 -- and getGradInput will simply return it
 function CrossTag:forwardBackward(input)
-	local model = CrossTag:buildNet();
+	local model = self:buildNet();
 	local criterion = nn.ClassNLLCriterion()
 	local pred = model:forward(input)
 	local err = criterion:forward(pred, self.tag); 
