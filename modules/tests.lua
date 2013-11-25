@@ -58,8 +58,7 @@ print(testCross:getGradParameters())
 
 --test LoadedLookupTable
 dofile "LoadedLookupTable.lua"
-local lookupTable = nn.LoadedLookupTable.load(
-    '../embeddings/embeddings.txt', '../embeddings/words.lst')
+local lookupTable = nn.LoadedLookupTable.load()
 print(lookupTable:forward(1))
 print(lookupTable:queryIndex('reply'))
 print(lookupTable:forward('reply'))
