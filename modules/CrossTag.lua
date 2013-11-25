@@ -1,10 +1,10 @@
 require "nn"
-local CROSSTAG, parent = torch.class('nn.CROSSTAG', 'nn.Module')
+local CrossTag, parent = torch.class('nn.CrossTag', 'nn.Module')
 
 --this module is used to get output from CROSSCORE and calculate tag and backPropagate
 --It provides several basic functions: getOutPut, getGradWeight
 
-function CROSSTAG:__init(weight, bias, tag)
+function CrossTag:__init(weight, bias, tag)
 	-- body
 	parent.__init(self)
 	self.weight = weight
@@ -12,7 +12,7 @@ function CROSSTAG:__init(weight, bias, tag)
 	self.tag = tag
 end
 
-function CROSSTAG:buildNet()
+function CrossTag:buildNet()
 	local features = self.weight.size(2);
 	local classes = self.weight.size(1);
 	mlp = {}
@@ -26,7 +26,7 @@ end
 --forwardBackward will calculate the value and store it as self.gradient
 -- and getGradInput will simply return it
 function forwardBackward(input)
-	local model = CROSSTAG:buildNet();
+	local model = CrossTag:buildNet();
 	local criterion = nn.ClassNLLCriterion()
   	local pred = model:forward(input)
   	local err = criterion:forward(pred, self.tag); 
