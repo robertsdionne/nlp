@@ -20,5 +20,5 @@ end
 --calculate the gradient for lower level unit, input is the gradient from upper level
 --actually just combining the gradient from upper level and the word index
 function CrossWord:getGradWeight(input)
-	return {input, self.inputIndex}
+	return {self.inputWord, self.inputIndex}
 end
