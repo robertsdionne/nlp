@@ -4,6 +4,8 @@ local CrossTag, parent = torch.class('nn.CrossTag', 'nn.Module')
 --this module is used to get output from CROSSCORE and calculate tag and backPropagate
 --It provides several basic functions: getOutPut, getGradWeight
 
+--in this function, tag should be initialized in training. while in testing, tag should
+--null or -1
 function CrossTag:__init(weight, bias, tag)
 	-- body
 	parent.__init(self)

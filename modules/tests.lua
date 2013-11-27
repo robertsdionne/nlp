@@ -53,3 +53,27 @@ local testCross = nn.Cross(core,crossWord,crossTag)
 print(testCross:forward(leftInput))
 print(testCross:backward(leftInput,gradOutput))
 print(testCross:getGradParameters())
+
+--now test CrossRNN
+dofile "CrossRNN.lua"
+local lookUpTable = torch.rand(3);		--lookUpTable not used in RNN.
+local initialNode = torch.rand(leftInSize);
+local testCrossRNN = nn.CrossRNN(leftInSize, rightInSize, classesSize, lookUpTable, initialNode);
+--create a simple sentenceTuple
+local sentence = {torch.rand(rightInSize),torch.rand(rightInSize),torch.rand(rightInSize)};
+local index = {1,2,3};
+local tag = {1,2,3};
+local sentenceTuple = {sentence = sentence, index = index, tag = tag};
+local learningRates = 0.1;
+
+print("Testing CrossRNN forward:\n");
+print(testCrossRNN:forward(sentenceTuple));
+
+testCrossRNN:backward(sentenceTuple);
+print("Testing CrossRNN backward success!\n");
+
+testCrossRNN:updateParameters(learningRates);
+print("Testing CrossRNN update success!\n");
+
+
+

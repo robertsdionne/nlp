@@ -34,7 +34,7 @@ function Cross:updateGradInput(input, gradOutput)
    -- get the gradients( weight and input ) from outModule
    self.outModule:backward(self.output)
    local outGradInput = self.outModule:getGradInput()
-   self .gradOut = self.outModule:getGradWeight()
+   self.gradOut = self.outModule:getGradWeight()
    -- add the gradOutputs together
    local sumedGradOutput = gradOutput + outGradInput
    -- get the gradInput from coreModule
