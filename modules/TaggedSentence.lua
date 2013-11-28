@@ -1,5 +1,6 @@
 local TaggedSentence = torch.class('nn.TaggedSentence')
 
+-- A nn.TaggedSentence keeps.
 function TaggedSentence:__init(words, tags)
   assert(#words == #tags, 'Word count must match tag count!')
   self.words = words
