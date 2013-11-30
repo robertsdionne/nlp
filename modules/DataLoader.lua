@@ -1,7 +1,15 @@
+require 'torch'
+require 'nn'
+
 -- luarocks install lrexlib-posix
 local rex = require 'rex_posix'
 
 dofile 'TaggedSentence.lua'
+
+local DataLoader = torch.class('nn.DataLoader')
+
+function DataLoader:__init()
+end
 
 -- The in-domain dev data.
 DEV_IN_DOMAIN_FILENAME = '../data/en-wsj-dev.pos'
@@ -14,7 +22,7 @@ TRAIN_FILENAME = '../data/en-wsj-train.pos'
 
 local NUMBER_REGULAR_EXPRESSION = '[\\+\\-]?[0-9]+([\\.,][0-9]*)*'
 
-function tokenizeNumbers(word)
+function DataLoader:tokenizeNumbers(word)
   return rex.gsub(word, NUMBER_REGULAR_EXPRESSION, '0')
 end
 
@@ -30,7 +38,7 @@ local function convertSetToList(set)
 end
 
 -- Function to load a data file into a table of nn.TaggedSentences.
-function readTaggedSentences(data_filename)
+function DataLoader:readTaggedSentences(data_filename)
   -- Open the data file.
   local data_file = torch.DiskFile(data_filename)
   local tagged_sentences, sentence_words, sentence_tags, word_set, tag_set = {}, {}, {}, {}, {}
@@ -46,7 +54,7 @@ function readTaggedSentences(data_filename)
       -- If the line is not empty, read its (word, tag) pair.
       for word, tag in line:gmatch('(.*)%s+(.*)') do
         word = word:lower()
-        word = tokenizeNumbers(word)
+        word = self:tokenizeNumbers(word)
         sentence_words[j] = word
         sentence_tags[j] = tag
         word_set[word] = true

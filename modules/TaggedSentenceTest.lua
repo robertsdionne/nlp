@@ -1,6 +1,3 @@
-require 'torch'
-require 'nn'
-
 dofile 'Asserts.lua'
 dofile 'TaggedSentence.lua'
 
@@ -15,4 +12,4 @@ words = {'one', 'two'}
 tags = {'TAG1'}
 local success, message = pcall(nn.TaggedSentence, words, tags)
 assert(not success)
-assert('TaggedSentence.lua:5: Word count must match tag count!' == message)
+assert('TaggedSentence.lua:8: Word count must match tag count!' == message)

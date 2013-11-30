@@ -1,3 +1,6 @@
+require 'torch'
+require 'nn'
+
 local PosTagger = torch.class('nn.PosTagger')
 
 -- Abstract base class for our PosTagger

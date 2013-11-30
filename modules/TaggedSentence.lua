@@ -1,3 +1,6 @@
+require 'torch'
+require 'nn'
+
 local TaggedSentence = torch.class('nn.TaggedSentence')
 
 -- A nn.TaggedSentence keeps.

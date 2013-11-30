@@ -1,6 +1,3 @@
-require 'torch'
-require 'nn'
-
 dofile 'Asserts.lua'
 dofile 'LoadedLookupTable.lua'
 
