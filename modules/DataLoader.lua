@@ -6,7 +6,7 @@ DEV_IN_DOMAIN_FILENAME = '../data/en-wsj-dev.pos'
 -- The out-of-domain dev data.
 DEV_OUT_OF_DOMAIN_FILENAME = '../data/en-web-weblogs-dev.pos'
 -- The test data.
-TEST_FILENAME = '../data/en-wsj-test.tagged'
+TEST_FILENAME = '../data/en-web-test.tagged'
 -- The training data.
 TRAIN_FILENAME = '../data/en-wsj-train.pos'
 
@@ -28,7 +28,7 @@ local function convertSetToList(set)
 end
 
 -- Function to load a data file into a table of nn.TaggedSentences.
-function loadData(data_filename)
+function readTaggedSentences(data_filename)
   -- Open the data file.
   local data_file = torch.DiskFile(data_filename)
   local tagged_sentences, sentence_words, sentence_tags, word_set, tag_set = {}, {}, {}, {}, {}

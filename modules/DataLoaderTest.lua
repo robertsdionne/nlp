@@ -7,7 +7,7 @@ dofile 'TaggedSentence.lua'
 dofile 'DataLoader.lua'
 
 -- Test loadData() to ensure it reads the entire data file.
-local tagged_sentences, vocabulary, tags = loadData(TRAIN_FILENAME)
+local tagged_sentences, vocabulary, tags = readTaggedSentences(TRAIN_FILENAME)
 
 -- The training data has 39815 examples.
 assertEquals(39815, #tagged_sentences)
