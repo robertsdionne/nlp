@@ -2,5 +2,5 @@
 
 for test in $(ls *Test.lua) tests.lua
 do
-  luajit $test
+  luajit $test && echo $test' PASSED' || echo $test' FAILED'
 done
