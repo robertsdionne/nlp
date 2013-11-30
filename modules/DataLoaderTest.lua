@@ -4,10 +4,10 @@ dofile 'DataLoader.lua'
 local data_loader = nn.DataLoader()
 
 -- Test loadData() to ensure it reads the entire data file.
-local tagged_sentences, vocabulary, tags = data_loader:readTaggedSentences(TRAIN_FILENAME)
+local tagged_sentences = data_loader:readTaggedSentences(DEV_IN_DOMAIN_FILENAME)
 
--- The training data has 39815 examples.
-assertEquals(39815, #tagged_sentences)
+-- The dev in-domain data has 1700 examples.
+assertEquals(1700, #tagged_sentences)
 
 -- Test the number tokenizer.
 assertEquals('0/0/0', data_loader:tokenizeNumbers(

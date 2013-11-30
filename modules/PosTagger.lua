@@ -7,11 +7,11 @@ local PosTagger = torch.class('nn.PosTagger')
 function PosTagger:__init()
 end
 
-function PosTagger:train(taggedSentences)
+function PosTagger:train(tagged_sentences)
   error('Not yet implemented!')
 end
 
-function PosTagger:validate(taggedSentences)
+function PosTagger:validate(tagged_sentences)
   error('Not yet implemented!')
 end
 
@@ -19,6 +19,6 @@ function PosTagger:tag(sentence)
   error('Not yet implemented!')
 end
 
-function PosTagger:scoreTagging(taggedSentence)
+function PosTagger:scoreTagging(tagged_sentence)
   error('Not yet implemented!')
 end

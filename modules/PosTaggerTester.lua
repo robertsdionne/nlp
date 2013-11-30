@@ -11,7 +11,9 @@ local function main(arguments)
   cmd:text('Part-of-speech tagger implemented with recursive neural networks.')
   cmd:text()
   cmd:text('Options')
+  cmd:option('-verbose', false, 'whether to print verbosely')
   parameters = cmd:parse(arguments)
+  local verbose = parameters['verbose']
 
   local data_loader = nn.DataLoader()
 
@@ -35,11 +37,11 @@ local function main(arguments)
   local evaluator = nn.Evaluator()
 
   print('Evaluating on in-domain data:.')
-  evaluator:evaluateTagger(pos_tagger, dev_in_tagged_sentences, training_vocabulary)
+  evaluator:evaluateTagger(pos_tagger, dev_in_tagged_sentences, training_vocabulary, verbose)
   print('Evaluating on out-of-domain data:.')
-  evaluator:evaluateTagger(pos_tagger, dev_out_tagged_sentences, training_vocabulary)
+  evaluator:evaluateTagger(pos_tagger, dev_out_tagged_sentences, training_vocabulary, verbose)
   print('Evaluating on test data:.')
-  evaluator:evaluateTagger(pos_tagger, test_sentences, training_vocabulary)
+  evaluator:evaluateTagger(pos_tagger, test_sentences, training_vocabulary, verbose)
 end
 
 main(arg)
