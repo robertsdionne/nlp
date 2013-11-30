@@ -11,7 +11,7 @@ function TaggedSentence:size()
   return #self.words
 end
 
-function TaggedSentence:toString()
+function TaggedSentence:__tostring__()
   local size = self:size()
   local result = ''
   for i = 1, size - 1 do

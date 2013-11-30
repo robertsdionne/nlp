@@ -76,16 +76,3 @@ print("Testing CrossRNN backward success!\n");
 
 testCrossRNN:updateParameters(learningRates);
 print("Testing CrossRNN update success!\n");
-
-
---test LoadedLookupTable
-dofile "LoadedLookupTable.lua"
-local lookupTable = nn.LoadedLookupTable.load()
-print(lookupTable:forward(1))
-print(lookupTable:queryIndex('reply'))
-print(lookupTable:forward('reply'))
-lookupTable:reset(torch.Tensor(50, 50):zero())
-print(lookupTable:forward(1))
-print(lookupTable:backward('reply', torch.rand(50, 50), 0.1))
---TODO(robertsdionne): fix backwardUpdate
---print(lookupTable:backwardUpdate('reply', torch.rand(50, 50), 0.1))

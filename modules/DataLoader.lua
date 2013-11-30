@@ -1,3 +1,6 @@
+-- luarocks install lrexlib-posix
+local rex = require 'rex_posix'
+
 -- The in-domain dev data.
 DEV_IN_DOMAIN_FILENAME = '../data/en-wsj-dev.pos'
 -- The out-of-domain dev data.
@@ -6,6 +9,12 @@ DEV_OUT_OF_DOMAIN_FILENAME = '../data/en-web-weblogs-dev.pos'
 TEST_FILENAME = '../data/en-wsj-test.tagged'
 -- The training data.
 TRAIN_FILENAME = '../data/en-wsj-train.pos'
+
+local NUMBER_REGULAR_EXPRESSION = '[\\+\\-]?[0-9]+([\\.,][0-9]*)*'
+
+function tokenizeNumbers(word)
+  return rex.gsub(word, NUMBER_REGULAR_EXPRESSION, '0')
+end
 
 local function convertSetToList(set)
   local list = {}
@@ -34,6 +43,8 @@ function loadData(data_filename)
     if '' ~= line then
       -- If the line is not empty, read its (word, tag) pair.
       for word, tag in line:gmatch('(.*)%s+(.*)') do
+        word = word:lower()
+        word = tokenizeNumbers(word)
         sentence_words[j] = word
         sentence_tags[j] = tag
         word_set[word] = true

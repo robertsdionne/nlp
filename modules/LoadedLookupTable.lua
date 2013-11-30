@@ -21,6 +21,9 @@ local function prepareInput(self, input)
   end
 end
 
+LoadedLookupTable.PADDING = 1739
+LoadedLookupTable.UNKNOWN = 1740
+
 -- Load the Collobert and Weston 2011 word embeddings into a
 -- new nn.LoadedLookupTable.
 function LoadedLookupTable.load()
@@ -53,7 +56,11 @@ end
 
 -- Returns the index of the given word.
 function LoadedLookupTable:queryIndex(word)
-  return self.word_to_index[word]
+  local index = self.word_to_index[word]
+  if not index then
+    index = self.word_to_index['UNKNOWN']
+  end
+  return index
 end
 
 -- Returns the word at the given index.
