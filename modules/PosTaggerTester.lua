@@ -1,7 +1,6 @@
 require 'torch'
 require 'nn'
 
-dofile 'TaggedSentence.lua'
 dofile 'DataLoader.lua'
 dofile 'PosTagger.lua'
 
@@ -12,7 +11,7 @@ local function main(arguments)
   cmd:text()
   cmd:text('Options')
   parameters = cmd:parse(arguments)
-  
+
   print('Loading training sentences...')
   trainTaggedSentences, trainingVocabulary = readTaggedSentences(TRAIN_FILENAME)
   print('done.')

@@ -1,6 +1,8 @@
 -- luarocks install lrexlib-posix
 local rex = require 'rex_posix'
 
+dofile 'TaggedSentence.lua'
+
 -- The in-domain dev data.
 DEV_IN_DOMAIN_FILENAME = '../data/en-wsj-dev.pos'
 -- The out-of-domain dev data.

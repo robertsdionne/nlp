@@ -3,7 +3,6 @@ require 'nn'
 
 dofile 'Asserts.lua'
 dofile 'LoadedLookupTable.lua'
-dofile 'TaggedSentence.lua'
 dofile 'DataLoader.lua'
 
 -- Test loadData() to ensure it reads the entire data file.
