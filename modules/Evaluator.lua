@@ -7,10 +7,11 @@ function Evaluator:__init()
 end
 
 function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabulary, verbose)
+  -- Ported directly from POSTaggerTester.java from the assignments.
   num_tags = 0.0
   num_tags_correct = 0.0
-  num_unknown_words = 0.0
-  num_unknown_words_correct = 0.0
+  num_unknown_words = 1e-8
+  num_unknown_words_correct = 1e-8
   num_decoding_inversions = 0
   for i = 1, #tagged_sentences do
     tagged_sentence = tagged_sentences[i]
@@ -45,11 +46,12 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
       print(self:alignedTaggings(words, gold_tags, guessed_tags, true))
     end
   end
-  print('Tag Accuracy: ' .. (num_tags_correct / num_tags) ..
-      '(Unknown Accuracy: ' .. (num_unknown_words_correct / num_unknown_words) ..
-      ') Decoder Suboptimalities Detected: ' .. num_decoding_inversions)
+  print('  Tag Accuracy: ' .. (num_tags_correct / num_tags))
+  print('  (Unknown Accuracy: ' .. (num_unknown_words_correct / num_unknown_words) .. ')')
+  print('  Decoder Suboptimalities Detected: ' .. num_decoding_inversions)
 end
 
 function Evaluator:alignedTaggings(words, gold_tags, guessed_tags, suppress_correct_tags)
+  -- TODO(robertsdionne): port from POSTaggerTester.java from the assignments.
   return ''
 end
