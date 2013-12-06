@@ -44,7 +44,6 @@ local function main(arguments)
       train_data = file:readObject()
   end
   train_tagged_sentences, training_vocabulary, tags = train_data[1], train_data[2], train_data[3]
-  print(tags)
 
   print('done.')
   print('Loading in-domain dev sentences...')
