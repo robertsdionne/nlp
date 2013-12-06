@@ -44,6 +44,7 @@ local function main(arguments)
       train_data = file:readObject()
   end
   train_tagged_sentences, training_vocabulary, tags = train_data[1], train_data[2], train_data[3]
+
   print('done.')
   print('Loading in-domain dev sentences...')
   dev_in_tagged_sentences = data_loader:readTaggedSentences(DEV_IN_DOMAIN_FILENAME)

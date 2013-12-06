@@ -13,26 +13,34 @@ function RnnPosTagger:__init(lookupTable, leftInputSize, rightInputSize, tagSet)
     print("The embeding size is: ".. self.leftInputSize)
     print("The right size is: ".. self.rightInputSize)
     print("The number of tags are: ".. #self.tagSet)
+    -- new CrossRNN
+    self.rnn = nn.CrossRNN(self.leftInputSize, self.rightInputSize, #self.tagSet, self.lookUpTable);
 end
 
-function RnnPosTagger:train(tagged_sentencesi, learningRate, iterations)
+function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
   learningRate = learningRate or 0.01
   iterations = iterations or 2
-  -- new CrossRNN
-  self.rnn = nn.CrossRNN(self.leftInputSize, self.rightInputSize, #self.tagSet, self.lookUpTable);
   -- iterations over corps
   for itr = 1,iterations do
     -- iterations over sentence
     for i = 1,#tagged_sentences do
         local currentSent = tagged_sentences[i]
         -- Genrate the tuples needed for 
-        local represents = {}
-        for wn = 1,#currentSent do
+        local represents, indexes = {}, {}
+        for wn = 1,#currentSent.words do
             local word = currentSent['words'][wn]
-            error('Implementing!')
-            
-            -- table.insert(represents,)
+            local represent = self.lookupTable:forward(word)
+            local index = self.lookupTable:queryIndex(word)
+            table.insert(represents,represent)
+            table.insert(indexes, index)
         end
+        currentSent.represents = represents
+        currentSent.indexes = indexes
+        print(currentSent)
+        error('Implementing!')
+        -- forward the rnn
+        -- backward the rnn
+        -- update the parameters
     end
   end
   error('Implementing!')
