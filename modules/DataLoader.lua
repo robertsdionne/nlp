@@ -76,5 +76,5 @@ function DataLoader:readTaggedSentences(data_filename)
   data_file:close()
 
   -- Return all the nn.TaggedSentences.
-  return tagged_sentences, word_set, tag_set
+  return tagged_sentences, word_set, convertSetToList(tag_set)
 end
