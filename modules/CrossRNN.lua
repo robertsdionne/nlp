@@ -2,14 +2,13 @@ require "nn"
 local CrossRNN, parent = torch.class('nn.CrossRNN', 'nn.Module')
 
 --build the RNN
-function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable, initialNode)
+function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 -- init all parameters
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
 	self.paraOut = {weight = torch.Tensor(numTags, leftInputSize), bias = torch.Tensor(numTags)}
 	self.paraCore = {weight = torch.Tensor(leftInputSize,rightInputSize + leftInputSize),
 			bias = torch.Tensor(leftInputSize)};
-	self.initialNode = initialNode;
 	self.gradients = {};	-- grads from each cross module
 	--self.netWork	--stores the network
 	--self.netWorkDepth		--stores the layer number of the network
@@ -42,14 +41,14 @@ function CrossRNN:buildNet(sentenceTuple)
 end
 
 
-function CrossRNN:forward(sentenceTuple)
+function CrossRNN:forward(sentenceTuple, initialNode)
 	--print("sentence:\n");
 	--print(sentenceTuple);
 	-- unroll the RNN use sequentials
 	self:buildNet(sentenceTuple);
 
 	-- forward sequentialt for each of the cross module
-	self.netWork:forward(self.initialNode);
+	self.netWork:forward(initialNode);
 	
 	-- collect predicted tags
 	predictedTags = {};
@@ -61,12 +60,12 @@ function CrossRNN:forward(sentenceTuple)
 	return predictedTags;
 end
 
-function CrossRNN:backward(sentenceTuple)
+function CrossRNN:backward(sentenceTuple, initialNode)
 	
 	--!!!need to becareful here that the final output/gradOutput of the sentence is null
-	local finalGradOutput = torch.zeros(self.initialNode:size());
+	local finalGradOutput = torch.zeros(initialNode:size());
 	-- backward the sequential
-	self.netWork:backward(self.initialNode, finalGradOutput);
+	self.netWork:backward(initialNode, finalGradOutput);
 
 	-- collect gradParameters
 	self.gradients = {};
