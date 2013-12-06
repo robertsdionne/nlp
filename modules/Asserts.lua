@@ -16,3 +16,11 @@ function assertFloatEquals(expected, actual, tolerance)
   end
   assert(math.abs(expected - actual) < tolerance, message(expected, actual))
 end
+
+function assertTrue(actual)
+  assertEquals(true, actual)
+end
+
+function assertFalse(actual)
+  assertEquals(false, actual)
+end

@@ -16,11 +16,17 @@ end
 
 function Cross:updateOutput(input)
    -- concat the input with inModule's output
+   print("input:\n");
+   print(input);
    local inOutput = self.inModule:getOutput() -- the input from inModule
    self.concatedInput = torch.Tensor(input:size()[1]+inOutput:size()[1])
    self.concatedInput:sub(1,input:size()[1]):copy(input)
    self.concatedInput:sub(input:size()[1]+1,input:size()[1]+inOutput:size()[1]):copy(inOutput)
+   print("concatedInput:\n");
+   print(self.concatedInput);
    -- get the output from core module and give it to self.
+   print("core weight:\n");
+   print(self.coreModule.weight);
    self.output = self.coreModule:forward(self.concatedInput)
    -- transfer output to outModule
    --@TODO split
@@ -32,8 +38,12 @@ end
 function Cross:updateGradInput(input, gradOutput)
    local inOutput = self.inModule:getOutput() 
    -- get the gradients( weight and input ) from outModule
+   print("self.output:\n");
+   print(self.output);
    self.outModule:backward(self.output)
    local outGradInput = self.outModule:getGradInput()
+   print("\n\nThe gradInput for the out module:\n");
+   print(outGradInput);
    self.gradOut = self.outModule:getGradWeight()
    -- add the gradOutputs together
    local sumedGradOutput = gradOutput + outGradInput
