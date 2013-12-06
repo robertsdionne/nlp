@@ -36,7 +36,12 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
   for itr = 1,iterations do
       print("Begain the iteration: ".. itr)
     -- iterations over sentence
-    for i = 1,#tagged_sentences do
+    print("The number of sentences:\n");
+    print(#tagged_sentences);
+    for i = 1, #tagged_sentences do       --
+        if i % 100 == 0 then
+            print("Finished "..i.." sentences.");
+        end
         local currentSent = tagged_sentences[i]
         -- Genrate the tuples needed for 
         local represents, indexes, tagsId = {}, {}, {}
@@ -52,7 +57,7 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         currentSent.represents = represents
         currentSent.index = indexes
         currentSent.tagsId = tagsId
-        print(currentSent) -- @WHY output something strange
+        --print(currentSent) -- @WHY output something strange
         local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
         -- forward the rnn
         self.rnn:forward(currentSent, initRepresent)
@@ -60,7 +65,7 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         self.rnn:backward(currentSent, initRepresent)
         -- update the parameters
         self.rnn:updateParameters(learningRate)
-        error('Implementing!')
+        --error('Implementing!')
     end
   end
   error('Implementing!')
