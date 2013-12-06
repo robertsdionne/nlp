@@ -13,9 +13,7 @@ function assertFalse(actual)
 end
 
 function assertFloatEquals(expected, actual, tolerance)
-  if not tolerance then
-    tolerance = 1e-8
-  end
+  tolerance = tolerance or 1e-8
   assert(math.abs(expected - actual) < tolerance, message(expected, actual))
 end
 

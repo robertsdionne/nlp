@@ -59,16 +59,12 @@ end
 
 -- Returns the index of the given word.
 function LoadedLookupTable:queryIndex(word)
-  local index = self.word_to_index[word]
-  if not index then
-    index = self.word_to_index['UNKNOWN']
-  end
-  return index
+  return self.word_to_index[word] or self.word_to_index['UNKNOWN']
 end
 
 -- Returns the word at the given index.
 function LoadedLookupTable:queryWord(index)
-  return self.index_to_word[index]
+  return self.index_to_word[index] or 'UNKNOWN'
 end
 
 -- Resets the lookup table values to the given embeddings torch.Tensor.
