@@ -3,6 +3,8 @@ dofile 'LoadedLookupTable.lua'
 
 local lookupTable = nn.LoadedLookupTable.load()
 
+local index = lookupTable:queryIndex('to')
+print(lookupTable:forward(index))
 assertEquals(1739, nn.LoadedLookupTable.PADDING)
 assertEquals(1740, nn.LoadedLookupTable.UNKNOWN)
 assertEquals(nn.LoadedLookupTable.PADDING, lookupTable:queryIndex('PADDING'))
