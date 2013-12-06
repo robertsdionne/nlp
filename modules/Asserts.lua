@@ -1,7 +1,7 @@
 require 'math'
 
 local function message(expected, actual)
-  return 'Expected ' .. tostring(expected) .. ' but got ' .. tostring(actual)
+  return 'Expected \"' .. tostring(expected) .. '\" but got \"' .. tostring(actual) .. '\"'
 end
 
 function assertEquals(expected, actual)
