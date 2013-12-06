@@ -58,7 +58,7 @@ local function main(arguments)
   -- init the pos tagger with lookupTable
   local pos_tagger = nn.RnnPosTagger(lookupTable, EMBEDDING_DIMENSION, 50, tags)
   pos_tagger:train(train_tagged_sentences)
-  pos_tagger:validate(dev_in_tagged_sentences)
+  -- pos_tagger:validate(dev_in_tagged_sentences)
 
   local evaluator = nn.Evaluator()
 
