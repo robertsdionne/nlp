@@ -36,7 +36,7 @@ function CrossRNN:buildNet(sentenceTuple)
 	for i = 1, self.netWorkDepth do
 		currentWord = sentenceTuple.represents[i];
 		currentIndex = sentenceTuple.index[i];
-		currentTag = sentenceTuple.tag[i];
+		currentTag = sentenceTuple.tagsID[i];
 		self.netWork:add(self:initializeCross(currentWord,currentIndex,currentTag));
 	end
 end
