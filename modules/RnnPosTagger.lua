@@ -14,7 +14,7 @@ function RnnPosTagger:__init(lookupTable, leftInputSize, rightInputSize, tagSet)
     print("The right size is: ".. self.rightInputSize)
     print("The number of tags are: ".. #self.tagSet)
     -- new CrossRNN
-    self.rnn = nn.CrossRNN(self.leftInputSize, self.rightInputSize, #self.tagSet, self.lookUpTable);
+    self.rnn = nn.CrossRNN(self.leftInputSize, self.rightInputSize, #self.tagSet, self.lookupTable);
     -- Index the tags
     self:indexTag()
 end
@@ -42,7 +42,7 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         local represents, indexes, tagsId = {}, {}, {}
         for wn = 1,#currentSent.words do
             local word = currentSent['words'][wn]
-            local represent = self.lookupTable:forward(word)
+            local represent = self.lookupTable:forward(word)[1]
             local index = self.lookupTable:queryIndex(word)
             local tagId = self.tagIndex[currentSent['tags'][wn]]
             table.insert(represents,represent)
@@ -53,7 +53,7 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         currentSent.index = indexes
         currentSent.tagsId = tagsId
         print(currentSent) -- @WHY output something strange
-        local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)
+        local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
         -- forward the rnn
         self.rnn:forward(currentSent, initRepresent)
         -- backward the rnn
