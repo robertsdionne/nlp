@@ -53,10 +53,14 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         currentSent.indexes = indexes
         currentSent.tagsId = tagsId
         print(currentSent) -- @WHY output something strange
-        error('Implementing!')
+        local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)
         -- forward the rnn
+        self.rnn:forward(currentSent, initRepresent)
         -- backward the rnn
+        self.rnn:backward(currentSent, initRepresent)
         -- update the parameters
+        self.rnn:updateParameters(learningRate)
+        error('Implementing!')
     end
   end
   error('Implementing!')
