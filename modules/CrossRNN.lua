@@ -31,10 +31,10 @@ function CrossRNN:buildNet(sentenceTuple)
 	--print("here is the sentenceTuple");
 	--print(sentenceTuple);
 
-	self.netWorkDepth = #sentenceTuple.sentence;
+	self.netWorkDepth = #sentenceTuple.represents;
 	self.netWork = nn.Sequential();
 	for i = 1, self.netWorkDepth do
-		currentWord = sentenceTuple.sentence[i];
+		currentWord = sentenceTuple.represents[i];
 		currentIndex = sentenceTuple.index[i];
 		currentTag = sentenceTuple.tag[i];
 		self.netWork:add(self:initializeCross(currentWord,currentIndex,currentTag));

@@ -5,7 +5,7 @@ local data_loader = nn.DataLoader()
 
 -- Test loadData() to ensure it reads the entire data file.
 local tagged_sentences = data_loader:readTaggedSentences(DEV_IN_DOMAIN_FILENAME)
-
+print(tagged_sentences[1])
 -- The dev in-domain data has 1700 examples.
 assertEquals(1700, #tagged_sentences)
 
