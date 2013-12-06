@@ -1,6 +1,4 @@
-require 'torch'
 require 'math'
-require 'nn'
 
 local function message(expected, actual)
   return 'Expected ' .. tostring(expected) .. ' but got ' .. tostring(actual)
