@@ -10,6 +10,10 @@ function assertEquals(expected, actual)
   assert(expected == actual, message(expected, actual))
 end
 
+function assertFalse(actual)
+  assertEquals(false, actual)
+end
+
 function assertFloatEquals(expected, actual, tolerance)
   if not tolerance then
     tolerance = 1e-8
@@ -17,10 +21,14 @@ function assertFloatEquals(expected, actual, tolerance)
   assert(math.abs(expected - actual) < tolerance, message(expected, actual))
 end
 
-function assertTrue(actual)
-  assertEquals(true, actual)
+function assertNil(actual)
+  assertEquals(nil, actual)
 end
 
-function assertFalse(actual)
-  assertEquals(false, actual)
+function assertNotNil(actual)
+  assertFalse(nil == actual)
+end
+
+function assertTrue(actual)
+  assertEquals(true, actual)
 end
