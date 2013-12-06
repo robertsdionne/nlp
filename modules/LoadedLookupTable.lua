@@ -16,7 +16,7 @@ local function prepareInput(self, input)
   elseif type(input) == 'string' then
     --Convert a word to an index to a tensor.
     tensor = torch.Tensor(1)
-    tensor[1] = self:queryIndex(word)
+    tensor[1] = self:queryIndex(input)
     return tensor
   else
     --Assume we have a tensor already.

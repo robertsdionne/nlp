@@ -2,14 +2,14 @@ require "nn"
 local CrossRNN, parent = torch.class('nn.CrossRNN', 'nn.Module')
 
 --build the RNN
-function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable, initialNode)
+function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 -- init all parameters
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
 	self.paraOut = {weight = torch.Tensor(numTags, leftInputSize), bias = torch.Tensor(numTags)}
 	self.paraCore = {weight = torch.Tensor(leftInputSize,rightInputSize + leftInputSize),
 			bias = torch.Tensor(leftInputSize)};
-	self.initialNode = initialNode;
+	self.lookUpTable = lookUpTable;
 	self.gradients = {};	-- grads from each cross module
 	--self.netWork	--stores the network
 	--self.netWorkDepth		--stores the layer number of the network
@@ -42,14 +42,14 @@ function CrossRNN:buildNet(sentenceTuple)
 end
 
 
-function CrossRNN:forward(sentenceTuple)
+function CrossRNN:forward(sentenceTuple, initialNode)
 	--print("sentence:\n");
 	--print(sentenceTuple);
 	-- unroll the RNN use sequentials
 	self:buildNet(sentenceTuple);
 
 	-- forward sequentialt for each of the cross module
-	self.netWork:forward(self.initialNode);
+	self.netWork:forward(initialNode);
 	
 	-- collect predicted tags
 	predictedTags = {};
@@ -61,12 +61,12 @@ function CrossRNN:forward(sentenceTuple)
 	return predictedTags;
 end
 
-function CrossRNN:backward(sentenceTuple)
+function CrossRNN:backward(sentenceTuple, initialNode)
 	
 	--!!!need to becareful here that the final output/gradOutput of the sentence is null
-	local finalGradOutput = torch.zeros(self.initialNode:size());
+	local finalGradOutput = torch.zeros(initialNode:size());
 	-- backward the sequential
-	self.netWork:backward(self.initialNode, finalGradOutput);
+	self.netWork:backward(initialNode, finalGradOutput);
 
 	-- collect gradParameters
 	self.gradients = {};
@@ -81,43 +81,36 @@ function CrossRNN:updateParameters(learningRates)
 	local gradInWeightLength = self.gradients[1][1][1]:size();
 	
 	local gradCoreWeightLength = self.gradients[1][2][1]:size();
-	--print("gradCoreWeightLength\n");
-	--print(gradCoreWeightLength);
 	local gradOutWeightLength = self.gradients[1][3][1]:size();
 
-	--local gradInBiasLength = #self.gradients[1][1][2];
 	local gradCoreBiasLength = #self.gradients[1][2][2];
 	local gradOutBiasLength = #self.gradients[1][3][2];
 
 	local gradInWeightSum = torch.Tensor(gradInWeightLength):fill(0);
 	local gradCoreWeightSum = torch.Tensor(gradCoreWeightLength):fill(0);
-		--print("xxxx\n");
-	--print(gradCoreWeightSum);
 	local gradOutWeightSum = torch.Tensor(gradOutWeightLength):fill(0);
-	--local gradInBiasSum = torch.zeros(gradInBiasLength);
 	local gradCoreBiasSum = torch.Tensor(gradCoreBiasLength):fill(0);
 	local gradOutBiasSum = torch.Tensor(gradOutBiasLength):fill(0);
 
 	for i = 1, self.netWorkDepth do
-		--print("self.gradients");
-		--print(self.gradients);
-		--print("gradInWeightSum\n");
-		--print(gradInWeightSum);
-		gradInWeightSum = gradInWeightSum + self.gradients[i][1][1];	--weight
+		--call Roberts function to update word representation.
+		--this is actually updating the InParas(words)
+		wordIndex = self.netWork:get(i).inModule.inputIndex;
+		wordGradient = torch.Tensor(1,50):copy(self.gradients[i][1][1]);
+		self.lookUpTable:backwardUpdate(wordIndex, wordGradient, learningRates);
+
+		--get the sum of all the gradients
 		gradCoreWeightSum = gradCoreWeightSum + self.gradients[i][2][1];
 		gradOutWeightSum = gradOutWeightSum + self.gradients[i][3][1];
-		--gradInBiasSum = gradInBiasSum + self.gradients[i][1][2];
 		gradCoreBiasSum = gradCoreBiasSum + self.gradients[i][2][2];
 		gradOutBiasSum = gradOutBiasSum + self.gradients[i][3][2];
 	end
 
+	--update the parameters
 	self.paraOut.weight = self.paraOut.weight - gradOutWeightSum * learningRates;
 	self.paraOut.bias = self.paraOut.bias - gradOutBiasSum * learningRates;
 
 	self.paraCore.weight = self.paraCore.weight - gradCoreWeightSum * learningRates;
 	self.paraCore.bias = self.paraCore.bias - gradCoreBiasSum * learningRates;
 
-	--not to be implemented here. Waiting for robert's function.
-	--self.paraIn.weight = self.paraIn.weight - learningRates * gradInWeightSum;
-	--self.paraIn.bias = self.paraIn.bias - learningRates * gradInBiasSum;
 end
