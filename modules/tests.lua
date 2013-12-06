@@ -71,7 +71,7 @@ local testCrossRNN = nn.CrossRNN(leftInSize, rightInSize, classesSize, lookupTab
 local sentence = {torch.rand(rightInSize),torch.rand(rightInSize),torch.rand(rightInSize)};
 local index = {1,2,3};
 local tag = {1,2,3};
-local sentenceTuple = {represents = sentence, index = index, tagsID = tag};
+local sentenceTuple = {represents = sentence, index = index, tagsId = tag};
 local learningRates = 0.1;
 
 print("Testing CrossRNN forward:\n");
