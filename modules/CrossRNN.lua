@@ -6,11 +6,11 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 -- init all parameters
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
-	self.paraOut = {weight = torch.rand(numTags, leftInputSize), bias = torch.Tensor(numTags)}
+	self.paraOut = {weight = torch.rand(numTags, leftInputSize), bias = torch.rand(numTags)}
 	self.paraCore = {weight = torch.rand(leftInputSize,rightInputSize + leftInputSize),
 			bias = torch.rand(leftInputSize)};
-	print("the initial core weight:\n");
-	print(self.paraCore.weiht);
+	--print("the initial core weight:\n");
+	--print(self.paraCore.weight);
 	self.lookUpTable = lookUpTable;
 	self.gradients = {};	-- grads from each cross module
 	--self.initialNodeGrad		--The gradient of the initialNode (the returned valud of self.netWork:backward() )
@@ -31,9 +31,6 @@ end
 --the buildNet function will be call in forward. You have to make sure that forward
 --is called before backward. This function will not be called in backward again.
 function CrossRNN:buildNet(sentenceTuple)
-	--print("here is the sentenceTuple");
-	--print(sentenceTuple);
-
 	self.netWorkDepth = #sentenceTuple.represents;
 	self.netWork = nn.Sequential();
 	for i = 1, self.netWorkDepth do
@@ -46,8 +43,6 @@ end
 
 
 function CrossRNN:forward(sentenceTuple, initialNode)
-	--print("sentence:\n");
-	--print(sentenceTuple);
 	-- unroll the RNN use sequentials
 	self:buildNet(sentenceTuple);
 

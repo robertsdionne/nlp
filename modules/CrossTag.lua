@@ -47,6 +47,7 @@ function CrossTag:backward(input)
 	self.gradInput = self.model:backward(input, t);
 	self.weightGrad = self.model:get(1).gradWeight;
 	self.biasGrad = self.model:get(1).gradBias;
+
 end
 
 --return the parameters of the current neurual network
