@@ -15,6 +15,18 @@ function RnnPosTagger:__init(lookupTable, leftInputSize, rightInputSize, tagSet)
     print("The number of tags are: ".. #self.tagSet)
     -- new CrossRNN
     self.rnn = nn.CrossRNN(self.leftInputSize, self.rightInputSize, #self.tagSet, self.lookUpTable);
+    -- Index the tags
+    self:indexTag()
+end
+
+-- assign index to tag
+function RnnPosTagger:indexTag()
+    self.tagIndex = {}
+    local index = 1
+    for _,tag in pairs(self.tagSet) do
+        self.tagIndex[tag] = index
+        index = index + 1
+    end
 end
 
 function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
@@ -22,21 +34,25 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
   iterations = iterations or 2
   -- iterations over corps
   for itr = 1,iterations do
+      print("Begain the iteration: ".. itr)
     -- iterations over sentence
     for i = 1,#tagged_sentences do
         local currentSent = tagged_sentences[i]
         -- Genrate the tuples needed for 
-        local represents, indexes = {}, {}
+        local represents, indexes, tagsId = {}, {}, {}
         for wn = 1,#currentSent.words do
             local word = currentSent['words'][wn]
             local represent = self.lookupTable:forward(word)
             local index = self.lookupTable:queryIndex(word)
+            local tagId = self.tagIndex[currentSent['tags'][wn]]
             table.insert(represents,represent)
             table.insert(indexes, index)
+            table.insert(tagsId, tagId)
         end
         currentSent.represents = represents
         currentSent.indexes = indexes
-        print(currentSent)
+        currentSent.tagsId = tagsId
+        print(currentSent) -- @WHY output something strange
         error('Implementing!')
         -- forward the rnn
         -- backward the rnn
