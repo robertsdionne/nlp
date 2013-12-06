@@ -89,14 +89,14 @@ function CrossRNN:updateParameters(learningRates)
 	local gradCoreBiasLength = #self.gradients[1][2][2];
 	local gradOutBiasLength = #self.gradients[1][3][2];
 
-	local gradInWeightSum = torch.Tensor(gradInWeightLength);
-	local gradCoreWeightSum = torch.Tensor(gradCoreWeightLength);
+	local gradInWeightSum = torch.Tensor(gradInWeightLength):fill(0);
+	local gradCoreWeightSum = torch.Tensor(gradCoreWeightLength):fill(0);
 		--print("xxxx\n");
 	--print(gradCoreWeightSum);
-	local gradOutWeightSum = torch.Tensor(gradOutWeightLength);
+	local gradOutWeightSum = torch.Tensor(gradOutWeightLength):fill(0);
 	--local gradInBiasSum = torch.zeros(gradInBiasLength);
-	local gradCoreBiasSum = torch.Tensor(gradCoreBiasLength);
-	local gradOutBiasSum = torch.Tensor(gradOutBiasLength);
+	local gradCoreBiasSum = torch.Tensor(gradCoreBiasLength):fill(0);
+	local gradOutBiasSum = torch.Tensor(gradOutBiasLength):fill(0);
 
 	for i = 1, self.netWorkDepth do
 		--print("self.gradients");
