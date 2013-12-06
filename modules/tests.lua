@@ -1,5 +1,8 @@
 require "torch"
 require "nn"
+
+dofile 'Asserts.lua'
+
 local leftInSize = 50;
 local rightInSize = 50;
 local totalInSize = leftInSize + rightInSize;
