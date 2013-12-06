@@ -1,8 +1,8 @@
 require "nn"
-dofile "CrossWord"
-dofile "CrossTag"
-dofile "CrossCore"
-dofile "Cross"
+dofile "CrossWord.lua"
+dofile "CrossTag.lua"
+dofile "CrossCore.lua"
+dofile "Cross.lua"
 local CrossRNN, parent = torch.class('nn.CrossRNN', 'nn.Module')
 
 --build the RNN
@@ -116,8 +116,6 @@ function CrossRNN:updateParameters(learningRates)
 	self.paraCore.bias = self.paraCore.bias - gradCoreBiasSum * learningRates;
 
 	--update the initialNode
-	print("The gradient of initialNode");
-	print(self.initialNodeGrad);
 	initialNodeGrad = torch.Tensor(1,50):copy(self.initialNodeGrad);
 	self.lookUpTable:backwardUpdate('PADDING', initialNodeGrad, learningRates);
 end
