@@ -1,4 +1,8 @@
 require "nn"
+dofile "CrossWord"
+dofile "CrossTag"
+dofile "CrossCore"
+dofile "Cross"
 local CrossRNN, parent = torch.class('nn.CrossRNN', 'nn.Module')
 
 --build the RNN
