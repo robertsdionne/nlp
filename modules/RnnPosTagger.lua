@@ -50,7 +50,7 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
             table.insert(tagsId, tagId)
         end
         currentSent.represents = represents
-        currentSent.indexes = indexes
+        currentSent.index = indexes
         currentSent.tagsId = tagsId
         print(currentSent) -- @WHY output something strange
         local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)
