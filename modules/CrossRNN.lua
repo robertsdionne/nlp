@@ -19,10 +19,10 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 end
 
 --we assume that each sentence comes with tags
-function CrossRNN:initializeCross(word, index, tagID)
+function CrossRNN:initializeCross(word, index, tagId)
 	inModule = nn.CrossWord(word, index);
 	coreModule = nn.CrossCore(self.paraCore.weight, self.paraCore.bias);
-	outModule = nn.CrossTag(self.paraOut.weight, self.paraOut.bias, tagID);
+	outModule = nn.CrossTag(self.paraOut.weight, self.paraOut.bias, tagId);
 	CrossModule = nn.Cross(coreModule, inModule, outModule);
 	return CrossModule;
 end
@@ -36,8 +36,8 @@ function CrossRNN:buildNet(sentenceTuple)
 	for i = 1, self.netWorkDepth do
 		currentWord = sentenceTuple.represents[i];
 		currentIndex = sentenceTuple.index[i];
-		currentTagID = sentenceTuple.tagsID[i];
-		self.netWork:add(self:initializeCross(currentWord,currentIndex,currentTagID));
+		currentTagId = sentenceTuple.tagsId[i];
+		self.netWork:add(self:initializeCross(currentWord,currentIndex,currentTagId));
 	end
 end
 
