@@ -1,6 +1,6 @@
 require "torch"
 require "nn"
-local leftInSize = 2;
+local leftInSize = 50;
 local rightInSize = 50;
 local totalInSize = leftInSize + rightInSize;
 

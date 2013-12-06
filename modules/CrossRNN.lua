@@ -6,11 +6,14 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 -- init all parameters
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
-	self.paraOut = {weight = torch.Tensor(numTags, leftInputSize), bias = torch.Tensor(numTags)}
-	self.paraCore = {weight = torch.Tensor(leftInputSize,rightInputSize + leftInputSize),
-			bias = torch.Tensor(leftInputSize)};
+	self.paraOut = {weight = torch.rand(numTags, leftInputSize), bias = torch.Tensor(numTags)}
+	self.paraCore = {weight = torch.rand(leftInputSize,rightInputSize + leftInputSize),
+			bias = torch.rand(leftInputSize)};
+	print("the initial core weight:\n");
+	print(self.paraCore.weiht);
 	self.lookUpTable = lookUpTable;
 	self.gradients = {};	-- grads from each cross module
+	--self.initialNodeGrad		--The gradient of the initialNode (the returned valud of self.netWork:backward() )
 	--self.netWork	--stores the network
 	--self.netWorkDepth		--stores the layer number of the network
 end
@@ -66,7 +69,7 @@ function CrossRNN:backward(sentenceTuple, initialNode)
 	--!!!need to becareful here that the final output/gradOutput of the sentence is null
 	local finalGradOutput = torch.zeros(initialNode:size());
 	-- backward the sequential
-	self.netWork:backward(initialNode, finalGradOutput);
+	self.initialNodeGrad = self.netWork:backward(initialNode, finalGradOutput);
 
 	-- collect gradParameters
 	self.gradients = {};
@@ -106,11 +109,16 @@ function CrossRNN:updateParameters(learningRates)
 		gradOutBiasSum = gradOutBiasSum + self.gradients[i][3][2];
 	end
 
-	--update the parameters
+	--update the weight matrix parameters
 	self.paraOut.weight = self.paraOut.weight - gradOutWeightSum * learningRates;
 	self.paraOut.bias = self.paraOut.bias - gradOutBiasSum * learningRates;
 
 	self.paraCore.weight = self.paraCore.weight - gradCoreWeightSum * learningRates;
 	self.paraCore.bias = self.paraCore.bias - gradCoreBiasSum * learningRates;
 
+	--update the initialNode
+	print("The gradient of initialNode");
+	print(self.initialNodeGrad);
+	initialNodeGrad = torch.Tensor(1,50):copy(self.initialNodeGrad);
+	self.lookUpTable:backwardUpdate('PADDING', initialNodeGrad, learningRates);
 end
