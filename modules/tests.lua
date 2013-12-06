@@ -1,7 +1,7 @@
 require "torch"
 require "nn"
 local leftInSize = 2;
-local rightInSize = 3;
+local rightInSize = 50;
 local totalInSize = leftInSize + rightInSize;
 
 local leftInput = torch.rand(leftInSize)
@@ -58,9 +58,12 @@ print(testCross:getGradParameters())
 
 --now test CrossRNN
 dofile "CrossRNN.lua"
-local lookUpTable = torch.rand(3);		--lookUpTable not used in RNN.
+dofile 'LoadedLookupTable.lua'
+
+local lookupTable = nn.LoadedLookupTable.load()
+--local lookUpTable = torch.rand(3);		--lookUpTable not used in RNN.
 local initialNode = torch.rand(leftInSize);
-local testCrossRNN = nn.CrossRNN(leftInSize, rightInSize, classesSize, lookUpTable);
+local testCrossRNN = nn.CrossRNN(leftInSize, rightInSize, classesSize, lookupTable);
 --create a simple sentenceTuple
 local sentence = {torch.rand(rightInSize),torch.rand(rightInSize),torch.rand(rightInSize)};
 local index = {1,2,3};
