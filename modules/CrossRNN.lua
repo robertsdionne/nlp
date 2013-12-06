@@ -6,9 +6,9 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 -- init all parameters
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
-	self.paraOut = {weight = torch.rand(numTags, leftInputSize), bias = torch.rand(numTags)}
-	self.paraCore = {weight = torch.rand(leftInputSize,rightInputSize + leftInputSize),
-			bias = torch.rand(leftInputSize)};
+	self.paraOut = {weight = torch.randn(numTags, leftInputSize), bias = torch.randn(numTags)}
+	self.paraCore = {weight = torch.randn(leftInputSize,rightInputSize + leftInputSize),
+			bias = torch.randn(leftInputSize)};
 	--print("the initial core weight:\n");
 	--print(self.paraCore.weight);
 	self.lookUpTable = lookUpTable;
