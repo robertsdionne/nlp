@@ -63,7 +63,11 @@ local function main(arguments)
   local pos_tagger = nn.RnnPosTagger(lookupTable, EMBEDDING_DIMENSION, 50, tags)
   -- Do the tranning or just resume the results
   if resume then
-      local _ = 1;
+      file = torch.DiskFile(TRAINED_MODEL_TAGGER, 'r')
+      pos_tagger = file:readObject()
+      file = torch.DiskFile(TRAINED_MODEL_LOOKUPTABLE, 'r')
+      lookupTable = file:readObject()
+      pos_tagger.lookupTable = lookupTable
   else
       pos_tagger:train(train_tagged_sentences)
       -- Save the trained model: tagger and lookup table
