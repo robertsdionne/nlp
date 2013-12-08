@@ -25,7 +25,9 @@ function CrossTag:buildNet()
 	local linearLayer = nn.Linear(features, classes);
 	linearLayer.weight = self.weight;
 	linearLayer.bias = self.bias;
-	mlp:add(linearLayer);
+    linearLayer:zeroGradParameters()
+	mlp:add(linearLayer)
+    --mlp:add(nn.Tanh())
 	mlp:add( nn.LogSoftMax() )
 	return mlp
 end
