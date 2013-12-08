@@ -30,7 +30,7 @@ function RnnPosTagger:indexTag()
 end
 
 function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
-  learningRate = learningRate or 0.01
+  learningRate = learningRate or 0.00001
   iterations = iterations or 2
   -- iterations over corps
   for itr = 1,iterations do
@@ -38,7 +38,7 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
     -- iterations over sentence
     print("The number of sentences:\n");
     print(#tagged_sentences);
-    for i = 1, #tagged_sentences do       --
+    for i = 1, 1 do       --#tagged_sentences
         if i % 100 == 0 then
             print("Finished "..i.." sentences.");
         end
@@ -68,7 +68,6 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         --error('Implementing!')
     end
   end
-  error('Implementing!')
 end
 
 function RnnPosTagger:validate(tagged_sentences)
@@ -76,9 +75,32 @@ function RnnPosTagger:validate(tagged_sentences)
 end
 
 function RnnPosTagger:tag(sentence)
-  error('Not yet implemented!')
+    local currentSent = sentence
+    local represents, indexes, tagsId = {}, {}, {}
+        for wn = 1,#currentSent.words do
+            local word = currentSent['words'][wn]
+            local represent = self.lookupTable:forward(word)[1]
+            local index = self.lookupTable:queryIndex(word)
+            table.insert(represents,represent)
+            table.insert(indexes, index)
+            table.insert(tagsId, tagId)
+        end
+        currentSent.represents = represents
+        currentSent.index = indexes
+        currentSent.tagsId = tagsId
+        --print(currentSent) -- @WHY output something strange
+        local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
+        -- forward the rnn
+        local tagsPredId = self.rnn:forward(currentSent, initRepresent)
+        local tagsPredName = {}
+        for t = 1, #tagsPredId do
+            --print(tagsPredId[t])
+            tagsPredName[t] = self.tagSet[tagsPredId[t]]
+        end
+        return tagsPredName;
 end
 
 function RnnPosTagger:scoreTagging(tagged_sentence)
-  error('Not yet implemented!')
+    return 0;
+  --error('Not yet implemented!')
 end

@@ -13,15 +13,21 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
   num_unknown_words = 1e-8
   num_unknown_words_correct = 1e-8
   num_decoding_inversions = 0
+  print("The total validation sentences: \n")
+  print(#tagged_sentences)
   for i = 1, #tagged_sentences do
+    if i % 100 == 0 then
+            print("Finished tagging "..i.." sentences.");
+        end
     tagged_sentence = tagged_sentences[i]
     words = tagged_sentence.words
     gold_tags = tagged_sentence.tags
-    guessed_tags = pos_tagger:tag(words)
+    guessed_tags = pos_tagger:tag(tagged_sentence)
     for position = 1, #words do
       word = words[position]
       gold_tag = gold_tags[position]
       guessed_tag = guessed_tags[position]
+      --print("Tag: "..gold_tag.." guess: "..guessed_tag)
       if guessed_tag == gold_tag then
         num_tags_correct = num_tags_correct + 1.0
       end
