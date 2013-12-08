@@ -81,9 +81,9 @@ local function main(arguments)
   local evaluator = nn.Evaluator()
 
   print('Evaluating on training data:')
-  --evaluator:evaluateTagger(pos_tagger, train_tagged_sentences, training_vocabulary, verbose)
+  evaluator:evaluateTagger(pos_tagger, train_tagged_sentences, training_vocabulary, verbose)
   print('Evaluating on in-domain data:')
-  --evaluator:evaluateTagger(pos_tagger, dev_in_tagged_sentences, training_vocabulary, verbose)
+  evaluator:evaluateTagger(pos_tagger, dev_in_tagged_sentences, training_vocabulary, verbose)
   print('Evaluating on out-of-domain data:')
   evaluator:evaluateTagger(pos_tagger, dev_out_tagged_sentences, training_vocabulary, verbose)
   if test then
