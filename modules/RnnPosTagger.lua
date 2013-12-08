@@ -75,7 +75,20 @@ function RnnPosTagger:validate(tagged_sentences)
 end
 
 function RnnPosTagger:tag(sentence)
-  error('Not yet implemented!')
+  local represents, indexes, tagsId = {}, {}, {}
+  for wn = 1, #sentence do
+    local word = sentence[wn]
+    local represent = self.lookupTable:forward(word)[1]
+    local index = self.lookupTable:queryIndex(word)
+    table.insert(represents, represent)
+    table.insert(indexes, index)
+  end
+  sentence.represents = represents
+  sentence.index = indexes
+  sentence.tagsId = {}
+  local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
+  -- TODO(robertsdionne): make sure the output of this function is what we really need!
+  return self.rnn:forward(sentence, initRepresent)
 end
 
 function RnnPosTagger:scoreTagging(tagged_sentence)

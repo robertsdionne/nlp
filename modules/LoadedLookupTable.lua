@@ -10,12 +10,12 @@ local LoadedLookupTable, parent = torch.class(
 local function prepareInput(self, input)
   if type(input) == 'number' then
     --Convert an index to a tensor.
-    tensor = torch.Tensor(1)
+    local tensor = torch.Tensor(1)
     tensor[1] = input
     return tensor
   elseif type(input) == 'string' then
     --Convert a word to an index to a tensor.
-    tensor = torch.Tensor(1)
+    local tensor = torch.Tensor(1)
     tensor[1] = self:queryIndex(input)
     return tensor
   else
