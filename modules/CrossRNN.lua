@@ -98,7 +98,7 @@ function CrossRNN:updateParameters(learningRates)
 		--call Roberts function to update word representation.
 		--this is actually updating the InParas(words)
 		wordIndex = self.netWork:get(i).inModule.inputIndex;
-		wordGradient = torch.Tensor(1,50):copy(self.gradients[i][1][1]);
+		wordGradient = torch.Tensor(1, self.gradients[i][1][1]:size(1)):copy(self.gradients[i][1][1]);
 		self.lookUpTable:backwardUpdate(wordIndex, wordGradient, learningRates);
 
 		--get the sum of all the gradients
@@ -116,6 +116,6 @@ function CrossRNN:updateParameters(learningRates)
 	self.paraCore.bias = self.paraCore.bias - gradCoreBiasSum * learningRates;
 
 	--update the initialNode
-	initialNodeGrad = torch.Tensor(1,50):copy(self.initialNodeGrad);
+	initialNodeGrad = torch.Tensor(1,self.gradients[1][1][1]:size(1)):copy(self.initialNodeGrad);
 	self.lookUpTable:backwardUpdate('PADDING', initialNodeGrad, learningRates);
 end
