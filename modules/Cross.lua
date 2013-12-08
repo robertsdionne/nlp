@@ -16,6 +16,8 @@ end
 
 function Cross:updateOutput(input)
    -- concat the input with inModule's output
+   --print("The input of Cross`")
+   --print(input)
    local inOutput = self.inModule:getOutput() -- the input from inModule
    self.concatedInput = torch.Tensor(input:size()[1]+inOutput:size()[1])
    self.concatedInput:sub(1,input:size()[1]):copy(input)
@@ -25,6 +27,8 @@ function Cross:updateOutput(input)
    -- transfer output to outModule
    --@TODO split
    self.outModule:forward(self.output)
+   --print("The output of Cross`")
+   --print(self.output)
    -- return the output of coreModule
    return self.output
 end

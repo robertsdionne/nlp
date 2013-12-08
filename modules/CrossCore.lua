@@ -6,8 +6,9 @@ function CrossCore:__init(initWeiht, initBias)
    local inputSize = initWeiht:size()[2]
    self.weight = initWeiht
    self.bias = initBias
-   self.gradWeight = torch.Tensor(outputSize, inputSize)
-   self.gradBias = torch.Tensor(outputSize)
+   self.gradWeight = torch.rand(outputSize, inputSize)
+   self.gradBias = torch.rand(outputSize)
+   self.tanh = nn.Tanh()
 end
 
 function CrossCore:updateOutput(input)
@@ -25,13 +26,26 @@ function CrossCore:updateOutput(input)
    else
       error('input must be vector or matrix')
    end
+   self.halfRes = self.output:clone()
+   self.output = self.tanh:forward(self.output)
+--   print("Input of core")
+--   print(input)
+--   print(self.weight)
+--   print("Output of core")
+--   print(self.output)
 
    return self.output
 end
 
 function CrossCore:updateGradInput(input, gradOutput)
    if self.gradInput then
+--      print("gradOutput for Core")
+--      print(input)
+--      print(self.output)
+--      print(self.weight)
+      --print(gradOutput)
 
+      gradOutput = self.tanh:backward(self.halfRes, gradOutput)
       local nElement = self.gradInput:nElement()
       self.gradInput:resizeAs(input)
       if self.gradInput:nElement() ~= nElement then
@@ -42,7 +56,10 @@ function CrossCore:updateGradInput(input, gradOutput)
       elseif input:dim() == 2 then
          self.gradInput:addmm(0, 1, gradOutput, self.weight)
       end
+      --print(gradOutput)
+      --b = io.read()
 
+--      print(self.gradInput)
       return self.gradInput
    end
 end
@@ -50,6 +67,9 @@ end
 function CrossCore:accGradParameters(input, gradOutput, scale)
    scale = scale or 1
 
+   self.gradWeight:fill(0)
+   self.gradBias:fill(0)
+   gradOutput = self.tanh:backward(self.halfRes, gradOutput)
    if input:dim() == 1 then
       self.gradWeight:addr(scale, gradOutput, input)
       self.gradBias:add(scale, gradOutput)      
@@ -60,6 +80,9 @@ function CrossCore:accGradParameters(input, gradOutput, scale)
       self.gradWeight:addmm(scale, gradOutput:t(), input)
       self.gradBias:addmv(scale, gradOutput:t(), input.new(nframe):fill(1))
    end
+      --print("gradWeight for core")
+      --print(self.gradWeight)
+      --b = io.read()
 
 end
 

@@ -74,6 +74,9 @@ function CrossRNN:backward(sentenceTuple, initialNode)
 	self.gradients = {};
 	for i = 1, self.netWorkDepth do
 		self.gradients[i] = self.netWork:get(i):getGradParameters();
+        --print("Gradients")
+        --print(self.gradients[i][2][1])
+        --b = io.read()
 	end
 	--return gradients;
 end
@@ -88,11 +91,11 @@ function CrossRNN:updateParameters(learningRates)
 	local gradCoreBiasLength = #self.gradients[1][2][2];
 	local gradOutBiasLength = #self.gradients[1][3][2];
 
-	local gradInWeightSum = torch.Tensor(gradInWeightLength):fill(0);
-	local gradCoreWeightSum = torch.Tensor(gradCoreWeightLength):fill(0);
-	local gradOutWeightSum = torch.Tensor(gradOutWeightLength):fill(0);
-	local gradCoreBiasSum = torch.Tensor(gradCoreBiasLength):fill(0);
-	local gradOutBiasSum = torch.Tensor(gradOutBiasLength):fill(0);
+	local gradInWeightSum = torch.rand(gradInWeightLength):fill(0);
+	local gradCoreWeightSum = torch.rand(gradCoreWeightLength):fill(0);
+	local gradOutWeightSum = torch.rand(gradOutWeightLength):fill(0);
+	local gradCoreBiasSum = torch.rand(gradCoreBiasLength):fill(0);
+	local gradOutBiasSum = torch.rand(gradOutBiasLength):fill(0);
 
 	for i = 1, self.netWorkDepth do
 		--call Roberts function to update word representation.
@@ -101,12 +104,19 @@ function CrossRNN:updateParameters(learningRates)
 		wordGradient = torch.Tensor(1,50):copy(self.gradients[i][1][1]);
 		self.lookUpTable:backwardUpdate(wordIndex, wordGradient, learningRates);
 
+    --print("gradOutWeightSum  "..i)
+    --print(gradOutWeightSum)
+    --print(self.gradients[i][3][1])
+    --b = io.read()
 		--get the sum of all the gradients
 		gradCoreWeightSum = gradCoreWeightSum + self.gradients[i][2][1];
 		gradOutWeightSum = gradOutWeightSum + self.gradients[i][3][1];
 		gradCoreBiasSum = gradCoreBiasSum + self.gradients[i][2][2];
 		gradOutBiasSum = gradOutBiasSum + self.gradients[i][3][2];
 	end
+    --print("gradOutWeightSum")
+    --print(gradOutWeightSum)
+    --b = io.read()
 
 	--update the weight matrix parameters
 	self.paraOut.weight = self.paraOut.weight - gradOutWeightSum * learningRates;
