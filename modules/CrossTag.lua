@@ -38,6 +38,7 @@ end
 function CrossTag:forward(input)
 	self.model = self:buildNet();
 	self.probs = self.model:forward(input)
+	--print(self.probs);
 	_, self.predTag = self.probs:max(1)--@BUG
 	self.predTag = self.predTag[1]
 end
@@ -47,6 +48,7 @@ function CrossTag:backward(input)
 	local err = criterion:forward(self.probs, self.tag); 
 	local t = criterion:backward(self.probs, self.tag);
 	self.gradInput = self.model:backward(input, t);
+	--updateParameters(0.3);
 	self.weightGrad = self.model:get(1).gradWeight;
 	self.biasGrad = self.model:get(1).gradBias;
 
