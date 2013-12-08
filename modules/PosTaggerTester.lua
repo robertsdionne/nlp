@@ -9,6 +9,8 @@ dofile 'EmbeddingsUtilities.lua'
 dofile 'LoadedLookupTable.lua' 
 
 TRAIN_DATA = '../data/train_data.obj'
+TRAINED_MODEL_TAGGER = '../model/trained_tagger.obj'
+TRAINED_MODEL_LOOKUPTABLE = '../model/trained_lookup_table.obj'
 
 local function main(arguments)
   -- Ported directly from POSTaggerTester.java from the assignments with a few tweaks.
@@ -20,10 +22,12 @@ local function main(arguments)
   cmd:option('-test', false, 'whether to evaluate on the test data')
   cmd:option('-verbose', false, 'whether to print verbosely')
   cmd:option('-reload', false, 'whether to reload trainnig set')
+  cmd:option('-resume', false, 'whether to resume the tranning, if yes, save the PosTagger and lookupTable')
   parameters = cmd:parse(arguments)
   print(parameters)
   local verbose, test = parameters['verbose'], parameters['test']
   local reload = parameters['reload']
+  local resume = parameters['resume']
   -- new the lookup table
   local lookupTable = nn.LoadedLookupTable.load()
   -- new the data loader
@@ -57,8 +61,27 @@ local function main(arguments)
 
   -- init the pos tagger with lookupTable
   local pos_tagger = nn.RnnPosTagger(lookupTable, EMBEDDING_DIMENSION, 50, tags)
+<<<<<<< HEAD
   pos_tagger:train(train_tagged_sentences)
   --pos_tagger:validate(dev_in_tagged_sentences)
+=======
+  -- Do the tranning or just resume the results
+  if resume then
+      local _ = 1;
+  else
+      pos_tagger:train(train_tagged_sentences)
+      -- Save the trained model: tagger and lookup table
+      file = torch.DiskFile(TRAINED_MODEL_TAGGER, 'w')
+      file:writeObject(pos_tagger)
+      file:close()
+
+      file = torch.DiskFile(TRAINED_MODEL_LOOKUPTABLE, 'w')
+      file:writeObject(lookupTable)
+      file:close()
+  end
+
+  pos_tagger:validate(dev_in_tagged_sentences)
+>>>>>>> 35960e989ebbf555b28fa4edf50f6a29a7e1f5f8
 
   local evaluator = nn.Evaluator()
 
