@@ -14,11 +14,14 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
   local num_unknown_words_correct = 1e-8
   local num_decoding_inversions = 0
   for i = 1, #tagged_sentences do
+    if i % 100 ==0 then
+      print("finished "..i.."sentences / "..#tagged_sentences);
+    end
     local tagged_sentence = tagged_sentences[i]
     local words = tagged_sentence.words
     local gold_tags = tagged_sentence.tags
-    local guessed_tags = pos_tagger:tag(words)
-    print(guessed_tags)
+    local guessed_tags = pos_tagger:tag(tagged_sentence)
+    --print(guessed_tags)
     for position = 1, #words do
       local word = words[positon]
       local gold_tag = gold_tags[position]

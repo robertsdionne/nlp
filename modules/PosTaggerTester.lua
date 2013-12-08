@@ -76,7 +76,7 @@ local function main(arguments)
       file:close()
   end
 
-  pos_tagger:validate(dev_in_tagged_sentences)
+  --pos_tagger:validate(dev_in_tagged_sentences)
 
   local evaluator = nn.Evaluator()
 
