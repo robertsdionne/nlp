@@ -19,15 +19,24 @@ local function main(arguments)
   cmd:text('Part-of-speech tagger implemented with recursive neural networks.')
   cmd:text()
   cmd:text('Options')
-  cmd:option('-test', false, 'whether to evaluate on the test data')
-  cmd:option('-verbose', false, 'whether to print verbosely')
-  cmd:option('-reload', false, 'whether to reload trainnig set')
+  cmd:option('-iterations', 100, 'the number of training iterations')
+  cmd:option('-learning_rate', 1, 'the learning rate')
+  cmd:option('-reload', false, 'whether to reload trainig set')
   cmd:option('-resume', false, 'whether to resume the tranning, if yes, save the PosTagger and lookupTable')
+  cmd:option('-training_sentences', -1, 'the number of training sentences')
+  cmd:option('-test', false, 'whether to evaluate on the test data')
+  cmd:option('-test_sentences', -1, 'the number of test sentences')
+  cmd:option('-verbose', false, 'whether to print verbosely')
   parameters = cmd:parse(arguments)
   print(parameters)
-  local verbose, test = parameters['verbose'], parameters['test']
+  local iterations = parameters['iterations']
+  local learning_rate = parameters['learning_rate']
   local reload = parameters['reload']
   local resume = parameters['resume']
+  local training_sentences = parameters['training_sentences']
+  local test = parameters['test']
+  local test_sentences = parameters['test_sentences']
+  local verbose = parameters['verbose']
   -- new the lookup table
   local lookupTable = nn.LoadedLookupTable.load()
   -- new the data loader
@@ -36,7 +45,7 @@ local function main(arguments)
   print('Loading training sentences...')
   if reload then
       print('Reloading from original corp')
-      train_tagged_sentences, training_vocabulary, tags = data_loader:readTaggedSentences(TRAIN_FILENAME)
+      train_tagged_sentences, training_vocabulary, tags = data_loader:readTaggedSentences(TRAIN_FILENAME, training_sentences)
       -- Save Train Data
       train_data = {train_tagged_sentences, training_vocabulary, tags}
       file = torch.DiskFile(TRAIN_DATA, 'w')
@@ -51,16 +60,16 @@ local function main(arguments)
 
   print('done.')
   print('Loading in-domain dev sentences...')
-  dev_in_tagged_sentences = data_loader:readTaggedSentences(DEV_IN_DOMAIN_FILENAME)
+  dev_in_tagged_sentences = data_loader:readTaggedSentences(DEV_IN_DOMAIN_FILENAME, test_sentences)
   print('done.')
   print('Loading out-of-domain dev sentences...')
-  dev_out_tagged_sentences = data_loader:readTaggedSentences(DEV_OUT_OF_DOMAIN_FILENAME)
+  dev_out_tagged_sentences = data_loader:readTaggedSentences(DEV_OUT_OF_DOMAIN_FILENAME, test_sentences)
   print('Loading out-of-domain test sentences...')
-  test_sentences = data_loader:readTaggedSentences(TEST_FILENAME)
+  test_sentences = data_loader:readTaggedSentences(TEST_FILENAME, test_sentences)
   print('done.')
 
   -- init the pos tagger with lookupTable
-  local pos_tagger = nn.RnnPosTagger(lookupTable, EMBEDDING_DIMENSION, 50, tags)
+  local pos_tagger = nn.RnnPosTagger(lookupTable, EMBEDDING_DIMENSION, EMBEDDING_DIMENSION, tags)
   -- Do the tranning or just resume the results
   if resume then
       file = torch.DiskFile(TRAINED_MODEL_TAGGER, 'r')
@@ -69,7 +78,7 @@ local function main(arguments)
       lookupTable = file:readObject()
       pos_tagger.lookupTable = lookupTable
   else
-      pos_tagger:train(train_tagged_sentences)
+      pos_tagger:train(train_tagged_sentences, learning_rate, iterations)
       -- Save the trained model: tagger and lookup table
       file = torch.DiskFile(TRAINED_MODEL_TAGGER, 'w')
       file:writeObject(pos_tagger)
@@ -87,9 +96,9 @@ local function main(arguments)
   print('Evaluating on training data:')
   evaluator:evaluateTagger(pos_tagger, train_tagged_sentences, training_vocabulary, verbose)
   print('Evaluating on in-domain data:')
-  --evaluator:evaluateTagger(pos_tagger, dev_in_tagged_sentences, training_vocabulary, verbose)
+  evaluator:evaluateTagger(pos_tagger, dev_in_tagged_sentences, training_vocabulary, verbose)
   print('Evaluating on out-of-domain data:')
-  --evaluator:evaluateTagger(pos_tagger, dev_out_tagged_sentences, training_vocabulary, verbose)
+  evaluator:evaluateTagger(pos_tagger, dev_out_tagged_sentences, training_vocabulary, verbose)
   if test then
     print('Evaluating on test data:')
     evaluator:evaluateTagger(pos_tagger, test_sentences, training_vocabulary, verbose)
