@@ -39,6 +39,9 @@ function CrossTag:forward(input)
 	self.model = self:buildNet();
 	self.probs = self.model:forward(input)
 	--print(self.probs);
+	-- print(input);
+	--print(self.tag);
+	--io.read()
 	_, self.predTag = self.probs:max(1)--@BUG
 	self.predTag = self.predTag[1]
 end

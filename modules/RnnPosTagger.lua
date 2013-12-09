@@ -30,27 +30,29 @@ function RnnPosTagger:indexTag()
 end
 
 function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
-  learningRate = learningRate or 0.00001
-  iterations = iterations or 2
+  learningRate = learningRate or 1
+  iterations = iterations or 100
   -- iterations over corps
   for itr = 1,iterations do
       print("Begain the iteration: ".. itr)
     -- iterations over sentence
     print("The number of sentences:");
     print(#tagged_sentences);
-    for i = 1, 10000 do--#tagged_sentences do       --
+    for i = 1, 1 do--#tagged_sentences do       --
         if i % 100 == 0 then
             print("Finished "..i.." sentences.");
         end
         local currentSent = tagged_sentences[i]
         -- Genrate the tuples needed for 
         local represents, indexes, tagsId = {}, {}, {}
-        for wn = 1,#currentSent.words do
+        for wn = 1, #currentSent.words do
             local word = currentSent['words'][wn]
-            local represent = self.lookupTable:forward(word)[1]
+            local represent = self.lookupTable:forward(word)[1]:clone()
+
             local index = self.lookupTable:queryIndex(word)
             local tagId = self.tagIndex[currentSent['tags'][wn]]
             table.insert(represents,represent)
+            --print(represents[1])
             table.insert(indexes, index)
             table.insert(tagsId, tagId)
         end
@@ -77,9 +79,9 @@ end
 function RnnPosTagger:tag(sentence)
     local currentSent = sentence
     local represents, indexes, tagsId = {}, {}, {}
-        for wn = 1,#currentSent.words do
+        for wn = 1, #currentSent.words do
             local word = currentSent['words'][wn]
-            local represent = self.lookupTable:forward(word)[1]
+            local represent = self.lookupTable:forward(word)[1]:clone()
             local index = self.lookupTable:queryIndex(word)
             table.insert(represents,represent)
             table.insert(indexes, index)
