@@ -10,7 +10,7 @@ local DumbPosTagger, parent = torch.class('nn.DumbPosTagger', 'nn.PosTagger')
 function DumbPosTagger:__init()
 end
 
-function DumbPosTagger:train(tagged_sentences)
+function DumbPosTagger:train(tagged_sentences, learningRate, iterations)
   -- do nothing
 end
 

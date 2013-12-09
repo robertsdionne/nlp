@@ -38,7 +38,8 @@ local function convertSetToList(set)
 end
 
 -- Function to load a data file into a table of nn.TaggedSentences.
-function DataLoader:readTaggedSentences(data_filename)
+function DataLoader:readTaggedSentences(data_filename, sentence_count)
+  sentence_count = sentence_count or -1
   -- Open the data file.
   local data_file = torch.DiskFile(data_filename)
   local tagged_sentences, sentence_words, sentence_tags, word_set, tag_set = {}, {}, {}, {}, {}
@@ -70,7 +71,7 @@ function DataLoader:readTaggedSentences(data_filename)
       j = 1
       i = i + 1
     end
-  until not success
+  until (i ~= -1 and i > sentence_count) or not success
 
   -- Close the data file.
   data_file:close()

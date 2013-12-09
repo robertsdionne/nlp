@@ -10,9 +10,9 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 -- init all parameters
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
-	self.paraOut = {weight = torch.randn(numTags, leftInputSize), bias = torch.randn(numTags)}
-	self.paraCore = {weight = torch.randn(leftInputSize,rightInputSize + leftInputSize),
-			bias = torch.randn(leftInputSize)};
+	self.paraOut = {weight = torch.rand(numTags, leftInputSize), bias = torch.rand(numTags)}
+	self.paraCore = {weight = torch.rand(leftInputSize,rightInputSize + leftInputSize),
+			bias = torch.rand(leftInputSize)};
 	--print("the initial core weight:\n");
 	--print(self.paraCore.weight);
 	self.lookUpTable = lookUpTable;
@@ -39,6 +39,8 @@ function CrossRNN:buildNet(sentenceTuple)
 	self.netWork = nn.Sequential();
 	for i = 1, self.netWorkDepth do
 		currentWord = sentenceTuple.represents[i];
+		--print("currentWord")
+		--print(currentWord)
 		currentIndex = sentenceTuple.index[i];
 		currentTagId = sentenceTuple.tagsId[i];
 		self.netWork:add(self:initializeCross(currentWord,currentIndex,currentTagId));
@@ -96,18 +98,18 @@ function CrossRNN:updateParameters(learningRates)
 	local gradOutWeightSum = torch.rand(gradOutWeightLength):fill(0);
 	local gradCoreBiasSum = torch.rand(gradCoreBiasLength):fill(0);
 	local gradOutBiasSum = torch.rand(gradOutBiasLength):fill(0);
-
+	--print(gradOutWeightSum)
 	for i = 1, self.netWorkDepth do
 		--call Roberts function to update word representation.
 		--this is actually updating the InParas(words)
 		wordIndex = self.netWork:get(i).inModule.inputIndex;
 		wordGradient = torch.Tensor(1, self.gradients[i][1][1]:size(1)):copy(self.gradients[i][1][1]);
-		self.lookUpTable:backwardUpdate(wordIndex, wordGradient, learningRates);
+		--self.lookUpTable:backwardUpdate(wordIndex, wordGradient, 0.001);
 
     --print("gradOutWeightSum  "..i)
     --print(gradOutWeightSum)
     --print(self.gradients[i][3][1])
-    --b = io.read()
+    --io.read()
 		--get the sum of all the gradients
 		gradCoreWeightSum = gradCoreWeightSum + self.gradients[i][2][1];
 		gradOutWeightSum = gradOutWeightSum + self.gradients[i][3][1];
@@ -117,6 +119,7 @@ function CrossRNN:updateParameters(learningRates)
     print(torch.norm(gradOutWeightSum))
     --print("gradOutWeightSum")
     --print(gradOutWeightSum)
+    --io.read()
     --b = io.read()
 
 	--update the weight matrix parameters
@@ -128,5 +131,5 @@ function CrossRNN:updateParameters(learningRates)
 
 	--update the initialNode
 	initialNodeGrad = torch.Tensor(1,self.gradients[1][1][1]:size(1)):copy(self.initialNodeGrad);
-	self.lookUpTable:backwardUpdate('PADDING', initialNodeGrad, learningRates);
+	--self.lookUpTable:backwardUpdate('PADDING', initialNodeGrad, learningRates);
 end
