@@ -71,7 +71,7 @@ function DataLoader:readTaggedSentences(data_filename, sentence_count)
       j = 1
       i = i + 1
     end
-  until (i ~= -1 and i > sentence_count) or not success
+  until (sentence_count ~= -1 and i > sentence_count) or not success
 
   -- Close the data file.
   data_file:close()

@@ -20,7 +20,7 @@ local function main(arguments)
   cmd:text()
   cmd:text('Options')
   cmd:option('-iterations', 100, 'the number of training iterations')
-  cmd:option('-learning_rate', 1, 'the learning rate')
+  cmd:option('-rate_of_learning', 1, 'the learning rate') -- can't use 'learning_rate' due to a bug
   cmd:option('-reload', false, 'whether to reload trainig set')
   cmd:option('-resume', false, 'whether to resume the tranning, if yes, save the PosTagger and lookupTable')
   cmd:option('-training_sentences', -1, 'the number of training sentences')
@@ -30,7 +30,7 @@ local function main(arguments)
   parameters = cmd:parse(arguments)
   print(parameters)
   local iterations = parameters['iterations']
-  local learning_rate = parameters['learning_rate']
+  local learning_rate = parameters['rate_of_learning']
   local reload = parameters['reload']
   local resume = parameters['resume']
   local training_sentences = parameters['training_sentences']

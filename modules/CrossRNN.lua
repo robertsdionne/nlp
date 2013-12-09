@@ -116,7 +116,7 @@ function CrossRNN:updateParameters(learningRates)
 		gradCoreBiasSum = gradCoreBiasSum + self.gradients[i][2][2];
 		gradOutBiasSum = gradOutBiasSum + self.gradients[i][3][2];
 	end
-    print(torch.norm(gradOutWeightSum))
+    --print(torch.norm(gradOutWeightSum))
     --print("gradOutWeightSum")
     --print(gradOutWeightSum)
     --io.read()
