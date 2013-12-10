@@ -31,14 +31,14 @@ end
 
 function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
   learningRate = learningRate or 1
-  iterations = iterations or 100
+  iterations = iterations or 10
   -- iterations over corps
   for itr = 1,iterations do
       print("Begain the iteration: ".. itr)
     -- iterations over sentence
     print("The number of sentences:");
     print(#tagged_sentences);
-    for i = 1, 1 do--#tagged_sentences do       --
+    for i = 1, 1000 do--#tagged_sentences do       --
         if i % 100 == 0 then
             print("Finished "..i.." sentences.");
         end
@@ -61,6 +61,7 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         currentSent.tagsId = tagsId
         --print(currentSent) -- @WHY output something strange
         local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
+        --local initRepresent = torch.rand(1,100);
         -- forward the rnn
         self.rnn:forward(currentSent, initRepresent)
         -- backward the rnn

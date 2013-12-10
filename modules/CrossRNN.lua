@@ -10,7 +10,11 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 -- init all parameters
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
-	self.paraOut = {weight = torch.rand(numTags, leftInputSize), bias = torch.rand(numTags)}
+	self.hidenSize = 300;
+	self.paraOut = {weight = torch.rand(self.hidenSize, leftInputSize),
+			bias = torch.rand(self.hidenSize),
+			weight2 = torch.rand(numTags, self.hidenSize),
+			bias2 = torch.rand(numTags)}
 	self.paraCore = {weight = torch.rand(leftInputSize,rightInputSize + leftInputSize),
 			bias = torch.rand(leftInputSize)};
 	--print("the initial core weight:\n");
@@ -26,7 +30,8 @@ end
 function CrossRNN:initializeCross(word, index, tagId)
 	inModule = nn.CrossWord(word, index);
 	coreModule = nn.CrossCore(self.paraCore.weight, self.paraCore.bias);
-	outModule = nn.CrossTag(self.paraOut.weight, self.paraOut.bias, tagId);
+	outModule = nn.CrossTag(self.paraOut.weight, self.paraOut.bias, tagId,
+		self.paraOut.weight2, self.paraOut.bias2,self.hidenSize);
 	CrossModule = nn.Cross(coreModule, inModule, outModule);
 	return CrossModule;
 end
@@ -89,22 +94,26 @@ function CrossRNN:updateParameters(learningRates)
 	
 	local gradCoreWeightLength = self.gradients[1][2][1]:size();
 	local gradOutWeightLength = self.gradients[1][3][1]:size();
+	local gradOutWeightLength2 = self.gradients[1][3][3]:size();
 
 	local gradCoreBiasLength = #self.gradients[1][2][2];
 	local gradOutBiasLength = #self.gradients[1][3][2];
+	local gradOutBiasLength2 = #self.gradients[1][3][4];
 
 	local gradInWeightSum = torch.rand(gradInWeightLength):fill(0);
 	local gradCoreWeightSum = torch.rand(gradCoreWeightLength):fill(0);
 	local gradOutWeightSum = torch.rand(gradOutWeightLength):fill(0);
+	local gradOutWeightSum2 = torch.rand(gradOutWeightLength2):fill(0);
 	local gradCoreBiasSum = torch.rand(gradCoreBiasLength):fill(0);
 	local gradOutBiasSum = torch.rand(gradOutBiasLength):fill(0);
+	local gradOutBiasSum2 = torch.rand(gradOutBiasLength2):fill(0);
 	--print(gradOutWeightSum)
 	for i = 1, self.netWorkDepth do
 		--call Roberts function to update word representation.
 		--this is actually updating the InParas(words)
 		wordIndex = self.netWork:get(i).inModule.inputIndex;
-		wordGradient = torch.Tensor(1, self.gradients[i][1][1]:size(1)):copy(self.gradients[i][1][1]);
-		--self.lookUpTable:backwardUpdate(wordIndex, wordGradient, 0.001);
+		wordGradient = torch.rand(1, self.gradients[i][1][1]:size(1)):copy(self.gradients[i][1][1]);
+		--self.lookUpTable:backwardUpdate(wordIndex, wordGradient, 1);
 
     --print("gradOutWeightSum  "..i)
     --print(gradOutWeightSum)
@@ -113,8 +122,10 @@ function CrossRNN:updateParameters(learningRates)
 		--get the sum of all the gradients
 		gradCoreWeightSum = gradCoreWeightSum + self.gradients[i][2][1];
 		gradOutWeightSum = gradOutWeightSum + self.gradients[i][3][1];
+		gradOutWeightSum2 = gradOutWeightSum2 + self.gradients[i][3][3];
 		gradCoreBiasSum = gradCoreBiasSum + self.gradients[i][2][2];
 		gradOutBiasSum = gradOutBiasSum + self.gradients[i][3][2];
+		gradOutBiasSum2 = gradOutBiasSum2 + self.gradients[i][3][4];
 	end
     --print("gradOutWeightSum")
     --print(gradOutWeightSum)
@@ -124,11 +135,13 @@ function CrossRNN:updateParameters(learningRates)
 	--update the weight matrix parameters
 	self.paraOut.weight = self.paraOut.weight - gradOutWeightSum * learningRates;
 	self.paraOut.bias = self.paraOut.bias - gradOutBiasSum * learningRates;
+	self.paraOut.weight2 = self.paraOut.weight2 - gradOutWeightSum2 * learningRates;
+	self.paraOut.bias2 = self.paraOut.bias2 - gradOutBiasSum2 * learningRates;
 
 	self.paraCore.weight = self.paraCore.weight - gradCoreWeightSum * learningRates;
 	self.paraCore.bias = self.paraCore.bias - gradCoreBiasSum * learningRates;
 
 	--update the initialNode
-	initialNodeGrad = torch.Tensor(1,self.gradients[1][1][1]:size(1)):copy(self.initialNodeGrad);
-	--self.lookUpTable:backwardUpdate('PADDING', initialNodeGrad, learningRates);
+	initialNodeGrad = torch.rand(1,self.gradients[1][1][1]:size(1)):copy(self.initialNodeGrad);
+	--self.lookUpTable:backwardUpdate('PADDING', initialNodeGrad, 1);
 end

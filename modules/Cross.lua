@@ -27,9 +27,11 @@ function Cross:updateOutput(input)
    -- transfer output to outModule
    --@TODO split
    self.outModule:forward(self.output)
-   --print(inOutput)
-   --io.read()
-   --self.outModule:forward(inOutput)
+   -- print(input)
+   -- print(inOutput)
+   -- print(self.coreModule.weight)
+   -- io.read()
+   -- self.outModule:forward(inOutput)
    --print("The output of Cross`")
    --print(self.output)
    -- return the output of coreModule
@@ -48,7 +50,7 @@ function Cross:updateGradInput(input, gradOutput)
    local coreGradInput = self.coreModule:backward(self.concatedInput, sumedGradOutput)
    -- separate the gradInput two parts: one for inModule one for real gradInput
    local inGradOutput = coreGradInput:sub(input:size()[1]+1,input:size()[1]+inOutput:size()[1])
-   --local inGradOutput = outGradInput
+   -- local inGradOutput = outGradInput
    self.gradInput = coreGradInput:sub(1,input:size()[1])
    -- pass the gradInput to inModule and get the gradWeight from inModule
    self.gradIn = self.inModule:getGradWeight(inGradOutput)

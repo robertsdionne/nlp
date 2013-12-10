@@ -13,7 +13,7 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
   local num_unknown_words = 1e-8
   local num_unknown_words_correct = 1e-8
   local num_decoding_inversions = 0
-  for i = 1,  1 do    --#tagged_sentences
+  for i = 1,  1000 do    --#tagged_sentences
     if i % 100 ==0 then
       print("finished "..i.."sentences / "..#tagged_sentences);
     end
@@ -25,7 +25,7 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
       local word = words[positon]
       local gold_tag = gold_tags[position]
       local guessed_tag = guessed_tags[position]
-      print("Gold: "..gold_tag.."   Guess: "..guessed_tag);
+      -- print("Gold: "..gold_tag.."   Guess: "..guessed_tag);
       if guessed_tag == gold_tag then
         num_tags_correct = num_tags_correct + 1.0
       end
@@ -37,6 +37,7 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
         num_unknown_words = num_unknown_words + 1.0
       end
     end
+    --io.read();
     -- score_of_gold_tagging = pos_tagger:scoreTagging(tagged_sentence)
     -- score_of_guessed_tagging = pos_tagger:scoreTagging(nn.TaggedSentence(words, guessed_tags))
     -- if score_of_gold_tagging > score_of_guessed_tagging then
