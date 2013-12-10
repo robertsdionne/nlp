@@ -1,4 +1,5 @@
 require 'torch'
+require 'math'
 require 'nn'
 dofile 'CrossRNN.lua'
 
@@ -66,7 +67,7 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         -- backward the rnn
         self.rnn:backward(currentSent, initRepresent)
         -- update the parameters
-        self.rnn:updateParameters(learningRate)
+        self.rnn:updateParameters(learningRate / math.sqrt(1 + iterations))
         --error('Implementing!')
     end
   end
