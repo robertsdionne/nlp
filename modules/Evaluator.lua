@@ -22,7 +22,7 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
     local gold_tags = tagged_sentence.tags
     local guessed_tags = pos_tagger:tag(tagged_sentence)
     for position = 1, #words do
-      local word = words[positon]
+      local word = words[position]
       local gold_tag = gold_tags[position]
       local guessed_tag = guessed_tags[position]
       -- print("Gold: "..gold_tag.."   Guess: "..guessed_tag);
@@ -31,6 +31,7 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
       end
       num_tags = num_tags + 1.0
       if not training_vocabulary[word] then
+        -- print(word .. ' ' .. guessed_tag .. ' ' .. gold_tag)
         if guessed_tag == gold_tag then
           num_unknown_words_correct = num_unknown_words_correct + 1.0
         end
