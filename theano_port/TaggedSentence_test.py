@@ -1,5 +1,5 @@
-import unittest
 from theano_port.TaggedSentence import TaggedSentence
+import unittest
 
 class TaggedSentenceTest(unittest.TestCase):
 

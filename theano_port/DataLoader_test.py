@@ -1,5 +1,5 @@
-import unittest
 from theano_port.DataLoader import DataLoader
+import unittest
 
 class TestDataLoader(unittest.TestCase):
 
