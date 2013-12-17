@@ -39,5 +39,15 @@ class LoadedLookupTableTest(unittest.TestCase):
     self.assertAlmostEqual(-1.76695, embedding129999[4])
     self.assertAlmostEqual(-1.4733, embedding129999[49])
 
+  def test_backward(self):
+    zero_lookup_table = LoadedLookupTable(numpy.zeros((5, 5)), {'word': 1}, {1: 'word'})
+    zero_embedding = zero_lookup_table.forward('word')
+    self.assertTrue(numpy.allclose(numpy.zeros((5, 5)), zero_embedding))
+    zero_lookup_table.backward_update('word', numpy.ones((5,)), 0.1)
+    expected = numpy.ones((5,))
+    expected.fill(-0.1)
+    zero_embedding = zero_lookup_table.forward('word')
+    self.assertTrue(numpy.allclose(expected, zero_embedding))
+
 if '__main__' == __name__:
   unittest.main()

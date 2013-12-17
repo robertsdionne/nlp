@@ -30,8 +30,11 @@ class LoadedLookupTable(object):
     self.word_to_index = word_to_index
     self.index_to_word = index_to_word
 
+  def backward_update(self, item, gradient, learning_rate):
+    self.embeddings[self.item_to_index(item), 0:] += gradient * -learning_rate
+
   def forward(self, item):
-    return self.embeddings[self.item_to_index(item), 0:]
+    return self.embeddings[self.item_to_index(item), 0:].copy()
 
   def item_to_index(self, item):
     if str == type(item):
@@ -40,7 +43,7 @@ class LoadedLookupTable(object):
       return item
 
   def query_index(self, word):
-    return self.word_to_index.get(word, self.word_to_index['UNKNOWN'])
+    return self.word_to_index.get(word) or self.word_to_index['UNKNOWN']
 
   def query_word(self, index):
     return self.index_to_word.get(index, 'UNKNOWN')
