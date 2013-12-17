@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import argparse
 from DataLoader import DataLoader
+from DumbPosTagger import DumbPosTagger
+from Evaluator import Evaluator
 
 def main():
   cmd = argparse.ArgumentParser(
@@ -31,17 +33,35 @@ def main():
       DataLoader.TRAIN_FILENAME, arguments.training_sentences)
   print('done.')
   print('Loading in-domain dev sentences...')
-  dev_in_tagged_sentences = data_loader.read_tagged_sentences(
+  dev_in_tagged_sentences, _, _ = data_loader.read_tagged_sentences(
       DataLoader.DEV_IN_DOMAIN_FILENAME, arguments.test_sentences)
   print('done.')
   print('Loading out-of-domain dev sentences...')
-  dev_out_tagged_sentences = data_loader.read_tagged_sentences(
+  dev_out_tagged_sentences, _, _ = data_loader.read_tagged_sentences(
       DataLoader.DEV_OUT_DOMAIN_FILENAME, arguments.test_sentences)
   print('done.')
   print('Loading out-of-domain test sentences...')
-  test_sentences = data_loader.read_tagged_sentences(
+  test_sentences, _, _ = data_loader.read_tagged_sentences(
       DataLoader.TEST_FILENAME, arguments.test_sentences)
   print('done.')
+
+  pos_tagger = DumbPosTagger()
+  pos_tagger.train(train_tagged_sentences, arguments.learning_rate, arguments.iterations)
+
+  evaluator = Evaluator()
+  print('Evaluating on training data:')
+  evaluator.evaluate_tagger(
+      pos_tagger, train_tagged_sentences, training_vocabulary, arguments.verbose)
+  print('Evaluating on in-domain data:')
+  evaluator.evaluate_tagger(
+      pos_tagger, dev_in_tagged_sentences, training_vocabulary, arguments.verbose)
+  print('Evaluating on out-of-domain data:')
+  evaluator.evaluate_tagger(
+      pos_tagger, dev_out_tagged_sentences, training_vocabulary, arguments.verbose)
+  if arguments.test:
+    print('Evaluating on test data:')
+    evaluator.evaluate_tagger(
+        pos_tagger, test_sentences, training_vocabulary, arguments.verbose)
 
 if __name__ == '__main__':
   main()

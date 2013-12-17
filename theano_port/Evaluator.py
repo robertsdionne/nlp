@@ -10,7 +10,7 @@ class Evaluator(object):
     i = 0
     for tagged_sentence in tagged_sentences:
       if i % 100 == 0:
-        print('finished ' + i + ' sentences / ' + len(tagged_sentences))
+        print('finished ' + str(i) + ' sentences / ' + str(len(tagged_sentences)))
       i += 1
       words = tagged_sentence.words
       gold_tags = tagged_sentence.tags
@@ -26,5 +26,5 @@ class Evaluator(object):
           if guessed_tag == gold_tag:
             num_unknown_words_correct += 1.0
           num_unknown_words += 1.0
-    print('  Tag Accuracy: ' + (num_tags_correct / num_tags))
-    print('  (Unknown Accuracy: ' + (num_unknown_words_correct / num_unknown_words) + ')')
+    print('  Tag Accuracy: ' + str(num_tags_correct / num_tags))
+    print('  (Unknown Accuracy: ' + str(num_unknown_words_correct / num_unknown_words) + ')')
