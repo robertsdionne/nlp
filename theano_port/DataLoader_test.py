@@ -22,5 +22,5 @@ class TestDataLoader(unittest.TestCase):
     self.assertEqual('0', self.data_loader.tokenize_numbers('50,000'))
     self.assertEqual('0th', self.data_loader.tokenize_numbers('-50000.000,0000th'))
 
-if __name__ == '__main__':
+if '__main__' == __name__:
   unittest.main()

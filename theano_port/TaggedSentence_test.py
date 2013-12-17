@@ -14,5 +14,5 @@ class TaggedSentenceTest(unittest.TestCase):
     tags = ['TAG1']
     self.assertRaises(ValueError, TaggedSentence, words, tags)
 
-if __name__ == '__main__':
+if '__main__' == __name__:
   unittest.main()

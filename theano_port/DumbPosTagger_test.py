@@ -22,10 +22,10 @@ class DumbPosTaggerTest(unittest.TestCase):
   def test_tag(self):
     tags = self.dumb_pos_tagger.tag(['a', 'b', 'c'])
     self.assertEqual(3, len(tags))
-    self.assertEqual(['NN', 'NN', 'NN'], tags)
+    self.assertSequenceEqual(['NN', 'NN', 'NN'], tags)
 
   def test_score_tagging(self):
     self.assertEqual(float('-inf'), self.dumb_pos_tagger.score_tagging(TaggedSentence([], [])))
 
-if __name__ == '__main__':
+if '__main__' == __name__:
   unittest.main()

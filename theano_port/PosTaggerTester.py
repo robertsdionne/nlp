@@ -63,5 +63,5 @@ def main():
     evaluator.evaluate_tagger(
         pos_tagger, test_sentences, training_vocabulary, arguments.verbose)
 
-if __name__ == '__main__':
+if '__main__' == __name__:
   main()
