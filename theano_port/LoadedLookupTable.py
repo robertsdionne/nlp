@@ -27,8 +27,12 @@ class LoadedLookupTable(object):
 
   def __init__(self, embeddings, word_to_index, index_to_word):
     self.embeddings = embeddings
+    self.gradient = numpy.zeros_like(self.embeddings)
     self.word_to_index = word_to_index
     self.index_to_word = index_to_word
+
+  def backward(self, item, gradient):
+    self.gradient[self.item_to_index(item), 0:] += gradient
 
   def backward_update(self, item, gradient, learning_rate):
     self.embeddings[self.item_to_index(item), 0:] += gradient * -learning_rate
@@ -47,3 +51,6 @@ class LoadedLookupTable(object):
 
   def query_word(self, index):
     return self.index_to_word.get(index, 'UNKNOWN')
+
+  def update(self, learning_rate):
+    self.embeddings += self.gradient * -learning_rate
