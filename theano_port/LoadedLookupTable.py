@@ -30,8 +30,17 @@ class LoadedLookupTable(object):
     self.word_to_index = word_to_index
     self.index_to_word = index_to_word
 
+  def forward(self, item):
+    return self.embeddings[self.item_to_index(item), 0:]
+
+  def item_to_index(self, item):
+    if str == type(item):
+      return self.query_index(item)
+    elif int == type(item):
+      return item
+
   def query_index(self, word):
-    return self.word_to_index[word] or self.word_to_index['UNKNOWN']
+    return self.word_to_index.get(word, self.word_to_index['UNKNOWN'])
 
   def query_word(self, index):
-    return self.index_to_word[index] or 'UNKNOWN'
+    return self.index_to_word.get(index, 'UNKNOWN')
