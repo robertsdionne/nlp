@@ -1,4 +1,4 @@
-from theano_port.TaggedSentence import TaggedSentence
+from TaggedSentence import TaggedSentence
 import unittest
 
 class TaggedSentenceTest(unittest.TestCase):

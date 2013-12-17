@@ -1,4 +1,4 @@
-from theano_port.DataLoader import DataLoader
+from DataLoader import DataLoader
 import unittest
 
 class TestDataLoader(unittest.TestCase):

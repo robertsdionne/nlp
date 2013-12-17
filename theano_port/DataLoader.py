@@ -1,9 +1,12 @@
 import re
-from theano_port.TaggedSentence import TaggedSentence
+from TaggedSentence import TaggedSentence
 
 class DataLoader(object):
 
-  DEV_IN_DOMAIN_FILENAME = 'data/en-wsj-dev.pos'
+  DEV_IN_DOMAIN_FILENAME = '../data/en-wsj-dev.pos'
+  DEV_OUT_DOMAIN_FILENAME = '../data/en-web-weblogs-dev.pos'
+  TEST_FILENAME = '../data/en-web-test.tagged'
+  TRAIN_FILENAME = '../data/en-wsj-train.pos'
 
   def read_tagged_sentences(self, filename, sentence_count = -1):
     data_file = open(filename)

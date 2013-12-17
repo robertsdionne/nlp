@@ -1,4 +1,4 @@
-from theano_port.PosTagger import PosTagger
+from PosTagger import PosTagger
 
 class DumbPosTagger(PosTagger):
   

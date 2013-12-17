@@ -1,4 +1,5 @@
 import argparse
+from DataLoader import DataLoader
 
 def main():
   cmd = argparse.ArgumentParser(
@@ -21,6 +22,25 @@ def main():
       default = False, help = 'whether to print verbosely')
   arguments = cmd.parse_args()
   print(arguments)
+  # lookup_table = LoadedLookupTable.load()
+  data_loader = DataLoader()
+
+  print('Loading training sentences...')
+  train_tagged_sentences, training_vocabulary, tags = data_loader.read_tagged_sentences(
+      DataLoader.TRAIN_FILENAME, arguments.training_sentences)
+  print('done.')
+  print('Loading in-domain dev sentences...')
+  dev_in_tagged_sentences = data_loader.read_tagged_sentences(
+      DataLoader.DEV_IN_DOMAIN_FILENAME, arguments.test_sentences)
+  print('done.')
+  print('Loading out-of-domain dev sentences...')
+  dev_out_tagged_sentences = data_loader.read_tagged_sentences(
+      DataLoader.DEV_OUT_DOMAIN_FILENAME, arguments.test_sentences)
+  print('done.')
+  print('Loading out-of-domain test sentences...')
+  test_sentences = data_loader.read_tagged_sentences(
+      DataLoader.TEST_FILENAME, arguments.test_sentences)
+  print('done.')
 
 if __name__ == '__main__':
   main()

@@ -1,5 +1,5 @@
-from theano_port.DumbPosTagger import DumbPosTagger
-from theano_port.TaggedSentence import TaggedSentence
+from DumbPosTagger import DumbPosTagger
+from TaggedSentence import TaggedSentence
 import unittest
 
 class DumbPosTaggerTest(unittest.TestCase):
@@ -26,3 +26,6 @@ class DumbPosTaggerTest(unittest.TestCase):
 
   def test_score_tagging(self):
     self.assertEqual(float('-inf'), self.dumb_pos_tagger.score_tagging(TaggedSentence([], [])))
+
+if __name__ == '__main__':
+  unittest.main()
