@@ -29,19 +29,19 @@ def main():
   data_loader = DataLoader()
 
   print('Loading training sentences...')
-  train_tagged_sentences, training_vocabulary, tags = data_loader.read_tagged_sentences(
+  train_tagged_sentences, training_vocabulary, tags, _, _ = data_loader.read_tagged_sentences(
       DataLoader.TRAIN_FILENAME, arguments.training_sentences)
   print('done.')
   print('Loading in-domain dev sentences...')
-  dev_in_tagged_sentences, _, _ = data_loader.read_tagged_sentences(
+  dev_in_tagged_sentences, _, _, _, _ = data_loader.read_tagged_sentences(
       DataLoader.DEV_IN_DOMAIN_FILENAME, arguments.test_sentences)
   print('done.')
   print('Loading out-of-domain dev sentences...')
-  dev_out_tagged_sentences, _, _ = data_loader.read_tagged_sentences(
-      DataLoader.DEV_OUT_DOMAIN_FILENAME, arguments.test_sentences)
+  dev_out_tagged_sentences, _, _, _, _ = data_loader.read_tagged_sentences(
+      DataLoader.DEV_OUT_OF_DOMAIN_FILENAME, arguments.test_sentences)
   print('done.')
   print('Loading out-of-domain test sentences...')
-  test_sentences, _, _ = data_loader.read_tagged_sentences(
+  test_sentences, _, _, _, _ = data_loader.read_tagged_sentences(
       DataLoader.TEST_FILENAME, arguments.test_sentences)
   print('done.')
 

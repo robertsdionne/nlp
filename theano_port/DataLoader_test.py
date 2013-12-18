@@ -6,8 +6,8 @@ class TestDataLoader(unittest.TestCase):
   def setUp(self):
     self.data_loader = DataLoader()
 
-  def test_read_tagged_sentences(self):
-    tagged_sentences, word_set, tags = self.data_loader.read_tagged_sentences(
+  def test_read_tagged_sentences_dev_in(self):
+    tagged_sentences, word_set, tags, maximum, average = self.data_loader.read_tagged_sentences(
         DataLoader.DEV_IN_DOMAIN_FILENAME)
     self.assertEqual('influential_JJ members_NNS of_IN the_DT house_NNP ways_NNP and_CC ' +
         'means_NNP committee_NNP introduced_VBD legislation_NN that_WDT would_MD restrict_VB ' +
@@ -15,6 +15,26 @@ class TestDataLoader(unittest.TestCase):
         'can_MD raise_VB capital_NN ,_, creating_VBG another_DT potential_JJ obstacle_NN to_IN ' +
         'the_DT government_NN \'s_POS sale_NN of_IN sick_JJ thrifts_NNS ._.',
         str(tagged_sentences[0]))
+    self.assertEqual(124, maximum)
+    self.assertEqual(24, average)
+
+  def test_read_tagged_sentences_dev_out(self):
+    tagged_sentences, word_set, tags, maximum, average = self.data_loader.read_tagged_sentences(
+        DataLoader.DEV_OUT_OF_DOMAIN_FILENAME)
+    self.assertEqual(97, maximum)
+    self.assertEqual(23, average)
+
+  def test_read_tagged_sentences_test(self):
+    tagged_sentences, word_set, tags, maximum, average = self.data_loader.read_tagged_sentences(
+        DataLoader.TEST_FILENAME)
+    self.assertEqual(95, maximum)
+    self.assertEqual(20, average)
+
+  def test_read_tagged_sentences_train(self):
+    tagged_sentences, word_set, tags, maximum, average = self.data_loader.read_tagged_sentences(
+        DataLoader.TRAIN_FILENAME)
+    self.assertEqual(143, maximum)
+    self.assertEqual(24, average)
 
   def test_tokenize_numbers(self):
     self.assertEqual('0/0/0', self.data_loader.tokenize_numbers(
