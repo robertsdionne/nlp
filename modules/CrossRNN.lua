@@ -13,9 +13,14 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 -- init all parameters
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
-	self.paraOut = {weight = torch.rand(numTags, leftInputSize), bias = torch.rand(numTags)}
-	self.paraCore = {weight = torch.rand(leftInputSize,rightInputSize + leftInputSize),
-			bias = torch.rand(leftInputSize)};
+	self.paraOut = {
+		weight = nn.Weights.normalizedInitialization(numTags, leftInputSize),
+		bias = nn.Weights.zeros(numTags)
+	}
+	self.paraCore = {
+		weight = nn.Weights.normalizedInitialization(leftInputSize, rightInputSize + leftInputSize),
+		bias = nn.Weights.zeros(leftInputSize)
+	};
 	--print("the initial core weight:\n");
 	--print(self.paraCore.weight);
 	self.lookUpTable = lookUpTable;
@@ -46,7 +51,7 @@ function CrossRNN:buildNet(sentenceTuple)
 		--print(currentWord)
 		currentIndex = sentenceTuple.index[i];
 		currentTagId = sentenceTuple.tagsId[i];
-		self.netWork:add(self:initializeCross(currentWord,currentIndex,currentTagId));
+		self.netWork:add(self:initializeCross(currentWord, currentIndex, currentTagId));
 	end
 end
 
