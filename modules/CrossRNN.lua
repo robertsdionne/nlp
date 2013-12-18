@@ -1,8 +1,11 @@
 require "nn"
+
 dofile "CrossWord.lua"
 dofile "CrossTag.lua"
 dofile "CrossCore.lua"
 dofile "Cross.lua"
+dofile "Weights.lua"
+
 local CrossRNN, parent = torch.class('nn.CrossRNN', 'nn.Module')
 
 --build the RNN
@@ -10,9 +13,14 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 -- init all parameters
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
-	self.paraOut = {weight = torch.rand(numTags, leftInputSize), bias = torch.rand(numTags)}
-	self.paraCore = {weight = torch.rand(leftInputSize,rightInputSize + leftInputSize),
-			bias = torch.rand(leftInputSize)};
+	self.paraOut = {
+		weight = nn.Weights.normalizedInitializationSigmoid(numTags, leftInputSize),
+		bias = nn.Weights.zeros(numTags)
+	}
+	self.paraCore = {
+		weight = nn.Weights.normalizedInitializationTanh(leftInputSize, rightInputSize + leftInputSize),
+		bias = nn.Weights.zeros(leftInputSize)
+	};
 	--print("the initial core weight:\n");
 	--print(self.paraCore.weight);
 	self.lookUpTable = lookUpTable;
@@ -44,7 +52,7 @@ function CrossRNN:buildNet(sentenceTuple)
 		--print(currentWord)
 		currentIndex = sentenceTuple.index[i];
 		currentTagId = sentenceTuple.tagsId[i];
-		self.netWork:add(self:initializeCross(currentWord,currentIndex,currentTagId));
+		self.netWork:add(self:initializeCross(currentWord, currentIndex, currentTagId));
 	end
 end
 
@@ -120,6 +128,7 @@ function CrossRNN:updateOutParameters(learningRates)
 
 	local gradOutWeightSum = torch.rand(gradOutWeightLength):fill(0);
 	local gradOutBiasSum = torch.rand(gradOutBiasLength):fill(0);
+
 
 	if self.adaLearningRates.gradOutWeightLR == nil then
 		self.adaLearningRates.gradOutWeightLR = torch.rand(gradOutWeightLength):fill(0);

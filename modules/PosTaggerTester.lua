@@ -23,6 +23,7 @@ local function main(arguments)
   cmd:option('-rate_of_learning', 1, 'the learning rate') -- can't use 'learning_rate' due to a bug
   cmd:option('-reload', false, 'whether to reload trainig set')
   cmd:option('-resume', false, 'whether to resume the tranning, if yes, save the PosTagger and lookupTable')
+  cmd:option('-seed', -1, 'supply a seed for the random number generator')
   cmd:option('-training_sentences', -1, 'the number of training sentences')
   cmd:option('-test', false, 'whether to evaluate on the test data')
   cmd:option('-test_sentences', -1, 'the number of test sentences')
@@ -33,10 +34,17 @@ local function main(arguments)
   local learning_rate = parameters['rate_of_learning']
   local reload = parameters['reload']
   local resume = parameters['resume']
+  local seed = parameters['seed']
   local training_sentences = parameters['training_sentences']
   local test = parameters['test']
   local test_sentences = parameters['test_sentences']
   local verbose = parameters['verbose']
+
+  -- seed the random number generator
+  if -1 ~= seed then
+    torch.manualSeed(seed)
+  end
+
   -- new the lookup table
   local lookupTable = nn.LoadedLookupTable.load()
   -- new the data loader
