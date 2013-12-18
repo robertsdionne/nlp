@@ -3,8 +3,12 @@ require 'nn'
 
 local Weights = torch.class('nn.Weights')
 
-function Weights.normalizedInitialization(fan_out, fan_in)
+function Weights.normalizedInitializationTanh(fan_out, fan_in)
   return (torch.rand(fan_out, fan_in) * 2.0 - 1.0) * math.sqrt(6.0 / (fan_in + fan_out))
+end
+
+function Weights.normalizedInitializationSigmoid(fan_out, fan_in)
+  return Weights.normalizedInitializationTanh(fan_out, fan_in) * 4.0
 end
 
 function Weights.zeros(rows, columns)

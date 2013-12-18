@@ -14,11 +14,11 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
 	self.paraOut = {
-		weight = nn.Weights.normalizedInitialization(numTags, leftInputSize),
+		weight = nn.Weights.normalizedInitializationSigmoid(numTags, leftInputSize),
 		bias = nn.Weights.zeros(numTags)
 	}
 	self.paraCore = {
-		weight = nn.Weights.normalizedInitialization(leftInputSize, rightInputSize + leftInputSize),
+		weight = nn.Weights.normalizedInitializationTanh(leftInputSize, rightInputSize + leftInputSize),
 		bias = nn.Weights.zeros(leftInputSize)
 	};
 	--print("the initial core weight:\n");
