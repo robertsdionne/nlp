@@ -17,6 +17,7 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 	--print(self.paraCore.weight);
 	self.lookUpTable = lookUpTable;
 	self.gradients = {};	-- grads from each cross module
+	self.adaLearningRates = {};	-- grads from each cross module
 	--self.initialNodeGrad		--The gradient of the initialNode (the returned valud of self.netWork:backward() )
 	--self.netWork	--stores the network
 	--self.netWorkDepth		--stores the layer number of the network
@@ -83,53 +84,86 @@ function CrossRNN:backward(sentenceTuple, initialNode)
 	--return gradients;
 end
 
-function CrossRNN:updateParameters(learningRates)
-	--update the parameters
-	local gradInWeightLength = self.gradients[1][1][1]:size();
+function CrossRNN:updateCoreParameters(learningRates)
 	
 	local gradCoreWeightLength = self.gradients[1][2][1]:size();
-	local gradOutWeightLength = self.gradients[1][3][1]:size();
-
 	local gradCoreBiasLength = #self.gradients[1][2][2];
+	local gradCoreWeightSum = torch.rand(gradCoreWeightLength):fill(0);
+	local gradCoreBiasSum = torch.rand(gradCoreBiasLength):fill(0);
+
+	if self.adaLearningRates.gradCoreWeightLR == nil then
+		self.adaLearningRates.gradCoreWeightLR = torch.rand(gradCoreWeightLength):fill(0);
+		self.adaLearningRates.gradCoreBiasLR = torch.rand(gradCoreBiasLength):fill(0);
+	end
+
+
+
+	for i = 1, self.netWorkDepth do
+		--get the sum of all the gradients
+		gradCoreWeightSum = gradCoreWeightSum + self.gradients[i][2][1];
+		gradCoreBiasSum = gradCoreBiasSum + self.gradients[i][2][2];
+		self.adaLearningRates.gradCoreWeightLR = self.adaLearningRates.gradCoreWeightLR + torch.pow(self.gradients[i][2][1],2);
+		self.adaLearningRates.gradCoreBiasLR = self.adaLearningRates.gradCoreBiasLR + torch.pow(self.gradients[i][2][2],2);
+	end
+
+	
+	self.paraCore.weight = self.paraCore.weight - torch.cdiv(gradCoreWeightSum, torch.sqrt(self.adaLearningRates.gradCoreWeightLR))  * learningRates;
+	self.paraCore.bias = self.paraCore.bias - torch.cdiv(gradCoreBiasSum, torch.sqrt(self.adaLearningRates.gradCoreBiasLR))  * learningRates;
+	-- self.paraCore.weight = self.paraCore.weight - gradCoreWeightSum * learningRates;
+	-- self.paraCore.bias = self.paraCore.bias - gradCoreBiasSum * learningRates;
+end
+
+function CrossRNN:updateOutParameters(learningRates)
+	
+	local gradOutWeightLength = self.gradients[1][3][1]:size();
 	local gradOutBiasLength = #self.gradients[1][3][2];
 
-	local gradInWeightSum = torch.rand(gradInWeightLength):fill(0);
-	local gradCoreWeightSum = torch.rand(gradCoreWeightLength):fill(0);
 	local gradOutWeightSum = torch.rand(gradOutWeightLength):fill(0);
-	local gradCoreBiasSum = torch.rand(gradCoreBiasLength):fill(0);
 	local gradOutBiasSum = torch.rand(gradOutBiasLength):fill(0);
-	--print(gradOutWeightSum)
+
+	if self.adaLearningRates.gradOutWeightLR == nil then
+		self.adaLearningRates.gradOutWeightLR = torch.rand(gradOutWeightLength):fill(0);
+		self.adaLearningRates.gradOutBiasLR = torch.rand(gradOutBiasLength):fill(0);
+	end
+
 	for i = 1, self.netWorkDepth do
-		--call Roberts function to update word representation.
-		--this is actually updating the InParas(words)
+		--get the sum of all the gradients
+		gradOutWeightSum = gradOutWeightSum + self.gradients[i][3][1];
+		gradOutBiasSum = gradOutBiasSum + self.gradients[i][3][2];
+
+		self.adaLearningRates.gradOutWeightLR = self.adaLearningRates.gradOutWeightLR + torch.pow(self.gradients[i][3][1],2);
+		self.adaLearningRates.gradOutBiasLR = self.adaLearningRates.gradOutBiasLR + torch.pow(self.gradients[i][3][2],2);
+	end
+
+	self.paraOut.weight = self.paraOut.weight - torch.cdiv(gradOutWeightSum, torch.sqrt(self.adaLearningRates.gradOutWeightLR))  * learningRates;
+	self.paraOut.bias = self.paraOut.bias - torch.cdiv(gradOutBiasSum, torch.sqrt(self.adaLearningRates.gradOutBiasLR))  * learningRates;
+	
+	-- self.paraOut.weight = self.paraOut.weight - gradOutWeightSum * learningRates;
+	-- self.paraOut.bias = self.paraOut.bias - gradOutBiasSum * learningRates;
+end
+
+function CrossRNN:updateInParameters(learningRates)
+	
+	local gradInWeightLength = self.gradients[1][1][1]:size();
+	local gradInWeightSum = torch.rand(gradInWeightLength):fill(0);
+	
+	for i = 1, self.netWorkDepth do
 		wordIndex = self.netWork:get(i).inModule.inputIndex;
 		wordGradient = torch.Tensor(1, self.gradients[i][1][1]:size(1)):copy(self.gradients[i][1][1]);
 		--self.lookUpTable:backwardUpdate(wordIndex, wordGradient, 0.001);
-
-    --print("gradOutWeightSum  "..i)
-    --print(gradOutWeightSum)
-    --print(self.gradients[i][3][1])
-    --io.read()
-		--get the sum of all the gradients
-		gradCoreWeightSum = gradCoreWeightSum + self.gradients[i][2][1];
-		gradOutWeightSum = gradOutWeightSum + self.gradients[i][3][1];
-		gradCoreBiasSum = gradCoreBiasSum + self.gradients[i][2][2];
-		gradOutBiasSum = gradOutBiasSum + self.gradients[i][3][2];
 	end
-    --print(torch.norm(gradOutWeightSum))
-    --print("gradOutWeightSum")
-    --print(gradOutWeightSum)
-    --io.read()
-    --b = io.read()
-
-	--update the weight matrix parameters
-	self.paraOut.weight = self.paraOut.weight - gradOutWeightSum * learningRates;
-	self.paraOut.bias = self.paraOut.bias - gradOutBiasSum * learningRates;
-
-	self.paraCore.weight = self.paraCore.weight - gradCoreWeightSum * learningRates;
-	self.paraCore.bias = self.paraCore.bias - gradCoreBiasSum * learningRates;
-
 	--update the initialNode
 	initialNodeGrad = torch.Tensor(1,self.gradients[1][1][1]:size(1)):copy(self.initialNodeGrad);
 	--self.lookUpTable:backwardUpdate('PADDING', initialNodeGrad, learningRates);
+end
+
+
+function CrossRNN:updateParameters(learningRates)
+	--update the parameters
+
+    self:updateCoreParameters(learningRates)
+    self:updateOutParameters(learningRates)
+    self:updateInParameters(learningRates)
+
+	
 end
