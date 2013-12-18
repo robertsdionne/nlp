@@ -1,8 +1,11 @@
 require "nn"
+
 dofile "CrossWord.lua"
 dofile "CrossTag.lua"
 dofile "CrossCore.lua"
 dofile "Cross.lua"
+dofile "Weights.lua"
+
 local CrossRNN, parent = torch.class('nn.CrossRNN', 'nn.Module')
 
 --build the RNN
@@ -93,11 +96,11 @@ function CrossRNN:updateParameters(learningRates)
 	local gradCoreBiasLength = #self.gradients[1][2][2];
 	local gradOutBiasLength = #self.gradients[1][3][2];
 
-	local gradInWeightSum = torch.rand(gradInWeightLength):fill(0);
-	local gradCoreWeightSum = torch.rand(gradCoreWeightLength):fill(0);
-	local gradOutWeightSum = torch.rand(gradOutWeightLength):fill(0);
-	local gradCoreBiasSum = torch.rand(gradCoreBiasLength):fill(0);
-	local gradOutBiasSum = torch.rand(gradOutBiasLength):fill(0);
+	local gradInWeightSum = nn.Weights.zeros(gradInWeightLength);
+	local gradCoreWeightSum = nn.Weights.zeros(gradCoreWeightLength);
+	local gradOutWeightSum = nn.Weights.zeros(gradOutWeightLength);
+	local gradCoreBiasSum = nn.Weights.zeros(gradCoreBiasLength);
+	local gradOutBiasSum = nn.Weights.zeros(gradOutBiasLength);
 	--print(gradOutWeightSum)
 	for i = 1, self.netWorkDepth do
 		--call Roberts function to update word representation.
