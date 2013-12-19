@@ -14,7 +14,7 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
   local num_unknown_words_correct = 1e-8
   local num_decoding_inversions = 0
   for i = 1, #tagged_sentences do
-    if i % 100 == 0 then
+    if i % 100 == 0 and verbose then
       print("finished "..i.."sentences / "..#tagged_sentences);
     end
     local tagged_sentence = tagged_sentences[i]

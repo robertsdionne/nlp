@@ -50,6 +50,16 @@ local function main(arguments)
   -- new the data loader
   local data_loader = nn.DataLoader()
 
+  print('done.')
+  print('Loading in-domain dev sentences...')
+  dev_in_tagged_sentences = data_loader:readTaggedSentences(DEV_IN_DOMAIN_FILENAME, test_sentences)
+  print('done.')
+  print('Loading out-of-domain dev sentences...')
+  dev_out_tagged_sentences = data_loader:readTaggedSentences(DEV_OUT_OF_DOMAIN_FILENAME, test_sentences)
+  print('Loading out-of-domain test sentences...')
+  test_sentences = data_loader:readTaggedSentences(TEST_FILENAME, test_sentences)
+  print('done.')
+
   print('Loading training sentences...')
   if reload then
       print('Reloading from original corp')
@@ -66,15 +76,7 @@ local function main(arguments)
   end
   train_tagged_sentences, training_vocabulary, tags = train_data[1], train_data[2], train_data[3]
 
-  print('done.')
-  print('Loading in-domain dev sentences...')
-  dev_in_tagged_sentences = data_loader:readTaggedSentences(DEV_IN_DOMAIN_FILENAME, test_sentences)
-  print('done.')
-  print('Loading out-of-domain dev sentences...')
-  dev_out_tagged_sentences = data_loader:readTaggedSentences(DEV_OUT_OF_DOMAIN_FILENAME, test_sentences)
-  print('Loading out-of-domain test sentences...')
-  test_sentences = data_loader:readTaggedSentences(TEST_FILENAME, test_sentences)
-  print('done.')
+  local evaluator = nn.Evaluator()
 
   -- init the pos tagger with lookupTable
   local pos_tagger = nn.RnnPosTagger(lookupTable, EMBEDDING_DIMENSION, EMBEDDING_DIMENSION, tags)
@@ -86,7 +88,8 @@ local function main(arguments)
       lookupTable = file:readObject()
       pos_tagger.lookupTable = lookupTable
   else
-      pos_tagger:train(train_tagged_sentences, learning_rate, iterations)
+      pos_tagger:train(train_tagged_sentences, learning_rate, iterations, evaluator,
+          dev_out_tagged_sentences, training_vocabulary)
       -- Save the trained model: tagger and lookup table
       file = torch.DiskFile(TRAINED_MODEL_TAGGER, 'w')
       file:writeObject(pos_tagger)
@@ -98,8 +101,6 @@ local function main(arguments)
   end
 
   --pos_tagger:validate(dev_in_tagged_sentences)
-
-  local evaluator = nn.Evaluator()
   
   print('Evaluating on training data:')
   evaluator:evaluateTagger(pos_tagger, train_tagged_sentences, training_vocabulary, verbose)
