@@ -110,8 +110,8 @@ function CrossRNN:updateCoreParameters(learningRates)
 		--get the sum of all the gradients
 		-- gradCoreWeightSum = gradCoreWeightSum + self.gradients[i][2][1];
 		-- gradCoreBiasSum = gradCoreBiasSum + self.gradients[i][2][2];
-		self.adaLearningRates.gradCoreWeightLR = self.adaLearningRates.gradCoreWeightLR + torch.pow(self.gradients[i][2][1],2);
-		self.adaLearningRates.gradCoreBiasLR = self.adaLearningRates.gradCoreBiasLR + torch.pow(self.gradients[i][2][2],2);
+		self.adaLearningRates.gradCoreWeightLR = self.adaLearningRates.gradCoreWeightLR + torch.cmul(self.gradients[i][2][1],self.gradients[i][2][1]);
+		self.adaLearningRates.gradCoreBiasLR = self.adaLearningRates.gradCoreBiasLR + torch.cmul(self.gradients[i][2][2],self.gradients[i][2][2]);
 	end
 
 	for i = 1, self.netWorkDepth do
@@ -145,8 +145,8 @@ function CrossRNN:updateOutParameters(learningRates)
 		-- gradOutWeightSum = gradOutWeightSum + self.gradients[i][3][1];
 		-- gradOutBiasSum = gradOutBiasSum + self.gradients[i][3][2];
 
-		self.adaLearningRates.gradOutWeightLR = self.adaLearningRates.gradOutWeightLR + torch.pow(self.gradients[i][3][1],2);
-		self.adaLearningRates.gradOutBiasLR = self.adaLearningRates.gradOutBiasLR + torch.pow(self.gradients[i][3][2],2);
+		self.adaLearningRates.gradOutWeightLR = self.adaLearningRates.gradOutWeightLR + torch.cmul(self.gradients[i][3][1],self.gradients[i][3][1]);
+		self.adaLearningRates.gradOutBiasLR = self.adaLearningRates.gradOutBiasLR + torch.cmul(self.gradients[i][3][2],self.gradients[i][3][2]);
 	end
 
 	for i = 1, self.netWorkDepth do
