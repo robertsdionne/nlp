@@ -62,11 +62,11 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         currentSent.index = indexes
         currentSent.tagsId = tagsId
         --print(currentSent) -- @WHY output something strange
-        local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
+        self.initRepresent = torch.rand(self.leftInputSize)--= self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
         -- forward the rnn
-        self.rnn:forward(currentSent, initRepresent)
+        self.rnn:forward(currentSent, self.initRepresent)
         -- backward the rnn
-        self.rnn:backward(currentSent, initRepresent)
+        self.rnn:backward(currentSent, self.initRepresent)
         -- update the parameters
         self.rnn:updateParameters(learningRate / math.sqrt(1 + iterations))
         --error('Implementing!')
@@ -95,9 +95,9 @@ function RnnPosTagger:tag(sentence)
         currentSent.index = indexes
         currentSent.tagsId = tagsId
         --print(currentSent) -- @WHY output something strange
-        local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
+        --local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
         -- forward the rnn
-        local tagsPredId = self.rnn:forward(currentSent, initRepresent)
+        local tagsPredId = self.rnn:forward(currentSent, self.initRepresent)
         local tagsPredName = {}
         for t = 1, #tagsPredId do
             --print(tagsPredId[t])

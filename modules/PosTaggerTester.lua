@@ -30,6 +30,7 @@ local function main(arguments)
   cmd:option('-test', false, 'whether to evaluate on the test data')
   cmd:option('-test_sentences', -1, 'the number of test sentences')
   cmd:option('-verbose', false, 'whether to print verbosely')
+  cmd:option('-left_size', EMBEDDING_DIMENSION, 'the size of left part')
   parameters = cmd:parse(arguments)
   print(parameters)
   local iterations = parameters['iterations']
@@ -79,7 +80,7 @@ local function main(arguments)
   print('done.')
 
   -- init the pos tagger with lookupTable
-  local pos_tagger = nn.RnnPosTagger(lookupTable, EMBEDDING_DIMENSION, EMBEDDING_DIMENSION, tags)
+  local pos_tagger = nn.RnnPosTagger(lookupTable, parameters['left_size'], EMBEDDING_DIMENSION, tags)
   -- Do the tranning or just resume the results
   if resume then
       file = torch.DiskFile(TRAINED_MODEL_TAGGER, 'r')
