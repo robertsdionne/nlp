@@ -1,7 +1,8 @@
 local CrossCore, parent = torch.class('nn.CrossCore', 'nn.Module')
 
-function CrossCore:__init(initWeiht, initBias)
+function CrossCore:__init(initWeiht, initBias, tagId)
    parent.__init(self)
+   self.tagId = tagId
    local outputSize = initWeiht:size()[1]
    local inputSize = initWeiht:size()[2]
    self.weight = initWeiht
@@ -92,7 +93,7 @@ end
 
 -- Return the gradWeight {gradWeight, gradBias}
 function CrossCore:getGradWeight()
-   return {self.gradWeight, self.gradBias}
+   return {self.gradWeight, self.gradBias, tagId = self.tagId}
 end
 -- we do not need to accumulate parameters when sharing
 CrossCore.sharedAccUpdateGradParameters = CrossCore.accUpdateGradParameters

@@ -2,6 +2,7 @@ require 'torch'
 require 'math'
 require 'nn'
 dofile 'CrossRNN.lua'
+--dofile 'CrossRNNCVG.lua'
 
 local RnnPosTagger, parent = torch.class('nn.RnnPosTagger', 'nn.PosTagger')
 
@@ -84,6 +85,7 @@ function RnnPosTagger:tag(sentence)
             local word = currentSent['words'][wn]
             local represent = self.lookupTable:forward(word)[1]:clone()
             local index = self.lookupTable:queryIndex(word)
+            local tagId = self.tagIndex[currentSent['tags'][wn]]
             table.insert(represents,represent)
             table.insert(indexes, index)
             table.insert(tagsId, tagId)

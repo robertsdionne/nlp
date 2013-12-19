@@ -6,10 +6,10 @@ dofile "CrossCore.lua"
 dofile "Cross.lua"
 dofile "Weights.lua"
 
-local CrossRNN, parent = torch.class('nn.CrossRNN', 'nn.Module')
+local CrossRNNCVG, parent = torch.class('nn.CrossRNNCVG', 'nn.Module')
 
 --build the RNN
-function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
+function CrossRNNCVG:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 -- init all parameters
 	--self.paraIn
 	--torch.Tensor(outputSize, inputSize)
@@ -17,10 +17,15 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 		weight = nn.Weights.normalizedInitializationSigmoid(numTags, leftInputSize),
 		bias = nn.Weights.zeros(numTags)
 	}
-	self.paraCore = {
+	self.paraCore = {}
+	for i = 1,numTags do
+		table.insert(self.paraCore,
+		{
 		weight = nn.Weights.normalizedInitializationTanh(leftInputSize, rightInputSize + leftInputSize),
 		bias = nn.Weights.zeros(leftInputSize)
-	};
+		}
+		)
+	end
 	--print("the initial core weight:\n");
 	--print(self.paraCore.weight);
 	self.lookUpTable = lookUpTable;
@@ -32,9 +37,9 @@ function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
 end
 
 --we assume that each sentence comes with tags
-function CrossRNN:initializeCross(word, index, tagId)
+function CrossRNNCVG:initializeCross(word, index, tagId)
 	inModule = nn.CrossWord(word, index);
-	coreModule = nn.CrossCore(self.paraCore.weight, self.paraCore.bias);
+	coreModule = nn.CrossCore(self.paraCore[tagId].weight, self.paraCore[tagId].bias, tagId);
 	outModule = nn.CrossTag(self.paraOut.weight, self.paraOut.bias, tagId);
 	CrossModule = nn.Cross(coreModule, inModule, outModule);
 	return CrossModule;
@@ -43,13 +48,11 @@ end
 --the sentence tuple contains the sentence information, index information and the tag informtion
 --the buildNet function will be call in forward. You have to make sure that forward
 --is called before backward. This function will not be called in backward again.
-function CrossRNN:buildNet(sentenceTuple)
+function CrossRNNCVG:buildNet(sentenceTuple)
 	self.netWorkDepth = #sentenceTuple.represents;
 	self.netWork = nn.Sequential();
 	for i = 1, self.netWorkDepth do
 		currentWord = sentenceTuple.represents[i];
-		--print("currentWord")
-		--print(currentWord)
 		currentIndex = sentenceTuple.index[i];
 		currentTagId = sentenceTuple.tagsId[i];
 		self.netWork:add(self:initializeCross(currentWord, currentIndex, currentTagId));
@@ -57,7 +60,7 @@ function CrossRNN:buildNet(sentenceTuple)
 end
 
 
-function CrossRNN:forward(sentenceTuple, initialNode)
+function CrossRNNCVG:forward(sentenceTuple, initialNode)
 	-- unroll the RNN use sequentials
 	self:buildNet(sentenceTuple);
 
@@ -74,7 +77,7 @@ function CrossRNN:forward(sentenceTuple, initialNode)
 	return predictedTags;
 end
 
-function CrossRNN:backward(sentenceTuple, initialNode)
+function CrossRNNCVG:backward(sentenceTuple, initialNode)
 	
 	--!!!need to becareful here that the final output/gradOutput of the sentence is null
 	local finalGradOutput = torch.zeros(initialNode:size());
@@ -92,36 +95,36 @@ function CrossRNN:backward(sentenceTuple, initialNode)
 	--return gradients;
 end
 
-function CrossRNN:updateCoreParameters(learningRates)
+function CrossRNNCVG:updateCoreParameters(learningRates)
 	
 	local gradCoreWeightLength = self.gradients[1][2][1]:size();
 	local gradCoreBiasLength = #self.gradients[1][2][2];
-	local gradCoreWeightSum = torch.rand(gradCoreWeightLength):fill(0);
-	local gradCoreBiasSum = torch.rand(gradCoreBiasLength):fill(0);
 
 	if self.adaLearningRates.gradCoreWeightLR == nil then
 		self.adaLearningRates.gradCoreWeightLR = torch.rand(gradCoreWeightLength):fill(0);
 		self.adaLearningRates.gradCoreBiasLR = torch.rand(gradCoreBiasLength):fill(0);
 	end
 
-
+-- @@@TODO whether use same learning rate in one sentence
 
 	for i = 1, self.netWorkDepth do
 		--get the sum of all the gradients
-		gradCoreWeightSum = gradCoreWeightSum + self.gradients[i][2][1];
-		gradCoreBiasSum = gradCoreBiasSum + self.gradients[i][2][2];
 		self.adaLearningRates.gradCoreWeightLR = self.adaLearningRates.gradCoreWeightLR + torch.pow(self.gradients[i][2][1],2);
 		self.adaLearningRates.gradCoreBiasLR = self.adaLearningRates.gradCoreBiasLR + torch.pow(self.gradients[i][2][2],2);
 	end
 
+	for i = 1, self.netWorkDepth do
+		--update
+		local currentTagID = self.gradients[i][2].tagId
+		self.paraCore[currentTagID].weight = self.paraCore[currentTagID].weight - torch.cdiv(self.gradients[i][2][1], torch.sqrt(self.adaLearningRates.gradCoreWeightLR))  * learningRates;
+		self.paraCore[currentTagID].bias = self.paraCore[currentTagID].bias - torch.cdiv(self.gradients[i][2][2], torch.sqrt(self.adaLearningRates.gradCoreBiasLR))  * learningRates;
+	end
 	
-	self.paraCore.weight = self.paraCore.weight - torch.cdiv(gradCoreWeightSum, torch.sqrt(self.adaLearningRates.gradCoreWeightLR))  * learningRates;
-	self.paraCore.bias = self.paraCore.bias - torch.cdiv(gradCoreBiasSum, torch.sqrt(self.adaLearningRates.gradCoreBiasLR))  * learningRates;
 	-- self.paraCore.weight = self.paraCore.weight - gradCoreWeightSum * learningRates;
 	-- self.paraCore.bias = self.paraCore.bias - gradCoreBiasSum * learningRates;
 end
 
-function CrossRNN:updateOutParameters(learningRates)
+function CrossRNNCVG:updateOutParameters(learningRates)
 	
 	local gradOutWeightLength = self.gradients[1][3][1]:size();
 	local gradOutBiasLength = #self.gradients[1][3][2];
@@ -151,7 +154,7 @@ function CrossRNN:updateOutParameters(learningRates)
 	-- self.paraOut.bias = self.paraOut.bias - gradOutBiasSum * learningRates;
 end
 
-function CrossRNN:updateInParameters(learningRates)
+function CrossRNNCVG:updateInParameters(learningRates)
 	
 	local gradInWeightLength = self.gradients[1][1][1]:size();
 	local gradInWeightSum = torch.rand(gradInWeightLength):fill(0);
@@ -167,12 +170,12 @@ function CrossRNN:updateInParameters(learningRates)
 end
 
 
-function CrossRNN:updateParameters(learningRates)
+function CrossRNNCVG:updateParameters(learningRates)
 	--update the parameters
 
     self:updateCoreParameters(learningRates)
     self:updateOutParameters(learningRates)
-    -- self:updateInParameters(learningRates)
+    self:updateInParameters(learningRates)
 
 	
 end
