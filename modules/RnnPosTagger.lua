@@ -31,7 +31,7 @@ function RnnPosTagger:indexTag()
     end
 end
 
-function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
+function RnnPosTagger:train(tagged_sentences, learningRate, iterations, evaluator, dev_out_tagged_sentences, training_vocabulary)
   learningRate = learningRate or 1
   iterations = iterations or 100
   -- iterations over corps
@@ -72,6 +72,8 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         --error('Implementing!')
     end
     collectgarbage()
+    print('Validating on out-of-domain data:')
+    evaluator:evaluateTagger(self, dev_out_tagged_sentences, training_vocabulary, false)
   end
 end
 
