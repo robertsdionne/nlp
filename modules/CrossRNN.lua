@@ -96,27 +96,32 @@ function CrossRNN:updateCoreParameters(learningRates)
 	
 	local gradCoreWeightLength = self.gradients[1][2][1]:size();
 	local gradCoreBiasLength = #self.gradients[1][2][2];
-	local gradCoreWeightSum = torch.rand(gradCoreWeightLength):fill(0);
-	local gradCoreBiasSum = torch.rand(gradCoreBiasLength):fill(0);
+	-- local gradCoreWeightSum = torch.rand(gradCoreWeightLength):fill(0);
+	-- local gradCoreBiasSum = torch.rand(gradCoreBiasLength):fill(0);
 
 	if self.adaLearningRates.gradCoreWeightLR == nil then
-		self.adaLearningRates.gradCoreWeightLR = torch.rand(gradCoreWeightLength):fill(0);
-		self.adaLearningRates.gradCoreBiasLR = torch.rand(gradCoreBiasLength):fill(0);
+		self.adaLearningRates.gradCoreWeightLR = torch.zeros(gradCoreWeightLength);
+		self.adaLearningRates.gradCoreBiasLR = torch.zeros(gradCoreBiasLength);
 	end
 
 
 
 	for i = 1, self.netWorkDepth do
 		--get the sum of all the gradients
-		gradCoreWeightSum = gradCoreWeightSum + self.gradients[i][2][1];
-		gradCoreBiasSum = gradCoreBiasSum + self.gradients[i][2][2];
+		-- gradCoreWeightSum = gradCoreWeightSum + self.gradients[i][2][1];
+		-- gradCoreBiasSum = gradCoreBiasSum + self.gradients[i][2][2];
 		self.adaLearningRates.gradCoreWeightLR = self.adaLearningRates.gradCoreWeightLR + torch.pow(self.gradients[i][2][1],2);
 		self.adaLearningRates.gradCoreBiasLR = self.adaLearningRates.gradCoreBiasLR + torch.pow(self.gradients[i][2][2],2);
 	end
 
+	for i = 1, self.netWorkDepth do
+		--get the sum of all the gradients
+		self.paraCore.weight = self.paraCore.weight - torch.cdiv(self.gradients[i][2][1], torch.sqrt(self.adaLearningRates.gradCoreWeightLR))  * learningRates;
+		self.paraCore.bias = self.paraCore.bias - torch.cdiv(self.gradients[i][2][2], torch.sqrt(self.adaLearningRates.gradCoreBiasLR))  * learningRates;
+	end
+
 	
-	self.paraCore.weight = self.paraCore.weight - torch.cdiv(gradCoreWeightSum, torch.sqrt(self.adaLearningRates.gradCoreWeightLR))  * learningRates;
-	self.paraCore.bias = self.paraCore.bias - torch.cdiv(gradCoreBiasSum, torch.sqrt(self.adaLearningRates.gradCoreBiasLR))  * learningRates;
+	
 	-- self.paraCore.weight = self.paraCore.weight - gradCoreWeightSum * learningRates;
 	-- self.paraCore.bias = self.paraCore.bias - gradCoreBiasSum * learningRates;
 end
@@ -126,8 +131,8 @@ function CrossRNN:updateOutParameters(learningRates)
 	local gradOutWeightLength = self.gradients[1][3][1]:size();
 	local gradOutBiasLength = #self.gradients[1][3][2];
 
-	local gradOutWeightSum = torch.rand(gradOutWeightLength):fill(0);
-	local gradOutBiasSum = torch.rand(gradOutBiasLength):fill(0);
+	-- local gradOutWeightSum = torch.rand(gradOutWeightLength):fill(0);
+	-- local gradOutBiasSum = torch.rand(gradOutBiasLength):fill(0);
 
 
 	if self.adaLearningRates.gradOutWeightLR == nil then
@@ -137,15 +142,21 @@ function CrossRNN:updateOutParameters(learningRates)
 
 	for i = 1, self.netWorkDepth do
 		--get the sum of all the gradients
-		gradOutWeightSum = gradOutWeightSum + self.gradients[i][3][1];
-		gradOutBiasSum = gradOutBiasSum + self.gradients[i][3][2];
+		-- gradOutWeightSum = gradOutWeightSum + self.gradients[i][3][1];
+		-- gradOutBiasSum = gradOutBiasSum + self.gradients[i][3][2];
 
 		self.adaLearningRates.gradOutWeightLR = self.adaLearningRates.gradOutWeightLR + torch.pow(self.gradients[i][3][1],2);
 		self.adaLearningRates.gradOutBiasLR = self.adaLearningRates.gradOutBiasLR + torch.pow(self.gradients[i][3][2],2);
 	end
 
-	self.paraOut.weight = self.paraOut.weight - torch.cdiv(gradOutWeightSum, torch.sqrt(self.adaLearningRates.gradOutWeightLR))  * learningRates;
-	self.paraOut.bias = self.paraOut.bias - torch.cdiv(gradOutBiasSum, torch.sqrt(self.adaLearningRates.gradOutBiasLR))  * learningRates;
+	for i = 1, self.netWorkDepth do
+		--get the sum of all the gradients
+
+		self.paraOut.weight = self.paraOut.weight - torch.cdiv(self.gradients[i][3][1], torch.sqrt(self.adaLearningRates.gradOutWeightLR))  * learningRates;
+		self.paraOut.bias = self.paraOut.bias - torch.cdiv(self.gradients[i][3][2], torch.sqrt(self.adaLearningRates.gradOutBiasLR))  * learningRates;
+	end
+
+	
 	
 	-- self.paraOut.weight = self.paraOut.weight - gradOutWeightSum * learningRates;
 	-- self.paraOut.bias = self.paraOut.bias - gradOutBiasSum * learningRates;

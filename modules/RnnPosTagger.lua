@@ -38,8 +38,8 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
   for itr = 1,iterations do
       print("Began the iteration: ".. itr)
     -- iterations over sentence
-    print("The number of sentences:");
-    print(#tagged_sentences);
+    print("The number of sentences:"..#tagged_sentences);
+    print();
     for i = 1, #tagged_sentences do
         if i % 100 == 0 then
             print("Finished "..i.." sentences.");
