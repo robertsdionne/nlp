@@ -67,7 +67,7 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         -- backward the rnn
         self.rnn:backward(currentSent, initRepresent)
         -- update the parameters
-        self.rnn:updateParameters(learningRate / math.sqrt(1 + iterations))
+        self.rnn:updateParameters(learningRate)
         --error('Implementing!')
     end
   end
