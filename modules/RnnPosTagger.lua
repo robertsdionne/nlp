@@ -70,6 +70,7 @@ function RnnPosTagger:train(tagged_sentences, learningRate, iterations)
         self.rnn:updateParameters(learningRate)
         --error('Implementing!')
     end
+    collectgarbage()
   end
 end
 
