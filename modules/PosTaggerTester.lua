@@ -4,9 +4,11 @@ require 'nn'
 dofile 'DataLoader.lua'
 dofile 'DumbPosTagger.lua'
 dofile 'RnnPosTagger.lua'
+--dofile 'RnnCVGPosTagger.lua'
 dofile 'Evaluator.lua'
 dofile 'EmbeddingsUtilities.lua'
 dofile 'LoadedLookupTable.lua' 
+dofile "tags.lua"
 
 TRAIN_DATA = '../data/train_data.obj'
 TRAINED_MODEL_TAGGER = '../model/trained_tagger.obj'
@@ -53,7 +55,7 @@ local function main(arguments)
   print('Loading training sentences...')
   if reload then
       print('Reloading from original corp')
-      train_tagged_sentences, training_vocabulary, tags = data_loader:readTaggedSentences(TRAIN_FILENAME, training_sentences)
+      train_tagged_sentences, training_vocabulary, _ = data_loader:readTaggedSentences(TRAIN_FILENAME, training_sentences)
       -- Save Train Data
       train_data = {train_tagged_sentences, training_vocabulary, tags}
       file = torch.DiskFile(TRAIN_DATA, 'w')
@@ -64,7 +66,7 @@ local function main(arguments)
       file = torch.DiskFile(TRAIN_DATA, 'r')
       train_data = file:readObject()
   end
-  train_tagged_sentences, training_vocabulary, tags = train_data[1], train_data[2], train_data[3]
+  train_tagged_sentences, training_vocabulary, _ = train_data[1], train_data[2], train_data[3]
 
   print('done.')
   print('Loading in-domain dev sentences...')

@@ -69,12 +69,14 @@ function CrossRNNCVG:forward(sentenceTuple, initialNode)
 	
 	-- collect predicted tags
 	predictedTags = {};
+	predictedScore = 0;
 	for i = 1, self.netWorkDepth do
 		predictedTags[i] = self.netWork:get(i).outModule:getPredTag();
+		predictedScore = predictedScore + self.netWork:get(i).outModule.score
 	end
 	
 	-- return the predicted tags
-	return predictedTags;
+	return predictedTags, predictedScore
 end
 
 function CrossRNNCVG:backward(sentenceTuple, initialNode)
@@ -175,7 +177,7 @@ function CrossRNNCVG:updateParameters(learningRates)
 
     self:updateCoreParameters(learningRates)
     self:updateOutParameters(learningRates)
-    self:updateInParameters(learningRates)
+    -- self:updateInParameters(learningRates)
 
 	
 end

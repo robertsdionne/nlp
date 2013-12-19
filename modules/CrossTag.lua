@@ -44,6 +44,7 @@ function CrossTag:forward(input)
 	--io.read()
 	_, self.predTag = self.probs:max(1)--@BUG
 	self.predTag = self.predTag[1]
+	self.score = self.probs[self.predTag]
 end
 
 function CrossTag:backward(input)

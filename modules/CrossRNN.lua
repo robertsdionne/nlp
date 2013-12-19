@@ -161,9 +161,9 @@ function CrossRNN:updateInParameters(learningRates)
 		wordGradient = torch.Tensor(1, self.gradients[i][1][1]:size(1)):copy(self.gradients[i][1][1]);
 		--self.lookUpTable:backwardUpdate(wordIndex, wordGradient, 0.001);
 	end
-	--update the initialNode
+	-- update the initialNode
 	initialNodeGrad = torch.Tensor(1,self.gradients[1][1][1]:size(1)):copy(self.initialNodeGrad);
-	--self.lookUpTable:backwardUpdate('PADDING', initialNodeGrad, learningRates);
+	-- self.lookUpTable:backwardUpdate('PADDING', initialNodeGrad, learningRates);
 end
 
 
