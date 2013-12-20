@@ -185,10 +185,10 @@ TODO: Compare to HMM.
 \subsubsection{Error Analysis}
 
 \paragraph{Confusion matrices} 
-We plot the confusion matrix(Figure \ref{Conf_fig}) for the basic RNN model and find that:
+We plot the confusion matrix (Figure \ref{Conf_fig}) for the basic RNN model and find that:
 \begin{enumerate}
-\item The \textbf{most serious confusion is between NNP and NN}. This makes sense, because the fact that the embemdings we are using make no difference between captitaled word and noncapitaled word;
-\item  Another strange confusion is from quotes, which was also met in common HMM models. These may come from the overwhelming sequential information;
+\item The \textbf{most serious confusion is between NNP and NN}. This makes sense because of the fact that the embeddings we are using make no distinction between capitalized and non-capitalized words;
+\item  Another strange confusion is from quotes, which was also met in common HMM models. This may come from the overwhelming sequential information;
 \item Other confusions look normal, and also occur in HMM models, like JJ and NN.
 \end{enumerate}
 \begin{figure}
@@ -200,10 +200,10 @@ We plot the confusion matrix(Figure \ref{Conf_fig}) for the basic RNN model and 
 
 
 \paragraph{Position of wrong tags } 
-We plot the histogram(Figure \ref{Pos_fig}) of related position(absolute positon in sentence divided by sentence length in (0,1] ). 
+We plot the histogram (Figure \ref{Pos_fig}) of relative position (absolute position in sentence divided by sentence length in (0, 1]). 
 \begin{itemize}
-\item \textbf{Indomain}(left figure): The related position is almost uniform distributed.
-\item \textbf{Outdomain}(right figure): The number of wrong tags  is generally increasing upon related position. And from different scale of histogram, we find there is a big drop around 0.5( middle of sentece). These may come from the sequential similarity between indomain and outdomain. These may also come from the limitation of sequential information passing. So bi-direct RNN may help.
+\item \textbf{In-domain} (left figure): The relative position is almost uniformly distributed.
+\item \textbf{Out-of-domain} (right figure): The number of wrong tags is generally increasing with relative position. And from the different scale of this histogram, we find there is a big drop around 0.5 (middle of sentence). This may come from the sequential similarity between in-domain and out-of-domain. This may also come from the limitation of sequential information passing. So a bi-directional RNN may help.
 \end{itemize}
 \begin{figure}
 \includegraphics[scale=0.25]{indomain_pos.png} 
@@ -211,23 +211,23 @@ We plot the histogram(Figure \ref{Pos_fig}) of related position(absolute positon
 \caption{Histogram of related position of wrong tags, left is in domain, right is out of domain}\label{Pos_fig}
 \end{figure}
 
-\paragraph{Not just maximum likelihood model}
-In the beginning, there is a worry about whether this RNN model can pass and use the sequential information correctly. Perhaps, it just learns a maxium likelihood( most frequent ) predictor for each word or even each group of words. So we did some experiments to verify the contribution of sequential information in RNN.
+\paragraph{Not just a maximum likelihood model}
+In the beginning, we worried about whether this RNN model can pass and use the sequential information correctly. Perhaps it just learns a maximum likelihood (most frequent) predictor for each word or even each group of words. So we did some experiments to verify the contribution of sequential information to the RNN results.
 
 \begin{itemize}
-\item \textbf{Same word test}:  We choose some words with more than one  common tags and see whether our model predict those tags correctly. We tested on 'to'( possible tags are TO and IN) and 'work'(common possible tags are NN, VB and VBP). RNN predicts 'to' with 0.80 indomain accuracy and 0.77 outdomain, covering TO and IN. RNN predicts 'word' with 0.88 indomain accuracy and 0.83 outdomain, covering NN, VB and VBP.
-\item \textbf{Disconnect core module test}: We disconnect the sequential information passing by ignoring the input embeddings from lower layer, and backwarded gradient from upper layer. So although it's still a RNN, there is actually no information passed between layers. We train this no-seq RNN and original RNN with 100 sentences and 100 iterations, same random seed and training parameters. The Figure \ref{Noseq_fig} shows the outdomain accuracy of two models by the number of iterations, which can be also seen from Figure \ref{Leftsize_fig}. The difference is not small. So we think the sequential information was passed and used at least partially correctly.
+\item \textbf{Same word test}:  We chose some words with more than one common tag and saw whether our model predicted those tags correctly. We tested on `to' (possible tags are TO and IN) and `work' (common possible tags are NN, VB and VBP). Our RNN predicts `to' with 0.80 in-domain and 0.77 out-of-domain accuracy, covering TO and IN. The RNN predicts `work' with 0.88 in-domain and 0.83 out-of-domain accuracy, covering NN, VB and VBP.
+\item \textbf{Disconnected core module test}: We disconnected the sequential information passing by ignoring the input embeddings from lower layers, and backward gradient from upper layers. So although it's still an RNN, there is actually no information passed between layers. We trained this non-sequential RNN and the original RNN with 100 sentences and 100 iterations, same random seed and training parameters. The Figure \ref{Noseq_fig} shows the out-of-domain accuracy of two models by the number of iterations, which can be also seen from Figure \ref{Leftsize_fig}. The difference is not small. So we think the sequential information was passed and used at least partially correctly.
 \end{itemize}
 \begin{figure}
 \includegraphics[scale=0.5]{outdomain_noseq.png}
-\caption{Comparision of no-seq RNN and original RNN for disconnect core module test}\label{Noseq_fig}
+\caption{Comparison of non-sequential RNN and original RNN for disconnected core module test}\label{Noseq_fig}
 \end{figure}
 
 \paragraph{Different embedding size of state}
-The size of state embeddings(left side of each RNN layer) is another hyper-parameter to set up. And it is important because it may determines the importance of previous sequential information comparing to the current word embedding. Figure \ref{Leftsize_fig} shows the the outdomain accuracy of two models by the number of iterations. And it looks like 20 is around the optimial size for state embeddings.
+The size of state embeddings (left side of each RNN layer) is another hyper-parameter to set up. And it is important because it may determine the importance of previous sequential information compared to the current word embedding. Figure \ref{Leftsize_fig} shows the the out-of-domain accuracy of two models by the number of iterations. And it looks like 20 is around the optimal size for state embeddings.
 \begin{figure}
 	\includegraphics[scale=0.5]{outdomain_leftsize.png}
-	\caption{Outdomain accuracy comparision of different state embedding size} \label{Leftsize_fig}
+	\caption{Out-of-domain accuracy comparison of different state embedding size} \label{Leftsize_fig}
 \end{figure}
 
 TODO: Compare with and without updating word representations.
