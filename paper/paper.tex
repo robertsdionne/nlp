@@ -67,23 +67,37 @@ Our network structure is a simplification of the more general binary tree struct
 
 \subsection{Distributed Word Representations}
 
-Underlying the entire model are distributed word representations, which we use directly from the research of Collobert and Weston (2011), downloadable from their website (\hyperlink{http://ronan.collobert.com/senna/}{ronan.collobert.com/senna}). Distributed word representations are dense vectors embedded within an $n$-dimensional vector space that differ from sparse, ``one-hot" vectors embedded within a $\left\vert\mathcal{V}\right\vert$-dimensional vector space, where $\mathcal{V}$ is the vocabulary of the language domain.
+Underlying the entire model are distributed word representations, which we use directly from the research of Collobert and Weston (2011), downloadable from their website (\hyperlink{http://ronan.collobert.com/senna/}{ronan.collobert.com/senna}). Distributed word representations are dense vectors embedded within an $N$-dimensional vector space that differ from sparse, ``one-hot" vectors embedded within a $\left\vert\mathcal{V}\right\vert$-dimensional vector space, where $\mathcal{V}$ is the vocabulary of the language domain.
 
-The distributed word representations are induced by training a neural network in an unsupervised manner to distinguish a word within its concrete contexts from randomly chosen replacement words within those same contexts, and then backpropagating the errors into an $n\times\left\vert\mathcal{V}\right\vert$-dimensional lookup table with randomly initialized values. The lookup table converts between the original ``one-hot" vector representation, which encodes zero information about the word aside from identity, and the superior distributed representation, which encodes a word's contextual information. Since we believe a word's context encodes information about that word's part-of-speech, we hypothesize that distributed word representations will be vital to our part-of-speech tagging model.
+The distributed word representations are induced by training a neural network in an unsupervised manner to distinguish a word within its concrete contexts from randomly chosen replacement words within those same contexts, and then backpropagating the errors into an $N\times\left\vert\mathcal{V}\right\vert$-dimensional lookup table with randomly initialized values. The lookup table converts between the original ``one-hot" vector representation, which encodes zero information about the word aside from identity, and the superior distributed representation, which encodes a word's contextual information. Since we believe a word's context encodes information about that word's part-of-speech, we hypothesize that distributed word representations will be vital to our part-of-speech tagging model.
 
 \section{Our Models}
 
-TODO: Write about our models.
+We implemented a recursive neural network with the programming language Lua and the neural network library Torch7 (Collobert, 2011). Our code is available on Github at \hyperlink{http://github.com/robertsdionne/nlp}{github.com/robertsdionne/nlp}.
 
-\subsection{Basic}
+The first model we considered was a basic recursive neural network that combines a phrase representation $p_{i-1}$ encompassing words $w_1,w_2,\ldots,w_{i-1}$ and the word representation $w_i$ into an output phrase representation $p_i$ passed to a multilayer perceptron classifier which outputs the guessed tag.
 
-TODO: Describe models.
+The second model we considered was a compositional vector tagger, based upon the compositional vector grammar model by Socher, et al. (2013), in which different weight matrices are associated with different part-of-speech tags in order to generate tag-dependent phrase representations, which are then scored instead of classified. This model would perform sentence tagging by maximizing the overall score by choosing the correct tag-associated weight matrices for each word using a beam or greedy search.
 
-\subsection{Compositional Vector Grammar}
+The inputs to both models consist of
+
+\centering
+\begin{tabular}{ l r }
+  $\mathcal{V} = \left\{w_1,w_2,\ldots,w_{\left\vert\mathcal{V}\right\vert}\right\}$ & the vocabulary \\
+  $\mathcal{T} = \left\{t_1,t_2,\ldots,t_{\left\vert\mathcal{T}\right\vert}\right\}$ & the part-of-speech tags \\
+  $N = 50$ & the word dimension \\
+  $V\in M_{N\times\left\vert\mathcal{V}\right\vert}(\mathbb{R})$ & the word lookup table \\
+  $\Ket{w_i}\in\mathcal{V}$ & the ``one-hot" vectors \\
+  $V\Ket{w_i}\in\mathbb{R}^N$ & the word vectors \\
+\end{tabular}
+
+\subsection{Basic Recursive Neural Network Model}
+
+\subsection{Compositional Vector Tagger Model}
 
 TODO: Describe CVG.
 
-\subsection{Future}
+\subsection{Future Models}
 
 TODO: Describe future models.
 
