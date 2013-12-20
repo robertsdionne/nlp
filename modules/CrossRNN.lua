@@ -2,7 +2,8 @@ require "nn"
 
 dofile "CrossWord.lua"
 dofile "CrossTag.lua"
-dofile "CrossCore.lua"
+-- dofile "CrossCore.lua"
+dofile "CrossCoreFeak.lua"
 dofile "Cross.lua"
 dofile "Weights.lua"
 
