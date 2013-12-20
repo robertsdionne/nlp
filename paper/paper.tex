@@ -79,9 +79,9 @@ The first model we considered was a basic recursive neural network that combines
 
 The second model we considered was a compositional vector tagger, based upon the compositional vector grammar model by Socher, et al. (2013), in which different weight matrices are associated with different part-of-speech tags in order to generate tag-dependent phrase representations, which are then scored instead of classified. This model would perform sentence tagging by maximizing the overall score by choosing the correct tag-associated weight matrices for each word using a beam or greedy search.
 
-The inputs to both models consist of
+The inputs to both models consist of:
 
-\centering
+\begin{center}
 \begin{tabular}{ l r }
   $\mathcal{V} = \left\{w_1,w_2,\ldots,w_{\left\vert\mathcal{V}\right\vert}\right\}$ & the vocabulary \\
   $\mathcal{T} = \left\{t_1,t_2,\ldots,t_{\left\vert\mathcal{T}\right\vert}\right\}$ & the part-of-speech tags \\
@@ -89,13 +89,43 @@ The inputs to both models consist of
   $V\in M_{N\times\left\vert\mathcal{V}\right\vert}(\mathbb{R})$ & the word lookup table \\
   $\Ket{w_i}\in\mathcal{V}$ & the ``one-hot" vectors \\
   $V\Ket{w_i}\in\mathbb{R}^N$ & the word vectors \\
+  $\Big[\bullet;\bullet\Big]$ & vector concatenation \\
 \end{tabular}
+\end{center}
 
 \subsection{Basic Recursive Neural Network Model}
 
+The basic recursive neural network model also has the following parameters:
+
+\begin{center}
+\begin{tabular}{ l r }
+  $W_{combine}\in M_{N\times2N}(\mathbb{R})$ & matrix for combining \\
+  $b_{combine}\in \mathbb{R}^N$ & bias for combining \\
+  $W_{classify}\in M_{\left\vert\mathcal{T}\right\vert\times N}(\mathbb{R})$ & matrix for tagging \\
+  $b_{classify}\in \mathbb{R}^{\left\vert\mathcal{T}\right\vert}$ & bias for tagging \\
+\end{tabular}
+\end{center}
+
+\vspace{5mm}
+We began by training our model on the Penn Treebank sentences from assignment three, available at \hyperlink{http://www.cs.nyu.edu/petrov/restricted/data3.zip}{www.cs.nyu.edu/petrov/restricted/data3.zip}.
+
+To train the model, we first initialize $W_{combine}$, $b_{combine}$, $W_{classify}$ and $b_{classify}$ with small, uniformly distributed random values. We will discuss how to choose the range for these values in section \textbf{3.2.1 Weight Initialization} below. Then we perform a classification step in which we convert each word into its distributed word representation, pass each of these representations through the unrolled recursive neural network's inputs, and feed the values forward to the classification layers corresponding to each tag output.
+
+For instance, given the sentence $(w_{i_1},w_{i_2},\ldots,w_{i_K})$ of length $K$, we first calculate the word representations $V\Ket{w_{i_1}},\ldots,V\Ket{w_{i_K}}$, then we calculate each phrase representation $p_j$ from the previous phrase representation $p_{j-1}$ and the current word representation $V\Ket{w_{i_j}}$ by concatenating the two representation vectors, multiplying by $W_{combine}$ and adding $b_{combine}$ before applying the $tanh(\cdot)$ function:
+
+$p_j = tanh(W_{combine}\Big[p_{j-1};V\Ket{w_{i_j}}\Big] + b_{combine})$
+
+Finally, each $p_j$ is passed along to the classifier, which applies the operation:
+
+$t_{i_j} = softmax(W_{classify}p_j + b_{classify})$
+
+to obtain the predicted tag $t_{i_j}$ for $w_{i_j}$.
+
+Finally, we perform backpropagation through time, described in section \textbf{3.1} below, to update the weight matrices and bias vectors. Performing a backpropagation after classifying each sentence in the dataset performs stochastic gradient descent in minibatches (where we consider one sentence to be a minibatch of tags and words) to update the weight matrices to more accurately predict the golden tags.
+
 \subsection{Compositional Vector Tagger Model}
 
-TODO: Describe CVG.
+
 
 \subsection{Future Models}
 
