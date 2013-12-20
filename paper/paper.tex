@@ -20,6 +20,11 @@
 \usepackage{url}
 \usepackage{latexsym}
 \usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{braket}
+
 
 %\setlength\titlebox{5cm}
 
@@ -32,13 +37,16 @@
 \title{Recursive Neural Network Part-of-Speech Tagger}
 
 \author{Hao Liu \\
-  NYU \\
-  {\tt email@domain} \\\And
+  NYU CIMS \\
+  New York, NY \\
+  {\tt haoliu@nyu.edu} \\\And
   Jiali Huang \\
-  NYU \\
-  {\tt email@domain} \\\And
+  NYU CIMS \\
+  New York, NY \\
+  {\tt jiali.huang@nyu.edu} \\\And
   Robert Dionne \\
-  NYU \\
+  NYU Game Center \\
+  New York, NY \\
   {\tt robertsdionne@nyu.edu} \\}
 
 \date{}
@@ -53,21 +61,90 @@
 
 For our final project, we implemented a recursive neural network part-of-speech tagger based on similar prior work by Socher, Manning and Ng (2010) for building sentence parse trees and work by Collobert and Weston (2011) for their distributed word representations. We wanted to explore natural language processing using neural networks, so we chose a small problem (part-of-speech tagging) which we already had experience with during the third homework assignment and applied these modern techniques in neural network research to the problem.
 
-Recursive neural networks are neural network models that allow for cyclic connections between neurons. 
+\subsection{Recursive Neural Networks}
+
+Recursive neural networks are neural network models that allow for cyclic connections between neurons. Generally, recursive networks can have very complex structures, but for our application to part-of-speech tagging, we consider a restricted structure in which the network observes its own output on prior sentence context while consuming as input the current word in order to produce a classification label representing the current word's part of speech tag. When training the network or using the network to classify an example sentence, we temporarily unroll the recurrent network into an equivalent, feedforward multilayer perceptron with the weight matrix shared between all layers.
+
+Our network structure is a simplification of the more general binary tree structure trained by Socher et al. (2010) which iteratively constructs a parse tree by evaluating, at the base case, the best combinations of pairs of words, and subsequently the best combinations of pairs of previous combinations. Instead, we construct a linear, degenerate tree by always pairing the current word (on the right) to the previous combination (on the left) of prior sentence context and the prior word to obtain a phrase representation. We hope that the resulting phrase representation captures both the possible parts-of-speech for the current word and distinguishing context that allows an accurate choice of the correct part-of-speech.
+
+\subsection{Distributed Word Representations}
+
+Underlying the entire model are distributed word representations, which we use directly from the research of Collobert and Weston (2011), downloadable from their website (\hyperlink{http://ronan.collobert.com/senna/}{ronan.collobert.com/senna}). Distributed word representations are dense vectors embedded within an $N$-dimensional vector space that differ from sparse, ``one-hot" vectors embedded within a $\left\vert\mathcal{V}\right\vert$-dimensional vector space, where $\mathcal{V}$ is the vocabulary of the language domain.
+
+The distributed word representations are induced by training a neural network in an unsupervised manner to distinguish a word within its concrete contexts from randomly chosen replacement words within those same contexts, and then backpropagating the errors into an $N\times\left\vert\mathcal{V}\right\vert$-dimensional lookup table with randomly initialized values. The lookup table converts between the original ``one-hot" vector representation, which encodes zero information about the word aside from identity, and the superior distributed representation, which encodes a word's contextual information. Since we believe a word's context encodes information about that word's part-of-speech, we hypothesize that distributed word representations will be vital to our part-of-speech tagging model.
 
 \section{Our Models}
 
-TODO: Write about our models.
+We implemented a recursive neural network with the programming language Lua and the neural network library Torch7 (Collobert, 2011). Our code is available on Github at \hyperlink{http://github.com/robertsdionne/nlp}{github.com/robertsdionne/nlp}.
 
-\subsection{Basic}
+The first model we considered was a basic recursive neural network that combines a phrase representation $p_{i-1}$ encompassing words $w_1,w_2,\ldots,w_{i-1}$ and the word representation $w_i$ into an output phrase representation $p_i$ passed to a multilayer perceptron classifier which outputs the guessed tag.
 
-TODO: Describe models.
+The second model we considered was a compositional vector tagger, based upon the compositional vector grammar model by Socher, et al. (2013), in which different weight matrices are associated with different part-of-speech tags in order to generate tag-dependent phrase representations, which are then scored instead of classified. This model would perform sentence tagging by maximizing the overall score by choosing the correct tag-associated weight matrices for each word using a beam or greedy search.
 
-\subsection{Compositional Vector Grammar}
+The inputs to both models consist of:
 
-TODO: Describe CVG.
+\begin{center}
+\begin{tabular}{ l r }
+  $\mathcal{V} = \left\{w_1,w_2,\ldots,w_{\left\vert\mathcal{V}\right\vert}\right\}$ & the vocabulary \\
+  $\mathcal{T} = \left\{t_1,t_2,\ldots,t_{\left\vert\mathcal{T}\right\vert}\right\}$ & the part-of-speech tags \\
+  $N = 50$ & the word dimension \\
+  $V\in M_{N\times\left\vert\mathcal{V}\right\vert}(\mathbb{R})$ & the word lookup table \\
+  $\Ket{w_i}\in\mathcal{V}$ & the ``one-hot" vectors \\
+  $V\Ket{w_i}\in\mathbb{R}^N$ & the word vectors \\
+  $\Big[\bullet;\bullet\Big]$ & vector concatenation \\
+\end{tabular}
+\end{center}
+\vspace{5mm}
 
-\subsection{Future}
+\subsection{Basic Recursive Neural Network Model}
+
+The basic recursive neural network model also has the following parameters:
+
+\begin{center}
+\begin{tabular}{ l r }
+  $W_{combine}\in M_{N\times2N}(\mathbb{R})$ & matrix for combining \\
+  $b_{combine}\in \mathbb{R}^N$ & bias for combining \\
+  $W_{classify}\in M_{\left\vert\mathcal{T}\right\vert\times N}(\mathbb{R})$ & matrix for tagging \\
+  $b_{classify}\in \mathbb{R}^{\left\vert\mathcal{T}\right\vert}$ & bias for tagging \\
+\end{tabular}
+\end{center}
+
+\vspace{5mm}
+We began by training our model on the Penn Treebank sentences from assignment three, available at \hyperlink{http://www.cs.nyu.edu/petrov/restricted/data3.zip}{www.cs.nyu.edu/petrov/restricted/data3.zip}.
+
+To train the model, we first initialize $W_{combine}$, $b_{combine}$, $W_{classify}$ and $b_{classify}$ with small, uniformly distributed random values. We will discuss how to choose the range for these values in section \textbf{3.2.1 Weight Initialization} below. Then we perform a classification step in which we convert each word into its distributed word representation, pass each of these representations through the unrolled recursive neural network's inputs, and feed the values forward to the classification layers corresponding to each tag output.
+
+For instance, given the sentence $(w_{i_1},w_{i_2},\ldots,w_{i_K})$ of length $K$, we first calculate the word representations $V\Ket{w_{i_1}},\ldots,V\Ket{w_{i_K}}$, then we calculate each phrase representation $p_j$ from the previous phrase representation $p_{j-1}$ and the current word representation $V\Ket{w_{i_j}}$ by concatenating the two representation vectors, multiplying by $W_{combine}$ and adding $b_{combine}$ before applying the $tanh(\cdot)$ function:
+
+$p_j = tanh(W_{combine}\Big[p_{j-1};V\Ket{w_{i_j}}\Big] + b_{combine})$
+
+Finally, each $p_j$ is passed along to the classifier, which applies the operation:
+
+$t_{i_j} = softmax(W_{classify}p_j + b_{classify})$
+
+to obtain the predicted tag $t_{i_j}$ for $w_{i_j}$.
+
+Finally, we perform backpropagation through time, described in section \textbf{3.1} below, to update the weight matrices and bias vectors. Performing a backpropagation after classifying each sentence in the dataset performs stochastic gradient descent in minibatches (where we consider one sentence to be a minibatch of tags and words) to update the weight matrices to more accurately predict the golden tags.
+
+\subsection{Compositional Vector Tagger Model}
+
+The second model we considered uses weight matrices that depend upon the golden tags of the training sentences. The parameters are as follows:
+
+\begin{center}
+\begin{tabular}{ l r }
+  $W_{combine,t}\in M_{N\times2N}(\mathbb{R})$ & matrix for combining tag $t$ \\
+  $b_{combine,t}\in \mathbb{R}^N$ & bias for combining tag $t$ \\
+  $W_{score}\in M_{1\times N}(\mathbb{R})$ & matrix for scoring tags \\
+  $b_{score}\in \mathbb{R}$ & bias for scoring tags \\
+\end{tabular}
+\end{center}
+
+\vspace{5mm}
+The training and classification procedures differ from the basic model. First, in unrolling the recurrent neural network, each recurrent layer adopts the weight matrix associated with the golden tag of the word in that position. For instance, if $w_{i_3}$ had tag $t_{i_3} = \text{NN}$ then the third recurrent layer would adopt the weight matrix $W_{combine,\text{NN}}$. Each recurrent layer adopts the appropriate weight matrix before generating the phrase representations $p_j$. We then apply backpropagation to maximize the score for the representations provided by the golden tag weight matrices by updating those matrices and the score matrix.
+
+Raw classification on unlabeled examples now requires a search procedure. The brute-force procedure to tag a sentence of length $K$ would be to search through all $K^{\left\vert\mathcal{T}\right\vert}$ sequences of tag weight matrices and return the sequence that attains the highest overall score based on the score matrix. As our tag set has size $\left\vert\mathcal{T}\right\vert=48$, this search is intractable for realistic sentences, so a greedy or beam search would need to be used instead.
+
+\subsection{Future Models}
 
 TODO: Describe future models.
 
@@ -177,35 +254,37 @@ that we have given credit to all third party resources that we have used.
 
 \begin{thebibliography}{}
 
-\bibitem[\protect\citename{Aho and Ullman}1972]{Aho:72}
-Alfred~V. Aho and Jeffrey~D. Ullman.
-\newblock 1972.
-\newblock {\em The Theory of Parsing, Translation and Compiling}, volume~1.
-\newblock Prentice-{Hall}, Englewood Cliffs, NJ.
+\bibitem[\protect\citename{Collobert and Weston}2011]{Collobert:11}
+Ronan~Collobert, Jason~Weston, Léon~Bottou, Michael~Karlen, Koray~Kavukcuoglu and Pavel~Kuksa.
+\newblock 2011.
+\newblock Natural Language Processing (Almost) from Scratch.
+\newblock {\em Journal of Machine Learning Research 12},  (2011) 2461-2505.
+\newblock The MIT Press, Cambridge, MA.
 
-\bibitem[\protect\citename{{American Psychological Association}}1983]{APA:83}
-{American Psychological Association}.
-\newblock 1983.
-\newblock {\em Publications Manual}.
-\newblock American Psychological Association, Washington, DC.
+\bibitem[\protect\citename{Collobert, Kavukcuoglu and Farabet}2011]{Collobert:11}
+Ronan~Collobert, Koray~Kavukcuoglu and Clément~Farabet.
+\newblock 2011.
+\newblock Torch7: A matlab-like environment for machine learning.
+\newblock {\em BigLearn, NIPS Workshop}.
 
-\bibitem[\protect\citename{{Association for Computing Machinery}}1983]{ACM:83}
-{Association for Computing Machinery}.
-\newblock 1983.
-\newblock {\em Computing Reviews}, 24(11):503--512.
+\bibitem[\protect\citename{Glorot and Bengio}2010]{Glorot:10}
+Xavier~Glorot and Yoshua~Bengio.
+\newblock 2010.
+\newblock Understanding the difficulty of training deep feedforward neural networks.
+\newblock {\em International Conference on Artificial Intelligence and Statistics}.
 
-\bibitem[\protect\citename{Chandra \bgroup et al.\egroup }1981]{Chandra:81}
-Ashok~K. Chandra, Dexter~C. Kozen, and Larry~J. Stockmeyer.
-\newblock 1981.
-\newblock Alternation.
-\newblock {\em Journal of the Association for Computing Machinery},
-  28(1):114--133.
+\bibitem[\protect\citename{Socher, Bauer, Manning and Ng}2013]{Socher:13}
+Richard~Socher, John~Bauer, Christopher~D. Manning and Andrew~Ng.
+\newblock 2013.
+\newblock Parsing with Compositional Vector Grammars.
+\newblock {\em In Proceedings of the ACL conference}.
 
-\bibitem[\protect\citename{Gusfield}1997]{Gusfield:97}
-Dan Gusfield.
-\newblock 1997.
-\newblock {\em Algorithms on Strings, Trees and Sequences}.
-\newblock Cambridge University Press, Cambridge, UK.
+\bibitem[\protect\citename{Socher, Manning and Ng}2010]{Socher:10}
+Richard~Socher, Christopher~D. Manning and Andrew~Ng.
+\newblock 2010.
+\newblock Learning Continuous Phrase Representations and
+Syntactic Parsing with Recursive Neural Networks.
+\newblock {\em Proceedings of the NIPS-2010 Deep Learning and Unsupervised Feature Learning Workshop}.
 
 \end{thebibliography}
 
