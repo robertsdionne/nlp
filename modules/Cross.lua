@@ -15,6 +15,7 @@ function Cross:__init(coreModule, inModule, outModule)
 end
 
 function Cross:updateOutput(input)
+
    -- concat the input with inModule's output
    --print("The input of Cross`")
    --print(input)

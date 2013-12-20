@@ -97,7 +97,7 @@ function RnnPosTagger:tag(sentence)
         currentSent.index = indexes
         currentSent.tagsId = tagsId
         --print(currentSent) -- @WHY output something strange
-        --local initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
+        self.initRepresent = self.lookupTable:forward(nn.LoadedLookupTable.PADDING)[1]
         -- forward the rnn
         local tagsPredId = self.rnn:forward(currentSent, self.initRepresent)
         local tagsPredName = {}

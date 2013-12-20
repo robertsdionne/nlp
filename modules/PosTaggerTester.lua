@@ -13,6 +13,7 @@ dofile "tags.lua"
 TRAIN_DATA = '../data/train_data.obj'
 TRAINED_MODEL_TAGGER = '../model/trained_tagger.obj'
 TRAINED_MODEL_LOOKUPTABLE = '../model/trained_lookup_table.obj'
+io.stdout:setvbuf("no") 
 
 local function main(arguments)
   -- Ported directly from POSTaggerTester.java from the assignments with a few tweaks.
@@ -106,7 +107,7 @@ local function main(arguments)
   --pos_tagger:validate(dev_in_tagged_sentences)
   
   print('Evaluating on training data:')
-  evaluator:evaluateTagger(pos_tagger, train_tagged_sentences, training_vocabulary, verbose)
+  --evaluator:evaluateTagger(pos_tagger, train_tagged_sentences, training_vocabulary, verbose)
   print('Evaluating on in-domain data:')
   evaluator:evaluateTagger(pos_tagger, dev_in_tagged_sentences, training_vocabulary, verbose)
   print('Evaluating on out-of-domain data:')

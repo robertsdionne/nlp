@@ -1,88 +1,34 @@
-require "nn"
+dofile "CrossRNN.lua"
 
-dofile "CrossWord.lua"
-dofile "CrossTag.lua"
-dofile "CrossCore.lua"
--- dofile "CrossCoreFeak.lua"
-dofile "Cross.lua"
-dofile "Weights.lua"
-
-local CrossRNN, parent = torch.class('nn.CrossRNN', 'nn.Module')
+local CrossBiRNN, parent = torch.class('nn.CrossBiRNN', 'nn.Module')
 
 --build the RNN
-function CrossRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
--- init all parameters
-	--self.paraIn
-	--torch.Tensor(outputSize, inputSize)
-	self.paraOut = {
-		weight = nn.Weights.normalizedInitializationSigmoid(numTags, leftInputSize),
-		bias = nn.Weights.zeros(numTags)
-	}
-	self.paraCore = {
-		weight = nn.Weights.normalizedInitializationTanh(leftInputSize, rightInputSize + leftInputSize),
-		bias = nn.Weights.zeros(leftInputSize)
-	};
-	--print("the initial core weight:\n");
-	--print(self.paraCore.weight);
-	self.lookUpTable = lookUpTable;
-	self.gradients = {};	-- grads from each cross module
-	self.adaLearningRates = {};	-- grads from each cross module
-	--self.initialNodeGrad		--The gradient of the initialNode (the returned valud of self.netWork:backward() )
-	--self.netWork	--stores the network
-	--self.netWorkDepth		--stores the layer number of the network
+function CrossBiRNN:__init(leftInputSize, rightInputSize, numTags, lookUpTable)
+	self.forwardRNN = nn.CrossRNN(leftInputSize, rightInputSize, numTags, lookUpTable)
+	self.backwardRNN = nn.CrossRNN(leftInputSize, rightInputSize, numTags, lookUpTable)
 end
 
 --we assume that each sentence comes with tags
-function CrossRNN:initializeCross(word, index, tagId)
-	inModule = nn.CrossWord(word, index);
-	coreModule = nn.CrossCore(self.paraCore.weight, self.paraCore.bias);
-	outModule = nn.CrossTag(self.paraOut.weight, self.paraOut.bias, tagId);
-	CrossModule = nn.Cross(coreModule, inModule, outModule);
-	return CrossModule;
+function CrossBiRNN:inverseSent(sentenceTuple)
+
 end
 
---the sentence tuple contains the sentence information, index information and the tag informtion
---the buildNet function will be call in forward. You have to make sure that forward
---is called before backward. This function will not be called in backward again.
-function CrossRNN:buildNet(sentenceTuple)
-	self.netWorkDepth = #sentenceTuple.represents;
-	self.netWork = nn.Sequential();
-	for i = 1, self.netWorkDepth do
-		currentWord = sentenceTuple.represents[i];
-		--print("currentWord")
-		--print(currentWord)
-		currentIndex = sentenceTuple.index[i];
-		currentTagId = sentenceTuple.tagsId[i];
-		self.netWork:add(self:initializeCross(currentWord, currentIndex, currentTagId));
-	end
-end
-
-
-function CrossRNN:forward(sentenceTuple, initialNode)
-	-- unroll the RNN use sequentials
-	self:buildNet(sentenceTuple)
-	-- forward sequentialt for each of the cross module
-	self.netWork:forward(initialNode)
+function CrossBiRNN:forward(sentenceTuple, initialNode)
+	-- get inverse sentence for backward
+	-- represents index tagsId
+	local invSentenceTuple = {represents = {}, index = {}, tagsId = {}}
 	
-	-- collect predicted tags
-	predictedTags = {};
-	for i = 1, self.netWorkDepth do
-		predictedTags[i] = self.netWork:get(i).outModule:getPredTag();
-	end
+	-- forward both models
+
+	-- collect probs from two models
+
+	-- analysis to get jointly predicted tags
 	
 	-- return the predicted tags
 	return predictedTags;
 end
 
-function CrossRNN:getProbs()
-	local probs = {}
-	for i = 1, self.netWorkDepth do
-		table.insert(probs, self.netWork:get(i).outModule.probs)
-	end
-	return probs
-end
-
-function CrossRNN:backward(sentenceTuple, initialNode)
+function CrossBiRNN:backward(sentenceTuple, initialNode)
 	
 	--!!!need to becareful here that the final output/gradOutput of the sentence is null
 	local finalGradOutput = torch.zeros(initialNode:size());
@@ -100,7 +46,7 @@ function CrossRNN:backward(sentenceTuple, initialNode)
 	--return gradients;
 end
 
-function CrossRNN:updateCoreParameters(learningRates)
+function CrossBiRNN:updateCoreParameters(learningRates)
 	
 	local gradCoreWeightLength = self.gradients[1][2][1]:size();
 	local gradCoreBiasLength = #self.gradients[1][2][2];
@@ -134,7 +80,7 @@ function CrossRNN:updateCoreParameters(learningRates)
 	-- self.paraCore.bias = self.paraCore.bias - gradCoreBiasSum * learningRates;
 end
 
-function CrossRNN:updateOutParameters(learningRates)
+function CrossBiRNN:updateOutParameters(learningRates)
 	
 	local gradOutWeightLength = self.gradients[1][3][1]:size();
 	local gradOutBiasLength = #self.gradients[1][3][2];
@@ -170,7 +116,7 @@ function CrossRNN:updateOutParameters(learningRates)
 	-- self.paraOut.bias = self.paraOut.bias - gradOutBiasSum * learningRates;
 end
 
-function CrossRNN:updateInParameters(learningRates)
+function CrossBiRNN:updateInParameters(learningRates)
 	
 	local gradInWeightLength = self.gradients[1][1][1]:size();
 	local gradInWeightSum = torch.rand(gradInWeightLength):fill(0);
@@ -186,7 +132,7 @@ function CrossRNN:updateInParameters(learningRates)
 end
 
 
-function CrossRNN:updateParameters(learningRates)
+function CrossBiRNN:updateParameters(learningRates)
 	--update the parameters
 
     self:updateCoreParameters(learningRates)
