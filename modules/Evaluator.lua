@@ -19,6 +19,7 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
   local errPosHis = {}
   local confusion = {}
   local toTags = {}
+  local toCount = 0
   --init the confusion matrix
   for i = 1, #tags do 
     for j = 1, #tags do
@@ -46,8 +47,9 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
         num_tags_correct = num_tags_correct + 1.0
         -- ignore NN->NNP NNP->NN
         
-        if word == "play" then
+        if word == "to" then
           table.insert(toTags, gold_tag)
+
         end
       else
         if (guessed_tag == "NN" and gold_tag == "NNP") or (gold_tag == "NN" and guessed_tag == "NNP") then
@@ -57,7 +59,9 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
         confusion[gold_tag .. " " .. guessed_tag] = confusion[gold_tag .. " " .. guessed_tag] + 1
       end
       --record the confusion mat
-      
+      if word == "to" then
+        toCount = toCount + 1
+      end
 
       num_tags = num_tags + 1.0
       if not training_vocabulary[word] then
@@ -83,11 +87,19 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
     sentenceAcc = sentenceAcc / #words
     table.insert(sentenceAccHis, sentenceAcc)
     table.insert(sentenceLenHis, #words)
+    if (1-sentenceAcc) * #words < 0.2 then
+      print(tagged_sentence.words)
+      print(tagged_sentence.tags)
+      print(guessed_tags)
+      io.read()
+    end
   end
-  gnuplot.hist(torch.Tensor(sentenceAccHis),10)
-  io.read()
-  gnuplot.hist(torch.Tensor(errPosHis),20)
-  io.read()
+  -- gnuplot.hist(torch.Tensor(sentenceAccHis),40)
+  -- --io.read()
+  -- gnuplot.hist(torch.Tensor(errPosHis),40)
+  -- gnuplot.xlabel("Related Position")
+  -- gnuplot.ylabel("Number of Mistakes")
+  --io.read()
   --init the confusion matrix
   for i = 1, #tags do 
     io.write('{')
@@ -101,6 +113,7 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
     end
   end
   print(toTags)
+  print(#toTags/toCount)
   print('  Tag Accuracy: ' .. (num_tags_correct / num_tags))
   print('  (Unknown Accuracy: ' .. (num_unknown_words_correct / num_unknown_words) .. ')')
   -- print('  Decoder Suboptimalities Detected: ' .. num_decoding_inversions)
