@@ -1,3 +1,7 @@
-.DS_Store
+*.aux
+*.log
+*.pdf
 *.swp
+*.synctex.gz
+.DS_Store
 model
