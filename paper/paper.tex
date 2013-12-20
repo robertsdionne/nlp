@@ -92,6 +92,7 @@ The inputs to both models consist of:
   $\Big[\bullet;\bullet\Big]$ & vector concatenation \\
 \end{tabular}
 \end{center}
+\vspace{5mm}
 
 \subsection{Basic Recursive Neural Network Model}
 
@@ -125,7 +126,21 @@ Finally, we perform backpropagation through time, described in section \textbf{3
 
 \subsection{Compositional Vector Tagger Model}
 
+The second model we considered uses weight matrices that depend upon the golden tags of the training sentences. The parameters are as follows:
 
+\begin{center}
+\begin{tabular}{ l r }
+  $W_{combine,t}\in M_{N\times2N}(\mathbb{R})$ & matrix for combining tag $t$ \\
+  $b_{combine,t}\in \mathbb{R}^N$ & bias for combining tag $t$ \\
+  $W_{score}\in M_{1\times N}(\mathbb{R})$ & matrix for scoring tags \\
+  $b_{score}\in \mathbb{R}$ & bias for scoring tags \\
+\end{tabular}
+\end{center}
+
+\vspace{5mm}
+The training and classification procedures differ from the basic model. First, in unrolling the recurrent neural network, each recurrent layer adopts the weight matrix associated with the golden tag of the word in that position. For instance, if $w_{i_3}$ had tag $t_{i_3} = \text{NN}$ then the third recurrent layer would adopt the weight matrix $W_{combine,\text{NN}}$. Each recurrent layer adopts the appropriate weight matrix before generating the phrase representations $p_j$. We then apply backpropagation to maximize the score for the representations provided by the golden tag weight matrices by updating those matrices and the score matrix.
+
+Raw classification on unlabeled examples now requires a search procedure. The brute-force procedure to tag a sentence of length $K$ would be to search through all $K^{\left\vert\mathcal{T}\right\vert}$ sequences of tag weight matrices and return the sequence that attains the highest overall score based on the score matrix. As our tag set has size $\left\vert\mathcal{T}\right\vert=48$, this search is intractable for realistic sentences, so a greedy or beam search would need to be used instead.
 
 \subsection{Future Models}
 
