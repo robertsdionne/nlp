@@ -152,22 +152,22 @@ As the complexity of the compositional vector tagger model is significantly high
 
 \subsection{Future Models}
 
-\paragraph{Bi-direction Recursive Neural Network}
-From Section~\ref{sec:confm} Figure \ref{Pos_fig}, we find it's more likely to make mistakes on the end of sentence. It makes sense, because our basic RNN model uses only forward sequential information. So we think bi-direction model will help, at least on basic RNN. As for CVG model, which is simulating the HMM model considering the tags of whole sentence together, bi-direction model may also help to kind of simulate CRF. There are two bi-direction models we are thinking:
+\paragraph{Bi-directional Recursive Neural Network}
+From Section~\ref{sec:confm} Figure \ref{Pos_fig}, we find it is more likely to make mistakes on the end of sentences. It makes sense, because our basic RNN model uses only forward sequential information. So we think a bi-directional model will help, at least compared to the basic RNN. As for CVG model, which is simulating the HMM model considering the tags of whole sentence together, a bi-directional model may also help to kind of simulate CRF. There are two bi-direction models we are thinking:
 \begin{itemize}
-\item \textbf{Independent training and combine the probability: } Train two RNN models, and tagging the sentence by combining the predicted probability from two models' classifier part( after the softmax ). 
-\item \textbf{Jointly training: } Train two RNN models jointly, and concaten two phrase representations and pass it to a shared classifier, which will in turn backward the gradients to two model. So that the classifier part will get the forward and backward sequential information from two phrase representations. Figure~\ref{fig:bi-direc} shows the idea of this jointly training model.
+\item \textbf{Independently training and combining the probability: } Train two RNN models, and tag the sentence by combining the predicted probability from the two models' classifiers (after the softmax). 
+\item \textbf{Jointly training: } Train two RNN models jointly, and concatenate two phrase representations and pass it to a shared classifier, which will in turn backward propagate the gradients to the two models so that the classifier part will get the forward and backward sequential information from two phrase representations. Figure~\ref{fig:bi-direc} shows the idea of this jointly training model.
 \end{itemize}
 \begin{figure}
 \includegraphics[scale=0.5]{bi_direct.png}
 \caption{Idea chart for jointly training bi-direction RNN model}\label{fig:bi-direc}
 \end{figure}
 
-\paragraph{Complex combination and classify model}
-We are using one layer linear neural network on both combination and classify parts, because it's easy to train. In the beginning, we did try two layer neural network, but it's too slow to train( about 5 times slower) and add another two hyper parameter to set by human. However because the higher ability to capture more complex pattern, complex combination and classify may have better performance. Especially on classify part, we can use any machine learning classification model that can backward gradients.
+\paragraph{Complex combination and classification model}
+We are using one layer linear neural network on both combination and classification parts, because it is easy to train. In the beginning, we did try a two layer neural network, but it was too slow to train (about five times slower) and added another two hyper parameters to choose. However, because of the higher ability to capture more complex patterns, complex combination and classification may have better performance. Especially on classification part, we can use any machine learning classification model that can backward propagate gradients.
 
-\paragraph{Update lookup table}
-In the begining, we tried to update the lookup table together with other parameters. But the result is much worse than not update. But because deep learning people do update the feature learning layers(in our model is just lookup table), so it's reasonable to try this. And instead updating at the beginning of training, we can begin the updating after other parameters are well trained.
+\paragraph{Update the lookup table}
+In the beginning, we tried to update the lookup table together with other parameters. But the result was much worse than not updating it. But because deep learning researchers do update the feature learning layers (in our model, just lookup table), it is reasonable to try this. And instead of updating at the beginning of training, we can begin the updating after other parameters are well trained.
 
 \section{Experiments}
 
@@ -197,7 +197,7 @@ Early on, we randomly initialized our weight matrices and biases using Torch7's 
 torch.rand(P, P+N)
 torch.rand(P)
 \end{lstlisting}
-which draws from $\mathcal{U}[0, 1)$ however, we discovered guidelines for weight initialization from \hyperlink{http://deeplearning.net/tutorial/mlp.html\#mlp}{deeplearning.net/tutorial/mlp.html\#mlp}, borrowed from Glorot and Bengio (2010), and decided to explore how they impacted our training convergence.
+which draws from $\mathcal{U}[0, 1)$. However, we discovered guidelines for weight initialization from \hyperlink{http://deeplearning.net/tutorial/mlp.html\#mlp}{deeplearning.net/tutorial/mlp.html\#mlp}, borrowed from Glorot and Bengio (2010), and decided to explore how they impacted our training convergence.
 
 Glorot and Bengio (2010) analyzed how initial values for weights influenced the early learning of neural networks, specifically those that use $tanh(\cdot)$ or $sigmoid(\cdot)$ and discovered optimal early learning rates with weights drawn from
 \begin{itemize}
@@ -229,11 +229,28 @@ As we all know, there will be overfitting if we train too "hard" on training set
 
 \subsubsection{Comparison to Other Models}
 
+Below, we tally the results against the in-domain validation dataset and the out-of-domain validation dataset on all significantly performing recursive neural network models compared to the hidden-markov-model+TNT, plain hidden-markov-model and maximum likelihood tag models.
 
+The AdaGrad variants started with a learning rate parameter at 0.1. The non-AdaGrad variants started with a learning rate of 0.0005. The RNN models trained on the entire training set (39815 sentences) were trained for 25 iterations. The RNN models trained on just 10,000 sentences were trained for 100 iterations.
 
-TODO: Compare to baseline.
+Because we stripped all capitalization from our training and test data before converting words to their distributed vector representations, we noticed a high error rate due to conflating proper nouns with regular nouns, so to be fair to our model we evaluated the best model with no distinction between the two tags NNP and NN to see how it would fare had it properly considered capitalization as a feature.
 
-TODO: Compare to HMM.
+\begin{center}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{ l | ll | ll }
+  Model & In & (In Unk) & Out & (Out Unk) \\
+  \hline
+  HMM+TNT & 95.88 & (87.13) & 93.67 & (84.61) \\
+  RNN$_{39815}$ NN=NNP & 94.52 & (88.39) & 91.70 & (83.21) \\
+  HMM & 95.52 & (63.95) & 91.23 & (53.00) \\
+  AdaGrad RNN$_{39815}$ & 93.58 & (76.90) & 90.41 & (69.82) \\
+  RNN$_{39815}$ & 93.47 & (77.06) & 90.28 & (70.43) \\
+  AdaGrad RNN$_{10,000}$ & 93.02 & (79.17) & 90.12 & (73.43) \\
+  RNN$_{10,000}$ & 92.72 & (77.51) & 89.54 & (69.60) \\
+  Max Likelihood Tag & 91.31 & (42.74) & 87.01 & (53.31) \\
+\end{tabular}%
+}
+\end{center}
 
 \subsubsection{Error Analysis}  \label{sec:confm}
 
