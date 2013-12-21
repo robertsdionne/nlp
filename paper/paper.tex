@@ -125,6 +125,11 @@ to obtain the predicted tag $t_{i_j}$ for $w_{i_j}$.
 
 Finally, we perform backpropagation through time, described in section \textbf{3.1} below, to update the weight matrices and bias vectors. Performing a backpropagation after classifying each sentence in the dataset performs stochastic gradient descent in minibatches (where we consider one sentence to be a minibatch of tags and words) to update the weight matrices to more accurately predict the golden tags.
 
+\begin{figure}
+	\includegraphics[scale=0.3]{model_figure.png}
+	\caption{Recursive Neural Network Model}\label{Model_fig}
+\end{figure}
+
 \subsection{Compositional Vector Tagger Model}
 
 The second model we considered uses weight matrices that depend upon the golden tags of the training sentences. The parameters are as follows:
@@ -157,7 +162,12 @@ To evaluate the network, we used a basic metric which counts the ratio of the nu
 
 \subsection{Backpropagation Through Time}
 
-TODO: Describe back propagation through time.
+Backpropagation through time is a technique to run backpropagation against recursive neural networks, which include cyclic connections. We perform backpropagation through time automatically by running standard backpropagation against our unrolled recursive neural network with shared weight matrices. Each gradient update to the weight matrix is independently accumulated, resulting in the correct overall update. We perform the gradient update in minibatches, where a single sentence is a mini batch of tagged words and we simultaneously accumulate the errors for each of the words as we backpropogate. See Figure \ref{Bptt_fig} (Mikolov, 2012).
+
+\begin{figure}
+	\includegraphics[scale=0.5]{bptt.png}
+	\caption{Back Propagation Through Time (Mikolov, 2012)}\label{Bptt_fig}
+\end{figure}
 
 \subsection{Training Tricks}
 
@@ -298,6 +308,12 @@ Xavier~Glorot and Yoshua~Bengio.
 \newblock 2010.
 \newblock Understanding the difficulty of training deep feedforward neural networks.
 \newblock {\em International Conference on Artificial Intelligence and Statistics}.
+
+\bibitem[\protect\citename{Mikolov}2012]{Mikolov:12}
+Tomáš~Mikolov.
+\newblock 2012.
+\newblock Statistical Language Models Based on Neural Networks.
+\newblock {\em Diss. Ph. D. thesis, Brno University of Technology}.
 
 \bibitem[\protect\citename{Socher, Bauer, Manning and Ng}2013]{Socher:13}
 Richard~Socher, John~Bauer, Christopher~D. Manning and Andrew~Ng.
