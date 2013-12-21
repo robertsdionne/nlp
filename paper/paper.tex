@@ -162,7 +162,7 @@ To evaluate the network, we used a basic metric which counts the ratio of the nu
 
 \subsection{Backpropagation Through Time}
 
-Backpropagation through time is a technique to run backpropagation against recursive neural networks, which include cyclic connections. We perform backpropagation through time automatically by running standard backpropagation against our unrolled recursive neural network with shared weight matrices. Each gradient update to the weight matrix is independently accumulated, resulting in the correct overall update. We perform the gradient update in minibatches, where a single sentence is a mini batch of tagged words and we simultaneously accumulate the errors for each of the words as we backpropogate. See Figure \ref{Bptt_fig} (Mikolov, 2012).
+Backpropagation through time is a technique to run backpropagation against recursive neural networks, which include cyclic connections. We perform backpropagation through time automatically by running standard backpropagation against our unrolled recursive neural network with shared weight matrices. Each gradient update to the weight matrix is independently accumulated, resulting in the correct overall update. We perform the gradient update in minibatches, where a single sentence is a minibatch of tagged words and we simultaneously accumulate the errors for each of the words as we backpropogate. See Figure \ref{Bptt_fig} (Mikolov, 2012).
 
 \begin{figure}
 	\includegraphics[scale=0.5]{bptt.png}
