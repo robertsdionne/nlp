@@ -24,6 +24,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{braket}
+\usepackage{listings}
 
 
 %\setlength\titlebox{5cm}
@@ -87,7 +88,7 @@ The inputs to both models consist of:
 \begin{tabular}{ l r }
   $\mathcal{V} = \left\{w_1,w_2,\ldots,w_{\left\vert\mathcal{V}\right\vert}\right\}$ & the vocabulary \\
   $\mathcal{T} = \left\{t_1,t_2,\ldots,t_{\left\vert\mathcal{T}\right\vert}\right\}$ & the part-of-speech tags \\
-  $N = 50$ & the word dimension \\
+  $N = 50, P = 50$ & word/phrase dimension \\
   $V\in M_{N\times\left\vert\mathcal{V}\right\vert}(\mathbb{R})$ & the word lookup table \\
   $\Ket{w_i}\in\mathcal{V}$ & the ``one-hot" vectors \\
   $V\Ket{w_i}\in\mathbb{R}^N$ & the word vectors \\
@@ -102,9 +103,9 @@ The basic recursive neural network model also has the following parameters:
 
 \begin{center}
 \begin{tabular}{ l r }
-  $W_{combine}\in M_{N\times2N}(\mathbb{R})$ & matrix for combining \\
-  $b_{combine}\in \mathbb{R}^N$ & bias for combining \\
-  $W_{classify}\in M_{\left\vert\mathcal{T}\right\vert\times N}(\mathbb{R})$ & matrix for tagging \\
+  $W_{combine}\in M_{P\times(P+N)}(\mathbb{R})$ & matrix for combining \\
+  $b_{combine}\in \mathbb{R}^P$ & bias for combining \\
+  $W_{classify}\in M_{\left\vert\mathcal{T}\right\vert\times P}(\mathbb{R})$ & matrix for tagging \\
   $b_{classify}\in \mathbb{R}^{\left\vert\mathcal{T}\right\vert}$ & bias for tagging \\
 \end{tabular}
 \end{center}
@@ -132,10 +133,10 @@ The second model we considered uses weight matrices that depend upon the golden 
 
 \begin{center}
 \begin{tabular}{ l r }
-  $W_{combine,t}\in M_{N\times2N}(\mathbb{R})$ & matrix for combining tag $t$ \\
-  $b_{combine,t}\in \mathbb{R}^N$ & bias for combining tag $t$ \\
-  $W_{score}\in M_{1\times N}(\mathbb{R})$ & matrix for scoring tags \\
-  $b_{score}\in \mathbb{R}$ & bias for scoring tags \\
+  $W_{combine,t}\in M_{P\times(P+N)}(\mathbb{R})$ & matrix for tag $t$ \\
+  $b_{combine,t}\in \mathbb{R}^P$ & bias for tag $t$ \\
+  $W_{score}\in M_{1\times P}(\mathbb{R})$ & matrix for scoring \\
+  $b_{score}\in \mathbb{R}$ & bias for scoring \\
 \end{tabular}
 \end{center}
 
@@ -143,6 +144,8 @@ The second model we considered uses weight matrices that depend upon the golden 
 The training and classification procedures differ from the basic model. First, in unrolling the recurrent neural network, each recurrent layer adopts the weight matrix associated with the golden tag of the word in that position. For instance, if $w_{i_3}$ had tag $t_{i_3} = \text{NN}$ then the third recurrent layer would adopt the weight matrix $W_{combine,\text{NN}}$. Each recurrent layer adopts the appropriate weight matrix before generating the phrase representations $p_j$. We then apply backpropagation to maximize the score for the representations provided by the golden tag weight matrices by updating those matrices and the score matrix.
 
 Raw classification on unlabeled examples now requires a search procedure. The brute-force procedure to tag a sentence of length $K$ would be to search through all $K^{\left\vert\mathcal{T}\right\vert}$ sequences of tag weight matrices and return the sequence that attains the highest overall score based on the score matrix. As our tag set has size $\left\vert\mathcal{T}\right\vert=48$, this search is intractable for realistic sentences, so a greedy or beam search would need to be used instead.
+
+As the complexity of the compositional vector tagger model is significantly higher than the basic recurrent neural network model, we were unable to properly train the model and implement a satisfactory search procedure within the remaining time of the assignment, so we have omitted analysis of the results of this model.
 
 \subsection{Future Models}
 
@@ -162,7 +165,21 @@ TODO: Describe training tricks.
 
 \subsubsection{Weight Initialization}
 
-TODO: Describe weight initialization.
+Early on, we randomly initialized our weight matrices and biases using Torch7's uniform tensor function,
+\begin{lstlisting}
+torch.rand(P, P+N)
+torch.rand(P)
+\end{lstlisting}
+which draws from $\mathcal{U}[0, 1)$ however, we discovered guidelines for weight initialization from \hyperlink{http://deeplearning.net/tutorial/mlp.html\#mlp}{deeplearning.net/tutorial/mlp.html\#mlp}, borrowed from Glorot and Bengio (2010), and decided to explore how they impacted our training convergence.
+
+Glorot and Bengio (2010) analyzed how initial values for weights influenced the early learning of neural networks, specifically those that use $tanh(\cdot)$ or $sigmoid(\cdot)$ and discovered optimal early learning rates with weights drawn from
+\begin{itemize}
+\item $\mathcal{U}\Big[-\sqrt{\frac{6}{fan_{in}+fan_{out}}},\sqrt{\frac{6}{fan_{in}+fan_{out}}}\Big)$ for $tanh$ layers
+\item $\mathcal{U}\Big[-4\sqrt{\frac{6}{fan_{in}+fan_{out}}},4\sqrt{\frac{6}{fan_{in}+fan_{out}}}\Big)$ for $sigmoid$ layers
+\end{itemize}
+where $fan_{in}$ is the number of inputs to the layer and $fan_{out}$ is the number of outputs.
+
+After adopting these new ranges, and initializing our biases to start at zero, our attainable accuracies dramatically increased from the values we presented in class in our slides, from about $60\%$ to about $80\%$.
 
 \subsubsection{AdaGrad}
 
@@ -185,10 +202,10 @@ TODO: Compare to HMM.
 \subsubsection{Error Analysis}
 
 \paragraph{Confusion matrices} 
-We plot the confusion matrix(Figure \ref{Conf_fig}) for the basic RNN model and find that:
+We plot the confusion matrix (Figure \ref{Conf_fig}) for the basic RNN model and find that:
 \begin{enumerate}
-\item The \textbf{most serious confusion is between NNP and NN}. This makes sense, because the fact that the embemdings we are using make no difference between captitaled word and noncapitaled word;
-\item  Another strange confusion is from quotes, which was also met in common HMM models. These may come from the overwhelming sequential information;
+\item The \textbf{most serious confusion is between NNP and NN}. This makes sense because of the fact that the embeddings we are using make no distinction between capitalized and non-capitalized words;
+\item  Another strange confusion is from quotes, which was also met in common HMM models. This may come from the overwhelming sequential information;
 \item Other confusions look normal, and also occur in HMM models, like JJ and NN.
 \end{enumerate}
 \begin{figure}
@@ -198,10 +215,10 @@ We plot the confusion matrix(Figure \ref{Conf_fig}) for the basic RNN model and 
 \end{figure}
 
 \paragraph{Position of wrong tags } 
-We plot the histogram(Figure \ref{Pos_fig}) of related position(absolute positon in sentence divided by sentence length in (0,1] ). 
+We plot the histogram (Figure \ref{Pos_fig}) of relative position (absolute position in sentence divided by sentence length in (0, 1]). 
 \begin{itemize}
-\item \textbf{Indomain}(left figure): The related position is almost uniform distributed.
-\item \textbf{Outdomain}(right figure): The number of wrong tags  is generally increasing upon related position. And from different scale of histogram, we find there is a big drop around 0.5( middle of sentece). These may come from the sequential similarity between indomain and outdomain. These may also come from the limitation of sequential information passing. So bi-direct RNN may help.
+\item \textbf{In-domain} (left figure): The relative position is almost uniformly distributed.
+\item \textbf{Out-of-domain} (right figure): The number of wrong tags is generally increasing with relative position. And from the different scale of this histogram, we find there is a big drop around 0.5 (middle of sentence). This may come from the sequential similarity between in-domain and out-of-domain. This may also come from the limitation of sequential information passing. So a bi-directional RNN may help.
 \end{itemize}
 \begin{figure}
 \includegraphics[scale=0.25]{indomain_pos.png} 
@@ -209,23 +226,23 @@ We plot the histogram(Figure \ref{Pos_fig}) of related position(absolute positon
 \caption{Histogram of related position of wrong tags, left is in domain, right is out of domain}\label{Pos_fig}
 \end{figure}
 
-\paragraph{Not just maximum likelihood model}
-In the beginning, there is a worry about whether this RNN model can pass and use the sequential information correctly. Perhaps, it just learns a maxium likelihood( most frequent ) predictor for each word or even each group of words. So we did some experiments to verify the contribution of sequential information in RNN.
+\paragraph{Not just a maximum likelihood model}
+In the beginning, we worried about whether this RNN model can pass and use the sequential information correctly. Perhaps it just learns a maximum likelihood (most frequent) predictor for each word or even each group of words. So we did some experiments to verify the contribution of sequential information to the RNN results.
 
 \begin{itemize}
-\item \textbf{Same word test}:  We choose some words with more than one  common tags and see whether our model predict those tags correctly. We tested on 'to'( possible tags are TO and IN) and 'work'(common possible tags are NN, VB and VBP). RNN predicts 'to' with 0.80 indomain accuracy and 0.77 outdomain, covering TO and IN. RNN predicts 'word' with 0.88 indomain accuracy and 0.83 outdomain, covering NN, VB and VBP.
-\item \textbf{Disconnect core module test}: We disconnect the sequential information passing by ignoring the input embeddings from lower layer, and backwarded gradient from upper layer. So although it's still a RNN, there is actually no information passed between layers. We train this no-seq RNN and original RNN with 100 sentences and 100 iterations, same random seed and training parameters. The Figure \ref{Noseq_fig} shows the outdomain accuracy of two models by the number of iterations, which can be also seen from Figure \ref{Leftsize_fig}. The difference is not small. So we think the sequential information was passed and used at least partially correctly.
+\item \textbf{Same word test}:  We chose some words with more than one common tag and saw whether our model predicted those tags correctly. We tested on `to' (possible tags are TO and IN) and `work' (common possible tags are NN, VB and VBP). Our RNN predicts `to' with 0.80 in-domain and 0.77 out-of-domain accuracy, covering TO and IN. The RNN predicts `work' with 0.88 in-domain and 0.83 out-of-domain accuracy, covering NN, VB and VBP.
+\item \textbf{Disconnected core module test}: We disconnected the sequential information passing by ignoring the input embeddings from lower layers, and backward gradient from upper layers. So although it's still an RNN, there is actually no information passed between layers. We trained this non-sequential RNN and the original RNN with 100 sentences and 100 iterations, same random seed and training parameters. The Figure \ref{Noseq_fig} shows the out-of-domain accuracy of two models by the number of iterations, which can be also seen from Figure \ref{Leftsize_fig}. The difference is not small. So we think the sequential information was passed and used at least partially correctly.
 \end{itemize}
 \begin{figure}
 \includegraphics[scale=0.5]{outdomain_noseq.png}
-\caption{Comparision of no-seq RNN and original RNN for disconnect core module test}\label{Noseq_fig}
+\caption{Comparison of non-sequential RNN and original RNN for disconnected core module test}\label{Noseq_fig}
 \end{figure}
 
 \paragraph{Different embedding size of state}
-The size of state embeddings(left side of each RNN layer) is another hyper-parameter to set up. And it is important because it may determines the importance of previous sequential information comparing to the current word embedding. Figure \ref{Leftsize_fig} shows the the outdomain accuracy of two models by the number of iterations. And it looks like 20 is around the optimial size for state embeddings.
+The size of state embeddings (left side of each RNN layer) is another hyper-parameter to set up. And it is important because it may determine the importance of previous sequential information compared to the current word embedding. Figure \ref{Leftsize_fig} shows the the out-of-domain accuracy of two models by the number of iterations. And it looks like 20 is around the optimal size for state embeddings.
 \begin{figure}
 	\includegraphics[scale=0.5]{outdomain_leftsize.png}
-	\caption{Outdomain accuracy comparision of different state embedding size} \label{Leftsize_fig}
+	\caption{Out-of-domain accuracy comparison of different state embedding size} \label{Leftsize_fig}
 \end{figure}
 
 TODO: Compare with and without updating word representations.
