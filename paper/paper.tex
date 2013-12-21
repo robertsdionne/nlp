@@ -88,7 +88,7 @@ The inputs to both models consist of:
 \begin{tabular}{ l r }
   $\mathcal{V} = \left\{w_1,w_2,\ldots,w_{\left\vert\mathcal{V}\right\vert}\right\}$ & the vocabulary \\
   $\mathcal{T} = \left\{t_1,t_2,\ldots,t_{\left\vert\mathcal{T}\right\vert}\right\}$ & the part-of-speech tags \\
-  $N = 50$ & the word dimension \\
+  $N = 50, P = 50$ & word/phrase dimension \\
   $V\in M_{N\times\left\vert\mathcal{V}\right\vert}(\mathbb{R})$ & the word lookup table \\
   $\Ket{w_i}\in\mathcal{V}$ & the ``one-hot" vectors \\
   $V\Ket{w_i}\in\mathbb{R}^N$ & the word vectors \\
@@ -103,9 +103,9 @@ The basic recursive neural network model also has the following parameters:
 
 \begin{center}
 \begin{tabular}{ l r }
-  $W_{combine}\in M_{N\times2N}(\mathbb{R})$ & matrix for combining \\
-  $b_{combine}\in \mathbb{R}^N$ & bias for combining \\
-  $W_{classify}\in M_{\left\vert\mathcal{T}\right\vert\times N}(\mathbb{R})$ & matrix for tagging \\
+  $W_{combine}\in M_{P\times(P+N)}(\mathbb{R})$ & matrix for combining \\
+  $b_{combine}\in \mathbb{R}^P$ & bias for combining \\
+  $W_{classify}\in M_{\left\vert\mathcal{T}\right\vert\times P}(\mathbb{R})$ & matrix for tagging \\
   $b_{classify}\in \mathbb{R}^{\left\vert\mathcal{T}\right\vert}$ & bias for tagging \\
 \end{tabular}
 \end{center}
@@ -133,10 +133,10 @@ The second model we considered uses weight matrices that depend upon the golden 
 
 \begin{center}
 \begin{tabular}{ l r }
-  $W_{combine,t}\in M_{N\times2N}(\mathbb{R})$ & matrix for combining tag $t$ \\
-  $b_{combine,t}\in \mathbb{R}^N$ & bias for combining tag $t$ \\
-  $W_{score}\in M_{1\times N}(\mathbb{R})$ & matrix for scoring tags \\
-  $b_{score}\in \mathbb{R}$ & bias for scoring tags \\
+  $W_{combine,t}\in M_{P\times(P+N)}(\mathbb{R})$ & matrix for tag $t$ \\
+  $b_{combine,t}\in \mathbb{R}^P$ & bias for tag $t$ \\
+  $W_{score}\in M_{1\times P}(\mathbb{R})$ & matrix for scoring \\
+  $b_{score}\in \mathbb{R}$ & bias for scoring \\
 \end{tabular}
 \end{center}
 
@@ -167,8 +167,8 @@ TODO: Describe training tricks.
 
 Early on, we randomly initialized our weight matrices and biases using Torch7's uniform tensor function,
 \begin{lstlisting}
-torch.rand(m, n)
-torch.rand(n)
+torch.rand(P, P+N)
+torch.rand(P)
 \end{lstlisting}
 which draws from $\mathcal{U}[0, 1)$ however, we discovered guidelines for weight initialization from \hyperlink{http://deeplearning.net/tutorial/mlp.html\#mlp}{deeplearning.net/tutorial/mlp.html\#mlp}, borrowed from Glorot and Bengio (2010), and decided to explore how they impacted our training convergence.
 
@@ -179,7 +179,7 @@ Glorot and Bengio (2010) analyzed how initial values for weights influenced the 
 \end{itemize}
 where $fan_{in}$ is the number of inputs to the layer and $fan_{out}$ is the number of outputs.
 
-After adopting these new ranges, and initializing our biases to start at zero, our attainable accuracies dramatically increased from the values we presented in our slides, from about $60\%$ to about $80\%$.
+After adopting these new ranges, and initializing our biases to start at zero, our attainable accuracies dramatically increased from the values we presented in class in our slides, from about $60\%$ to about $80\%$.
 
 \subsubsection{AdaGrad}
 
