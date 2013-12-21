@@ -292,18 +292,11 @@ In the beginning, we worried about whether this RNN model can pass and use the s
 \end{figure}
 
 \paragraph{Different embedding size of state}
-The size of state embeddings (left side of each RNN layer) is another hyper-parameter to set up. And it is important because it may determine the importance of previous sequential information compared to the current word embedding. Figure \ref{Leftsize_fig} shows the the out-of-domain accuracy of two models by the number of iterations. And it looks like 20 is around the optimal size for state embeddings.
+The size of state embeddings (left side of each RNN layer) is another hyper-parameter to set up. And it is important because it may determine the importance of previous sequential information compared to the current word embedding. Figure \ref{Leftsize_fig} shows the the out-of-domain accuracy of two models by the number of iterations. And it looks like 20 is around the optimal size for state embeddings given a training set size of 100. However, we trained on the full training set and observed better performance at the original state embedding size of 50.
 \begin{figure}
 	\includegraphics[scale=0.5]{outdomain_leftsize.png}
 	\caption{Out-of-domain accuracy comparison of different state embedding size} \label{Leftsize_fig}
 \end{figure}
-
-
-TODO: Specific error examples and hypotheses.
-
-
-
-
 
 \section{Conclusion}
 
