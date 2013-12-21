@@ -235,11 +235,13 @@ As we all know, there will be overfitting if we train too "hard" on training set
 
 \subsubsection{Comparison to Other Models}\label{sec:modelcomp}
 
-Below, we tally the results against the in-domain validation dataset and the out-of-domain validation dataset on all significantly performing recursive neural network models compared to the hidden-markov-model+TNT, plain hidden-markov-model and maximum likelihood tag models.
+Below, we tally the results against the in-domain validation dataset and the out-of-domain validation dataset on all significantly performing recursive neural network models compared to the hidden-markov-model+TNT, plain hidden-markov-model and maximum likelihood tag model.
 
 The AdaGrad variants started with a learning rate parameter at 0.1. The non-AdaGrad variants started with a learning rate of 0.0005. The RNN models trained on the entire training set (39815 sentences) were trained for 25 iterations. The RNN models trained on just 10,000 sentences were trained for 100 iterations.
 
 Because we stripped all capitalization from our training and test data before converting words to their distributed vector representations, we noticed a high error rate due to conflating proper nouns with regular nouns, so to be fair to our model we evaluated the best model with no distinction between the two tags NNP and NN to see how it would fare had it properly considered capitalization as a feature.
+
+Also, because we are using fully-trained models, we are certainly overfitting, especially compared to the peak results depicted in Figure \ref{Adagrad_fig}.
 
 \begin{center}
 \resizebox{\columnwidth}{!}{%
@@ -247,10 +249,11 @@ Because we stripped all capitalization from our training and test data before co
   Model & In & (In Unk) & Out & (Out Unk) \\
   \hline
   HMM+TNT & 95.88 & (87.13) & 93.67 & (84.61) \\
-  RNN$_{39815}$ NN=NNP & 94.52 & (88.39) & 91.70 & (83.21) \\
+  AdaGrad RNN$_{10,000}$ NN=NNP & 94.40 & (78.48) & 91.86 & (70.37) \\
+  RNN$_{all}$ NN=NNP & 94.52 & (88.39) & 91.70 & (83.21) \\
   HMM & 95.52 & (63.95) & 91.23 & (53.00) \\
-  AdaGrad RNN$_{39815}$ & 93.58 & (76.90) & 90.41 & (69.82) \\
-  RNN$_{39815}$ & 93.47 & (77.06) & 90.28 & (70.43) \\
+  AdaGrad RNN$_{all}$ & 93.58 & (76.90) & 90.41 & (69.82) \\
+  RNN$_{all}$ & 93.47 & (77.06) & 90.28 & (70.43) \\
   AdaGrad RNN$_{10,000}$ & 93.02 & (79.17) & 90.12 & (73.43) \\
   RNN$_{10,000}$ & 92.72 & (77.51) & 89.54 & (69.60) \\
   Max Likelihood Tag & 91.31 & (42.74) & 87.01 & (53.31) \\
@@ -305,12 +308,19 @@ The size of state embeddings (left side of each RNN layer) is another hyper-para
 \end{figure}
 
 \section{Conclusion}
+We learned that because we eliminated capitalization information from our training and test data in order to use the distributed word embeddings from Collobert and Weston (2011), we severely handicapped the capability of our model to distinguish a large portion of part-of-speech tags, for instance by confusing proper nouns with regular nouns. However, we propose to solve this problem, in order to outperform the hidden-markov-model, by manually extending the word embeddings to encode capitalization, and perhaps plurality.
+
+We also discovered that quotes cause large problems with our model because they frequently occur directly next to nouns, and are thus often confused with nouns. We would like to explore manual constraints to resolve this confusion in our model.
+
+We propose to fix the error rate correlated with word index within a sentence by using a bidirectional model to gain context information flowing from both the front and the back of the sentence.
+
+We are looking forward to all the future models proposed and the performance improvements they might bring.
 
 \section{Future Works}
 Because the limited time of final projects, there are still a lot of things we want to do in the future. We mentioned some new models to try in Section \ref{sec:futuremodel}, and here are some most wanted works to do:
 \begin{itemize}
-\item Training and tagging the CVT model: we have mentioned the hardness of training and tagging with CVT model. In the future, we want to training a CVT model no matter how long it may takes, say several days or weeks. And implement the rerank trick mentioned  in Section \ref{sec:futuremodel}.
-\item Move to GPU: We are working with torch (http://www.torch.ch), which is made by NYU people and supports GPU. So in the future, we can use GPU to speed up both traning and tagging. And Theano(http://deeplearning.net/software/theano/) can another choice, which has python interface and also GPU supporting and has very good neural networks supporting.
+\item Training and tagging the CVT model: we have mentioned the hardness of training and tagging with CVT model. In the future, we want to train a CVT model no matter how long it may take, say several days or weeks. And implement the rerank trick mentioned in Section \ref{sec:futuremodel}.
+\item Move to GPU: We are working with torch (http://www.torch.ch), which is made by NYU people and supports GPU. So in the future, we can use GPU to speed up both training and tagging. And Theano (http://deeplearning.net/software/theano/) can be another choice, which has a Python interface and also GPU support and has very good neural network support.
 \end{itemize}
 
 \section{Academic Honesty Pledge}
