@@ -26,6 +26,8 @@
 \usepackage{braket}
 \usepackage{listings}
 
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+
 
 %\setlength\titlebox{5cm}
 
@@ -116,16 +118,17 @@ We began by training our model on the Penn Treebank sentences from assignment th
 To train the model, we first initialize $W_{combine}$, $b_{combine}$, $W_{classify}$ and $b_{classify}$ with small, uniformly distributed random values. We will discuss how to choose the range for these values in section \textbf{3.2.1 Weight Initialization} below. Then we perform a classification step in which we convert each word into its distributed word representation, pass each of these representations through the unrolled recursive neural network's inputs, and feed the values forward to the classification layers corresponding to each tag output.
 
 For instance, given the sentence $(w_{i_1},w_{i_2},\ldots,w_{i_K})$ of length $K$, we first calculate the word representations $V\Ket{w_{i_1}},\ldots,V\Ket{w_{i_K}}$, then we calculate each phrase representation $p_j$ from the previous phrase representation $p_{j-1}$ and the current word representation $V\Ket{w_{i_j}}$ by concatenating the two representation vectors, multiplying by $W_{combine}$ and adding $b_{combine}$ before applying the $tanh(\cdot)$ function:
-
-$p_j = tanh(W_{combine}\Big[p_{j-1};V\Ket{w_{i_j}}\Big] + b_{combine})$
-
+$$p_j = tanh(W_{combine}\Big[p_{j-1};V\Ket{w_{i_j}}\Big] + b_{combine})$$
 Subsequently, each $p_j$ is passed along to the classifier, which applies the operation:
-
-$t_{i_j} = softmax(W_{classify}p_j + b_{classify})$
-
+$$t_{i_j} = \argmax\limits_{t} softmax(W_{classify}p_j + b_{classify})$$
 to obtain the predicted tag $t_{i_j}$ for $w_{i_j}$.
 
 Finally, we perform backpropagation through time, described in section \textbf{3.1} below, to update the weight matrices and bias vectors. Performing a backpropagation after classifying each sentence in the dataset performs stochastic gradient descent in minibatches (where we consider one sentence to be a minibatch of tags and words) to update the weight matrices to more accurately predict the golden tags.
+
+\begin{figure}
+	\includegraphics[scale=0.3]{model_figure.png}
+	\caption{Recursive Neural Network Model}\label{Model_fig}
+\end{figure}
 
 \subsection{Compositional Vector Tagger Model}
 
@@ -174,11 +177,16 @@ To evaluate the network, we used a basic metric which counts the ratio of the nu
 
 \subsection{Backpropagation Through Time}
 
-TODO: Describe back propagation through time.
+Backpropagation through time is a technique to run backpropagation against recursive neural networks, which include cyclic connections. We perform backpropagation through time automatically by running standard backpropagation against our unrolled recursive neural network with shared weight matrices. Each gradient update to the weight matrix is independently accumulated, resulting in the correct overall update. We perform the gradient update in minibatches, where a single sentence is a minibatch of tagged words and we simultaneously accumulate the errors for each of the words as we backpropogate. See Figure \ref{Bptt_fig} (Mikolov, 2012).
+
+\begin{figure}
+	\includegraphics[scale=0.5]{bptt.png}
+	\caption{Back Propagation Through Time (Mikolov, 2012)}\label{Bptt_fig}
+\end{figure}
 
 \subsection{Training Tricks}
 
-Training neural networks can be tricky since the backpropagation algorithm relies upon a learning rate parameter as well as initial weight and bias values. The learning rate should not be too large, otherwise the gradient descent will skip over local or global minima. However, it should also not be too small, otherwise training may take too long. It perhaps should vary over the course of training and decrease in order to better fine tune the fit to the minima. However, it's not obvious exactly which set of choices will be best.
+Training neural networks can be tricky since the backpropagation algorithm relies upon a learning rate parameter as well as initial weight and bias values. The learning rate should not be too large, otherwise the gradient descent will skip over local or global minima. However, it should also not be too small, otherwise training may take too long. It perhaps should vary over the course of training and decrease in order to better fine tune the fit to the minima. However, it is not obvious exactly which set of choices will be best.
 
 We researched existing techniques to choose initial weights and biases, and to better update the weights based on adaptive learning rates, as described in the next subsections.
 
@@ -201,11 +209,13 @@ where $fan_{in}$ is the number of inputs to the layer and $fan_{out}$ is the num
 After adopting these new ranges, and initializing our biases to start at zero, our attainable accuracies dramatically increased from the values we presented in class in our slides, from about $60\%$ to about $80\%$.
 
 \subsubsection{AdaGrad}
-We used the AdaGrad online learning method to train our model. Let $\theta$ be a vector of all parameters needed to train in RNN model and $\theta_t$ means the parameter vector before training on $t_{th}$ example. And let  $g_{t,i}$ to be the gradient value of $i_{th}$ parameter on $t_{th}$ example. Then the AdaGrad is just updating the parameter vector by
+We used the AdaGrad online learning method to train our model (Socher et al., 2013). Let $\theta$ be a vector of all parameters needed to train an RNN model and $\theta_t$ means the parameter vector before training on the $t$-th sentence. And let $g_{t,i}$ to be the gradient value of $i$-th parameter on the $t$-th sentence. Then to perform AdaGrad is just to update the parameter vector by
 $$\theta_{{t+1},i} = \theta_{{t},i}  - \frac{\alpha}{\sqrt{\sum_{s=1}^t \theta_{{s},i}^2 }} g_{t,i}$$,
-where the $\alpha$ is a constance to set the scale of learning rate.
+where the $\alpha$ is a constant to set the scale of the learning rate.
 
-We compared the AdaGrad with fixed learning rate online traning. The Figure \ref{Adagrad_fig} is the accuarcy curve on training iteration. From Figure \ref{Adagrad_fig}, it's quite clear that the AdaGrad converges faster and better than fixed learning rate.
+We compared the AdaGrad with fixed learning rate online training. The Figure \ref{Adagrad_fig} is the accuracy curve on training iteration. From Figure \ref{Adagrad_fig}, it is quite clear that the AdaGrad converges faster and better than fixed learning rate. The discrepancy between the initial positions is due to plotting after the first iteration over the training set, at which point we've already performed one AdaGrad update for each sentence.
+
+Additionally, we found that performing an AdaGrad update after each word evaluation performed worse than updating once after each sentence evaluation.
 
 \begin{figure}
 	\includegraphics[scale=0.5]{outdomain_adagrad.png}
@@ -214,12 +224,12 @@ We compared the AdaGrad with fixed learning rate online traning. The Figure \ref
 \end{figure}
 \subsection{Analysis}
 
-TODO: Describe analysis.
-
 \subsubsection{Training Progress Diagram}
-As we all know, there will be overfitting if we train too "hard" on training set. And if overfitting happens, the test accuracy, in our experiments is out-of-domain accuracy, will drop. Figure \ref{Adagrad_fig} shows this drop on both total accuracy and unknown word accuracy.
+As we all know, there will be overfitting if we train too "hard" on training set. And if overfitting happens, the test accuracy (in our experiments, the out-of-domain accuracy) will drop. Figure \ref{Adagrad_fig} shows this drop on both total accuracy and unknown word accuracy.
 
 \subsubsection{Comparison to Other Models}
+
+
 
 TODO: Compare to baseline.
 
@@ -257,7 +267,7 @@ In the beginning, we worried about whether this RNN model can pass and use the s
 
 \begin{itemize}
 \item \textbf{Same word test}:  We chose some words with more than one common tag and saw whether our model predicted those tags correctly. We tested on `to' (possible tags are TO and IN) and `work' (common possible tags are NN, VB and VBP). Our RNN predicts `to' with 0.80 in-domain and 0.77 out-of-domain accuracy, covering TO and IN. The RNN predicts `work' with 0.88 in-domain and 0.83 out-of-domain accuracy, covering NN, VB and VBP.
-\item \textbf{Disconnected core module test}: We disconnected the sequential information passing by ignoring the input embeddings from lower layers, and backward gradient from upper layers. So although it's still an RNN, there is actually no information passed between layers. We trained this non-sequential RNN and the original RNN with 100 sentences and 100 iterations, same random seed and training parameters. The Figure \ref{Noseq_fig} shows the out-of-domain accuracy of two models by the number of iterations, which can be also seen from Figure \ref{Leftsize_fig}. The difference is not small. So we think the sequential information was passed and used at least partially correctly.
+\item \textbf{Disconnected core module test}: We disconnected the sequential information passing by ignoring the input embeddings from lower layers, and backward gradient from upper layers. So although it is still an RNN, there is actually no information passed between layers. We trained this non-sequential RNN and the original RNN with 100 sentences and 100 iterations, same random seed and training parameters. The Figure \ref{Noseq_fig} shows the out-of-domain accuracy of two models by the number of iterations, which can be also seen from Figure \ref{Leftsize_fig}. The difference is not small. So we think the sequential information was passed and used at least partially correctly.
 \end{itemize}
 \begin{figure}
 \includegraphics[scale=0.5]{outdomain_noseq.png}
@@ -314,6 +324,12 @@ Xavier~Glorot and Yoshua~Bengio.
 \newblock 2010.
 \newblock Understanding the difficulty of training deep feedforward neural networks.
 \newblock {\em International Conference on Artificial Intelligence and Statistics}.
+
+\bibitem[\protect\citename{Mikolov}2012]{Mikolov:12}
+Tomáš~Mikolov.
+\newblock 2012.
+\newblock Statistical Language Models Based on Neural Networks.
+\newblock {\em Diss. Ph. D. thesis, Brno University of Technology}.
 
 \bibitem[\protect\citename{Socher, Bauer, Manning and Ng}2013]{Socher:13}
 Richard~Socher, John~Bauer, Christopher~D. Manning and Andrew~Ng.
