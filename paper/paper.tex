@@ -26,6 +26,8 @@
 \usepackage{braket}
 \usepackage{listings}
 
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+
 
 %\setlength\titlebox{5cm}
 
@@ -118,7 +120,7 @@ To train the model, we first initialize $W_{combine}$, $b_{combine}$, $W_{classi
 For instance, given the sentence $(w_{i_1},w_{i_2},\ldots,w_{i_K})$ of length $K$, we first calculate the word representations $V\Ket{w_{i_1}},\ldots,V\Ket{w_{i_K}}$, then we calculate each phrase representation $p_j$ from the previous phrase representation $p_{j-1}$ and the current word representation $V\Ket{w_{i_j}}$ by concatenating the two representation vectors, multiplying by $W_{combine}$ and adding $b_{combine}$ before applying the $tanh(\cdot)$ function:
 $$p_j = tanh(W_{combine}\Big[p_{j-1};V\Ket{w_{i_j}}\Big] + b_{combine})$$
 Subsequently, each $p_j$ is passed along to the classifier, which applies the operation:
-$$t_{i_j} = softmax(W_{classify}p_j + b_{classify})$$
+$$t_{i_j} = \argmax\limits_{t} softmax(W_{classify}p_j + b_{classify})$$
 to obtain the predicted tag $t_{i_j}$ for $w_{i_j}$.
 
 Finally, we perform backpropagation through time, described in section \textbf{3.1} below, to update the weight matrices and bias vectors. Performing a backpropagation after classifying each sentence in the dataset performs stochastic gradient descent in minibatches (where we consider one sentence to be a minibatch of tags and words) to update the weight matrices to more accurately predict the golden tags.
