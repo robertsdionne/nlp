@@ -153,7 +153,7 @@ As the complexity of the compositional vector tagger model is significantly high
 \subsection{Future Models}\label{sec:futuremodel}
 
 \paragraph{Manually Extended Embeddings}
-From the anaysis of Section ~\ref{sec:confm} and also the results in Section ~\ref{sec:modelcomp}, we see that because the disappear of capitalization information of words, the RNN model is bad at telling NN and NNP. So we think we can manually extend the embeddings of words by some human made features like captitalized or not, even suffix information. This, in our view will definitely improve the performance of model a lot.
+From the analysis of Section ~\ref{sec:confm} and also the results in Section ~\ref{sec:modelcomp}, we see that because of the erasure of capitalization information of words, the RNN model is bad at distinguishing between NN and NNP. So we think we can manually extend the embeddings of words by some human made features like capitalized or not, or perhaps even suffix information. This, in our view, will likely improve the performance of the model a lot.
 
 \paragraph{Bi-directional Recursive Neural Network}
 From Section~\ref{sec:confm} Figure \ref{Pos_fig}, we find it is more likely to make mistakes on the end of sentences. It makes sense, because our basic RNN model uses only forward sequential information. So we think a bi-directional model will help, at least compared to the basic RNN. As for CVT model, which is simulating the HMM model considering the tags of whole sentence together, a bi-directional model may also help to kind of simulate CRF. There are two bi-direction models we are thinking:
