@@ -115,7 +115,7 @@ The basic recursive neural network model also has the following parameters:
 \vspace{5mm}
 We began by training our model on the Penn Treebank sentences from assignment three, available at \hyperlink{http://www.cs.nyu.edu/petrov/restricted/data3.zip}{www.cs.nyu.edu/petrov/restricted/data3.zip}.
 
-To train the model, we first initialize $W_{combine}$, $b_{combine}$, $W_{classify}$ and $b_{classify}$ with small, uniformly distributed random values. We will discuss how to choose the range for these values in section \textbf{3.2.1 Weight Initialization} below. Then we perform a classification step in which we convert each word into its distributed word representation, pass each of these representations through the unrolled recursive neural network's inputs, and feed the values forward to the classification layers corresponding to each tag output.
+To train the model, we first initialize $W_{combine}$, $b_{combine}$, $W_{classify}$ and $b_{classify}$ with small, uniformly distributed random values. We will discuss how to choose the range for these values in Section \ref{Weights} below. Then we perform a classification step in which we convert each word into its distributed word representation, pass each of these representations through the unrolled recursive neural network's inputs, and feed the values forward to the classification layers corresponding to each tag output.
 
 For instance, given the sentence $(w_{i_1},w_{i_2},\ldots,w_{i_K})$ of length $K$, we first calculate the word representations $V\Ket{w_{i_1}},\ldots,V\Ket{w_{i_K}}$, then we calculate each phrase representation $p_j$ from the previous phrase representation $p_{j-1}$ and the current word representation $V\Ket{w_{i_j}}$ by concatenating the two representation vectors, multiplying by $W_{combine}$ and adding $b_{combine}$ before applying the $tanh(\cdot)$ function:
 $$p_j = tanh(W_{combine}\Big[p_{j-1};V\Ket{w_{i_j}}\Big] + b_{combine})$$
@@ -190,7 +190,7 @@ Training neural networks can be tricky since the backpropagation algorithm relie
 
 We researched existing techniques to choose initial weights and biases, and to better update the weights based on adaptive learning rates, as described in the next subsections.
 
-\subsubsection{Weight Initialization}
+\subsubsection{Weight Initialization}\label{Weights}
 
 Early on, we randomly initialized our weight matrices and biases using Torch7's uniform tensor function,
 \begin{lstlisting}
