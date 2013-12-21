@@ -152,6 +152,9 @@ As the complexity of the compositional vector tagger model is significantly high
 
 \subsection{Future Models}\label{sec:futuremodel}
 
+\paragraph{Manually Extended Embeddings}
+From the anaysis of Section ~\ref{sec:confm} and also the results in Section ~\ref{sec:modelcomp}, we see that because the disappear of capitalization information of words, the RNN model is bad at telling NN and NNP. So we think we can manually extend the embeddings of words by some human made features like captitalized or not, even suffix information. This, in our view will definitely improve the performance of model a lot.
+
 \paragraph{Bi-directional Recursive Neural Network}
 From Section~\ref{sec:confm} Figure \ref{Pos_fig}, we find it is more likely to make mistakes on the end of sentences. It makes sense, because our basic RNN model uses only forward sequential information. So we think a bi-directional model will help, at least compared to the basic RNN. As for CVG model, which is simulating the HMM model considering the tags of whole sentence together, a bi-directional model may also help to kind of simulate CRF. There are two bi-direction models we are thinking:
 \begin{itemize}
@@ -230,7 +233,7 @@ Additionally, we found that performing an AdaGrad update after each word evaluat
 \subsubsection{Training Progress Diagram}
 As we all know, there will be overfitting if we train too "hard" on training set. And if overfitting happens, the test accuracy (in our experiments, the out-of-domain accuracy) will drop. Figure \ref{Adagrad_fig} shows this drop on both total accuracy and unknown word accuracy.
 
-\subsubsection{Comparison to Other Models}
+\subsubsection{Comparison to Other Models}\label{sec:modelcomp}
 
 Below, we tally the results against the in-domain validation dataset and the out-of-domain validation dataset on all significantly performing recursive neural network models compared to the hidden-markov-model+TNT, plain hidden-markov-model and maximum likelihood tag models.
 
