@@ -57,7 +57,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
- We use recursive neural network (RNN) on part of speech task (POS). There are two models are proposed and implemented, basic RNN and Compositional Vector Tagger(CVT) RNN. The performance of basic RNN is close to the HMM model and with high probability beat it if captialization information is captured. The forever tagging time of CVT model we do not analysis. We tried some very useful neural network training trics and detailly analysis the performance of basic RNN, such as verifying the contribution of sequential information and error rates of different parts of sentence and so on.
+We use a recursive neural network (RNN) on part-of-speech tagging task (POS). There are two models are proposed and implemented, basic RNN and Compositional Vector Tagger(CVT) RNN. The performance of basic RNN is close to the HMM model and with high probability beat it if captialization information is captured. The forever tagging time of CVT model we do not analysis. We tried some very useful neural network training trics and detailly analysis the performance of basic RNN, such as verifying the contribution of sequential information and error rates of different parts of sentence and so on.
 \end{abstract}
 
 \section{Introduction}
@@ -153,7 +153,7 @@ As the complexity of the compositional vector tagger model is significantly high
 \subsection{Future Models}\label{sec:futuremodel}
 
 \paragraph{Bi-directional Recursive Neural Network}
-From Section~\ref{sec:confm} Figure \ref{Pos_fig}, we find it is more likely to make mistakes on the end of sentences. It makes sense, because our basic RNN model uses only forward sequential information. So we think a bi-directional model will help, at least compared to the basic RNN. As for CVG model, which is simulating the HMM model considering the tags of whole sentence together, a bi-directional model may also help to kind of simulate CRF. There are two bi-direction models we are thinking:
+From Section~\ref{sec:confm} Figure \ref{Pos_fig}, we find it is more likely to make mistakes on the end of sentences. It makes sense, because our basic RNN model uses only forward sequential information. So we think a bi-directional model will help, at least compared to the basic RNN. As for CVT model, which is simulating the HMM model considering the tags of whole sentence together, a bi-directional model may also help to kind of simulate CRF. There are two bi-direction models we are thinking:
 \begin{itemize}
 \item \textbf{Independently training and combining the probability: } Train two RNN models, and tag the sentence by combining the predicted probability from the two models' classifiers (after the softmax). 
 \item \textbf{Jointly training: } Train two RNN models jointly, and concatenate two phrase representations and pass it to a shared classifier, which will in turn backward propagate the gradients to the two models so that the classifier part will get the forward and backward sequential information from two phrase representations. Figure~\ref{fig:bi-direc} shows the idea of this jointly training model.
@@ -169,8 +169,8 @@ We are using one layer linear neural network on both combination and classificat
 \paragraph{Update the lookup table}
 In the beginning, we tried to update the lookup table together with other parameters. But the result was much worse than not updating it. But because deep learning researchers do update the feature learning layers (in our model, just lookup table), it is reasonable to try this. And instead of updating at the beginning of training, we can begin the updating after other parameters are well trained.
 
-\paragraph{Rerank with CVG}
-When we implemented and tested CVG model, the forever tagging time for each sentence stopped us from working with it. So in the future, we can use the rerank idea from Socher's SVG paper. Basically, we get top N, say 100, tagging candidates from other models, and use CVG model to get score for each sentence and rerank the candidates by these scores.
+\paragraph{Rerank with CVT}
+When we implemented and tested the CVT model, the forever tagging time for each sentence stopped us from working with it. So in the future, we can use the rerank idea from Socher's CVG paper. Basically, we get top N, say 100, tagging candidates from other models, and use CVT model to get score for each sentence and rerank the candidates by these scores.
 
 \section{Experiments}
 
@@ -306,7 +306,7 @@ The size of state embeddings (left side of each RNN layer) is another hyper-para
 \section{Future Works}
 Because the limited time of final projects, there are still a lot of things we want to do in the future. We mentioned some new models to try in Section \ref{sec:futuremodel}, and here are some most wanted works to do:
 \begin{itemize}
-\item Training and tagging the CVG model: we have mentioned the hardness of training and tagging with CVG model. In the future, we want to training a CVG model no matter how long it may takes, say several days or weeks. And implement the rerank trick mentioned  in Section \ref{sec:futuremodel}.
+\item Training and tagging the CVT model: we have mentioned the hardness of training and tagging with CVT model. In the future, we want to training a CVT model no matter how long it may takes, say several days or weeks. And implement the rerank trick mentioned  in Section \ref{sec:futuremodel}.
 \item Move to GPU: We are working with torch (http://www.torch.ch), which is made by NYU people and supports GPU. So in the future, we can use GPU to speed up both traning and tagging. And Theano(http://deeplearning.net/software/theano/) can another choice, which has python interface and also GPU supporting and has very good neural networks supporting.
 \end{itemize}
 
