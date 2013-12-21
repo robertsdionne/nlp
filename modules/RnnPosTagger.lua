@@ -1,8 +1,8 @@
 require 'torch'
 require 'math'
 require 'nn'
-dofile 'CrossRNN.lua'
---dofile 'CrossRNNCVG.lua'
+--dofile 'CrossRNN.lua'
+dofile 'CrossRNNCVG.lua'
 
 local RnnPosTagger, parent = torch.class('nn.RnnPosTagger', 'nn.PosTagger')
 

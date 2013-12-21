@@ -149,7 +149,22 @@ As the complexity of the compositional vector tagger model is significantly high
 
 \subsection{Future Models}
 
-TODO: Describe future models.
+\paragraph{Bi-direction Recursive Neural Network}
+From Section~\ref{sec:confm} Figure \ref{Pos_fig}, we find it's more likely to make mistakes on the end of sentence. It makes sense, because our basic RNN model uses only forward sequential information. So we think bi-direction model will help, at least on basic RNN. As for CVG model, which is simulating the HMM model considering the tags of whole sentence together, bi-direction model may also help to kind of simulate CRF. There are two bi-direction models we are thinking:
+\begin{itemize}
+\item \textbf{Independent training and combine the probability: } Train two RNN models, and tagging the sentence by combining the predicted probability from two models' classifier part( after the softmax ). 
+\item \textbf{Jointly training: } Train two RNN models jointly, and concaten two phrase representations and pass it to a shared classifier, which will in turn backward the gradients to two model. So that the classifier part will get the forward and backward sequential information from two phrase representations. Figure~\ref{fig:bi-direc} shows the idea of this jointly training model.
+\end{itemize}
+\begin{figure}
+\includegraphics[scale=0.5]{bi_direct.png}
+\caption{Idea chart for jointly training bi-direction RNN model}\label{fig:bi-direc}
+\end{figure}
+
+\paragraph{Complex combination and classify model}
+We are using one layer linear neural network on both combination and classify parts, because it's easy to train. In the beginning, we did try two layer neural network, but it's too slow to train( about 5 times slower) and add another two hyper parameter to set by human. However because the higher ability to capture more complex pattern, complex combination and classify may have better performance. Especially on classify part, we can use any machine learning classification model that can backward gradients.
+
+\paragraph{Update lookup table}
+In the begining, we tried to update the lookup table together with other parameters. But the result is much worse than not update. But because deep learning people do update the feature learning layers(in our model is just lookup table), so it's reasonable to try this. And instead updating at the beginning of training, we can begin the updating after other parameters are well trained.
 
 \section{Experiments}
 
@@ -210,9 +225,9 @@ TODO: Compare to baseline.
 
 TODO: Compare to HMM.
 
-\subsubsection{Error Analysis}
+\subsubsection{Error Analysis}  \label{sec:confm}
 
-\paragraph{Confusion matrices} 
+\paragraph{Confusion matrices}
 We plot the confusion matrix (Figure \ref{Conf_fig}) for the basic RNN model and find that:
 \begin{enumerate}
 \item The \textbf{most serious confusion is between NNP and NN}. This makes sense because of the fact that the embeddings we are using make no distinction between capitalized and non-capitalized words;
@@ -256,8 +271,6 @@ The size of state embeddings (left side of each RNN layer) is another hyper-para
 	\caption{Out-of-domain accuracy comparison of different state embedding size} \label{Leftsize_fig}
 \end{figure}
 
-TODO: Compare with and without updating word representations.
-
 
 TODO: Specific error examples and hypotheses.
 
@@ -266,6 +279,9 @@ TODO: Specific error examples and hypotheses.
 
 
 \section{Conclusion}
+
+\section{Future Works}
+
 
 \section{Academic Honesty Pledge}
 
