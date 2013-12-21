@@ -107,7 +107,7 @@ local function main(arguments)
   --pos_tagger:validate(dev_in_tagged_sentences)
   
   print('Evaluating on training data:')
-  --evaluator:evaluateTagger(pos_tagger, train_tagged_sentences, training_vocabulary, verbose)
+  evaluator:evaluateTagger(pos_tagger, train_tagged_sentences, training_vocabulary, verbose)
   print('Evaluating on in-domain data:')
   evaluator:evaluateTagger(pos_tagger, dev_in_tagged_sentences, training_vocabulary, verbose)
   print('Evaluating on out-of-domain data:')

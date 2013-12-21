@@ -106,17 +106,17 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
     -- end
   end
 
-  for k,v in pairs(wordCount) do
-    v.rate = v.correct / v.count
-    v.word = k
-    if v.count > 5 then
-      table.insert(wordCorrect, v)
-    end
-  end
-  table.sort(wordCorrect, function (a,b) return a.rate<b.rate end)
-  for ii = 1, 50 do
-    print(wordCorrect[ii])
-  end
+  -- for k,v in pairs(wordCount) do
+  --   v.rate = v.correct / v.count
+  --   v.word = k
+  --   if v.count > 5 then
+  --     table.insert(wordCorrect, v)
+  --   end
+  -- end
+  -- table.sort(wordCorrect, function (a,b) return a.rate<b.rate end)
+  -- for ii = 1, 50 do
+  --   print(wordCorrect[ii])
+  -- end
   -- gnuplot.hist(torch.Tensor(sentenceAccHis),40)
   -- --io.read()
   -- gnuplot.hist(torch.Tensor(errPosHis),40)
@@ -141,9 +141,9 @@ function Evaluator:evaluateTagger(pos_tagger, tagged_sentences, training_vocabul
   -- print(torch.cdiv(sentenceLenHis,sentenceCountHis))
   -- io.read()
   print('  Tag Accuracy: ' .. (num_tags_correct / num_tags))
-  print(num_tags)
-  print(num_tags_correct)
-  print(num_tags)
+  -- print(num_tags)
+  -- print(num_tags_correct)
+  -- print(num_tags)
   print('  (Unknown Accuracy: ' .. (num_unknown_words_correct / num_unknown_words) .. ')')
   -- print('  Decoder Suboptimalities Detected: ' .. num_decoding_inversions)
 end
