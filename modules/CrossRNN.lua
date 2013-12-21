@@ -178,7 +178,7 @@ function CrossRNN:updateInParameters(learningRates)
 	for i = 1, self.netWorkDepth do
 		wordIndex = self.netWork:get(i).inModule.inputIndex;
 		wordGradient = torch.Tensor(1, self.gradients[i][1][1]:size(1)):copy(self.gradients[i][1][1]);
-		--self.lookUpTable:backwardUpdate(wordIndex, wordGradient, 0.001);
+		-- self.lookUpTable:backwardUpdate(wordIndex, wordGradient, 0.001);
 	end
 	-- update the initialNode
 	initialNodeGrad = torch.Tensor(1,self.gradients[1][1][1]:size(1)):copy(self.initialNodeGrad);
@@ -191,7 +191,7 @@ function CrossRNN:updateParameters(learningRates)
 
     self:updateCoreParameters(learningRates)
     self:updateOutParameters(learningRates)
-    -- self:updateInParameters(learningRates)
+    self:updateInParameters(learningRates)
 
 	
 end
