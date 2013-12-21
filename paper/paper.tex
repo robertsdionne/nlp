@@ -182,9 +182,17 @@ where $fan_{in}$ is the number of inputs to the layer and $fan_{out}$ is the num
 After adopting these new ranges, and initializing our biases to start at zero, our attainable accuracies dramatically increased from the values we presented in class in our slides, from about $60\%$ to about $80\%$.
 
 \subsubsection{AdaGrad}
+We used the AdaGrad online learning method to train our model. Let $\theta$ be a vector of all parameters needed to train in RNN model and $\theta_t$ means the parameter vector before training on $t_{th}$ example. And let  $g_{t,i}$ to be the gradient value of $i_{th}$ parameter on $t_{th}$ example. Then the AdaGrad is just updating the parameter vector by
+$$\theta_{{t+1},i} = \theta_{{t},i}  - \frac{\alpha}{\sqrt{\sum_{s=1}^t \theta_{{s},i}^2 }} g_{t,i}$$,
+where the $\alpha$ is a constance to set the scale of learning rate.
 
-TODO: Describe AdaGrad.
+We compared the AdaGrad with fixed learning rate online traning. The Figure \ref{Adagrad_fig} is the accuarcy curve on training iteration. From Figure \ref{Adagrad_fig}, it's quite clear that the AdaGrad converges faster and better than fixed learning rate.
 
+\begin{figure}
+	\includegraphics[scale=0.5]{outdomain_adagrad.png}
+	\includegraphics[scale=0.5]{outdomain_adagrad_unkown.png}
+	\caption{Out-of-domain accuracy  comparison of adaGrad learning rate and fixed learning rate}\label{Adagrad_fig}
+\end{figure}
 \subsection{Analysis}
 
 TODO: Describe analysis.
@@ -205,7 +213,7 @@ TODO: Compare to HMM.
 We plot the confusion matrix (Figure \ref{Conf_fig}) for the basic RNN model and find that:
 \begin{enumerate}
 \item The \textbf{most serious confusion is between NNP and NN}. This makes sense because of the fact that the embeddings we are using make no distinction between capitalized and non-capitalized words;
-\item  Another strange confusion is from quotes, which was also met in common HMM models. This may come from the overwhelming sequential information;
+\item  Another strange confusion is from quotes, which was also met in common HMM models. This may come from the overwhelming sequential information, and it makes big difference on accuracy(about 1\% on out-of-domain accuracy), to keep everything trained automatically;
 \item Other confusions look normal, and also occur in HMM models, like JJ and NN.
 \end{enumerate}
 \begin{figure}
