@@ -1,7 +1,6 @@
 *.aux
 *.log
 *.out
-*.pdf
 *.swp
 *.synctex.gz
 .DS_Store
