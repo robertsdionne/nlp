@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "nlp/matrix_multiply.hpp"
 #include "nlp/rectified_linear.hpp"
 #include "nlp/rectified_linear_gradient.hpp"
 #include "opencl/cl.hpp"
@@ -14,6 +15,7 @@ int main(int argument_count, char *arguments[]) {
   using cl::Device;
   using cl::Platform;
 
+  using nlp::MatrixMultiply;
   using nlp::RectifiedLinear;
   using nlp::RectifiedLinearGradient;
   using nlp::Tensor;
@@ -46,6 +48,7 @@ int main(int argument_count, char *arguments[]) {
 
   auto rectified_linear = RectifiedLinear(context, devices, command_queue);
   auto rectified_linear_gradient = RectifiedLinearGradient(context, devices, command_queue);
+  auto matrix_multiply = MatrixMultiply(context, devices, command_queue);
 
   auto x = Tensor{{5, 5}, {5, 1}, {
     1, -2, 3, -4, 5,
@@ -76,6 +79,14 @@ int main(int argument_count, char *arguments[]) {
   rectified_linear_gradient(dy, x, dx);
 
   cout << dx.Read(command_queue) << endl;
+
+  auto z = Tensor{{5, 5}, {5, 1}, vector<float>(5 * 5)};
+
+  z.Allocate(context);
+
+  matrix_multiply(y, dx, z);
+
+  cout << z.Read(command_queue) << endl;
 
   return 0;
 }

@@ -10,12 +10,28 @@ cc_library(
   ],
 )
 
+cc_library(
+  name = 'matrix_multiply',
+  srcs = [
+    'matrix_multiply.hpp',
+  ],
+  deps = [
+    ':kernels',
+    ':tensor',
+    '//opencl',
+  ],
+  data = [
+    'matrix_multiply.cl',
+  ],
+)
+
 cc_binary(
   name = 'nlp',
   srcs = [
     'nlp.cpp',
   ],
   deps = [
+    ':matrix_multiply',
     ':rectified_linear',
     ':rectified_linear_gradient',
   ],
