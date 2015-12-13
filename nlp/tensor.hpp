@@ -23,8 +23,9 @@ struct Tensor {
     data_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, data.size() * sizeof(float), data.data());
   }
 
-  void Read(CommandQueue &command_queue) {
+  Tensor &Read(CommandQueue &command_queue) {
     command_queue.enqueueReadBuffer(data_buffer, true, 0, data.size() * sizeof(float), data.data());
+    return *this;
   }
 
   vector<int> shape, stride;

@@ -17,6 +17,7 @@ cc_binary(
   ],
   deps = [
     ':rectified_linear',
+    ':rectified_linear_gradient',
   ],
   linkopts = [
     '-framework OpenCL',
@@ -35,6 +36,21 @@ cc_library(
   ],
   data = [
     'rectified_linear.cl',
+  ],
+)
+
+cc_library(
+  name = 'rectified_linear_gradient',
+  srcs = [
+    'rectified_linear_gradient.hpp',
+  ],
+  deps = [
+    ':kernels',
+    ':tensor',
+    '//opencl',
+  ],
+  data = [
+    'rectified_linear_gradient.cl',
   ],
 )
 
