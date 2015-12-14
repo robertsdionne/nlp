@@ -25,6 +25,21 @@ cc_library(
   ],
 )
 
+cc_library(
+  name = 'matrix_multiply_gradient',
+  srcs = [
+    'matrix_multiply_gradient.hpp',
+  ],
+  deps = [
+    ':kernels',
+    ':tensor',
+    '//opencl',
+  ],
+  data = [
+    'matrix_multiply_gradient.cl',
+  ],
+)
+
 cc_binary(
   name = 'nlp',
   srcs = [
@@ -32,6 +47,7 @@ cc_binary(
   ],
   deps = [
     ':matrix_multiply',
+    ':matrix_multiply_gradient',
     ':rectified_linear',
     ':rectified_linear_gradient',
   ],
