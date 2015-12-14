@@ -7,6 +7,7 @@
 #include "nlp/broadcast_add.hpp"
 #include "nlp/broadcast_add_gradient.hpp"
 #include "nlp/logistic.hpp"
+#include "nlp/logistic_gradient.hpp"
 #include "nlp/matrix_multiply.hpp"
 #include "nlp/matrix_multiply_gradient.hpp"
 #include "nlp/rectified_linear.hpp"
@@ -26,6 +27,7 @@ int main(int argument_count, char *arguments[]) {
   using nlp::BroadcastAddXGradient;
   using nlp::BroadcastAddBGradient;
   using nlp::Logistic;
+  using nlp::LogisticGradient;
   using nlp::MatrixMultiply;
   using nlp::MatrixMultiplyWGradient;
   using nlp::MatrixMultiplyXGradient;
@@ -198,6 +200,7 @@ int main(int argument_count, char *arguments[]) {
 
   {
     auto logistic = Logistic(context, devices, command_queue);
+    auto logistic_gradient = LogisticGradient(context, devices, command_queue);
 
     auto x = Tensor{{4, 3}, {3, 1}, {
       1, 2, 3,
@@ -214,6 +217,22 @@ int main(int argument_count, char *arguments[]) {
 
     cout << "x = " << x << endl
         << "Logistic(x) = " << y.Read(command_queue) << endl << endl;
+
+    auto dy = Tensor{{4, 3}, {3, 1}, {
+      1, 1, 1,
+      1, 1, 1,
+      1, 1, 1,
+      1, 1, 1,
+    }},
+    dx = Tensor{{4, 3}, {3, 1}, vector<float>(4 * 3)};
+
+    dy.Allocate(context);
+    dx.Allocate(context);
+
+    logistic_gradient(dy, y, dx);
+
+    cout << "dy = " << dy << endl
+        << "LogisticGradient(dy, y) = " << dx.Read(command_queue) << endl << endl;
   }
 
   return 0;

@@ -55,6 +55,21 @@ cc_library(
 )
 
 cc_library(
+  name = 'logistic_gradient',
+  srcs = [
+    'logistic_gradient.hpp',
+  ],
+  deps = [
+    ':kernels',
+    ':tensor',
+    '//opencl',
+  ],
+  data = [
+    'logistic_gradient.cl',
+  ],
+)
+
+cc_library(
   name = 'matrix_multiply',
   srcs = [
     'matrix_multiply.hpp',
@@ -93,6 +108,7 @@ cc_binary(
     ':broadcast_add',
     ':broadcast_add_gradient',
     ':logistic',
+    ':logistic_gradient',
     ':matrix_multiply',
     ':matrix_multiply_gradient',
     ':rectified_linear',
