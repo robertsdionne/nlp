@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "nlp/broadcast_add.hpp"
 #include "nlp/matrix_multiply.hpp"
 #include "nlp/matrix_multiply_gradient.hpp"
 #include "nlp/rectified_linear.hpp"
@@ -16,6 +17,7 @@ int main(int argument_count, char *arguments[]) {
   using cl::Device;
   using cl::Platform;
 
+  using nlp::BroadcastAdd;
   using nlp::MatrixMultiply;
   using nlp::MatrixMultiplyWGradient;
   using nlp::MatrixMultiplyXGradient;
@@ -59,14 +61,16 @@ int main(int argument_count, char *arguments[]) {
       3, -4, 5, -6, 7,
       -4, 5, -6, 7, -8,
       5, -6, 7, -8, 9,
-    }}, y = Tensor{{5, 5}, {5, 1}, vector<float>(5 * 5)};
+    }},
+    y = Tensor{{5, 5}, {5, 1}, vector<float>(5 * 5)};
 
     x.Allocate(context);
     y.Allocate(context);
 
     rectified_linear(x, y);
 
-    cout << "RectifiedLinear: " << y.Read(command_queue) << endl;
+    cout << "x = " << x << endl
+        << "RectifiedLinear(x) = " << y.Read(command_queue) << endl << endl;
 
     auto dy = Tensor{{5, 5}, {5, 1}, {
       1, 1, 1, 1, 1,
@@ -74,14 +78,16 @@ int main(int argument_count, char *arguments[]) {
       1, 1, 1, 1, 1,
       1, 1, 1, 1, 1,
       1, 1, 1, 1, 1,
-    }}, dx = Tensor{{5, 5}, {5, 1}, vector<float>(5 * 5)};
+    }},
+    dx = Tensor{{5, 5}, {5, 1}, vector<float>(5 * 5)};
 
     dy.Allocate(context);
     dx.Allocate(context);
 
     rectified_linear_gradient(dy, x, dx);
 
-    cout << "RectifiedLinearGradient: " << dx.Read(command_queue) << endl << endl;
+    cout << "dy = " << dy << endl
+       << "RectifiedLinearGradient(dy, x) = " << dx.Read(command_queue) << endl << endl;
   }
 
   {
@@ -94,11 +100,13 @@ int main(int argument_count, char *arguments[]) {
       2, 3, 4,
       3, 4, 5,
       4, 5, 6,
-    }}, x = Tensor{{3, 2}, {2, 1}, {
+    }},
+    x = Tensor{{3, 2}, {2, 1}, {
       1, 2,
       2, 3,
       3, 4,
-    }}, y = Tensor({{4, 2}, {2, 1}, vector<float>(4 * 2)});
+    }},
+    y = Tensor({{4, 2}, {2, 1}, vector<float>(4 * 2)});
 
     w.Allocate(context);
     x.Allocate(context);
@@ -106,7 +114,9 @@ int main(int argument_count, char *arguments[]) {
 
     matrix_multiply(w, x, y);
 
-    cout << "MatrixMultiply: " << y.Read(command_queue) << endl;
+    cout << "w = " << w << endl
+        << "x = " << x << endl
+        << "MatrixMultiply(w, x) = " << y.Read(command_queue) << endl << endl;
 
     auto dy = Tensor{{4, 2}, {2, 1}, {
       1, 1,
@@ -123,8 +133,37 @@ int main(int argument_count, char *arguments[]) {
     matrix_multiply_w_gradient(dy, x, dw);
     matrix_multiply_x_gradient(dy, w, dx);
 
-    cout << "MatrixMultiplyWGradient: " << dw.Read(command_queue) << endl
-        << "MatrixMultiplyWGradient: " << dx.Read(command_queue) << endl << endl;
+    cout << "dy = " << dy << endl
+        << "MatrixMultiplyWGradient(dy, x) = " << dw.Read(command_queue) << endl
+        << "MatrixMultiplyWGradient(dy, w) = " << dx.Read(command_queue) << endl << endl;
+  }
+
+  {
+    auto broadcast_add = BroadcastAdd(context, devices, command_queue);
+
+    auto x = Tensor{{4, 3}, {3, 1}, {
+      1, 2, 3,
+      2, 3, 4,
+      3, 4, 5,
+      4, 5, 6,
+    }},
+    b = Tensor{{4}, {1}, {
+      1,
+      2,
+      3,
+      4,
+    }},
+    y = Tensor{{4, 3}, {3, 1}, vector<float>(4 * 3)};
+
+    x.Allocate(context);
+    b.Allocate(context);
+    y.Allocate(context);
+
+    broadcast_add(x, b, y);
+
+    cout << "x = " << x << endl
+        << "b = " << b << endl
+        << "BroadcastAdd(x, b) = " << y.Read(command_queue) << endl;
   }
 
   return 0;

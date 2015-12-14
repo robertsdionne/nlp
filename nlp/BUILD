@@ -1,3 +1,17 @@
+cc_library(
+  name = 'broadcast_add',
+  srcs = [
+    'broadcast_add.hpp',
+  ],
+  deps = [
+    ':kernels',
+    ':tensor',
+    '//opencl',
+  ],
+  data = [
+    'broadcast_add.cl',
+  ],
+)
 
 cc_library(
   name = 'kernels',
@@ -46,6 +60,7 @@ cc_binary(
     'nlp.cpp',
   ],
   deps = [
+    ':broadcast_add',
     ':matrix_multiply',
     ':matrix_multiply_gradient',
     ':rectified_linear',
