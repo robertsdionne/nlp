@@ -6,6 +6,7 @@
 
 #include "nlp/broadcast_add.hpp"
 #include "nlp/broadcast_add_gradient.hpp"
+#include "nlp/logistic.hpp"
 #include "nlp/matrix_multiply.hpp"
 #include "nlp/matrix_multiply_gradient.hpp"
 #include "nlp/rectified_linear.hpp"
@@ -24,6 +25,7 @@ int main(int argument_count, char *arguments[]) {
   using nlp::BroadcastAdd;
   using nlp::BroadcastAddXGradient;
   using nlp::BroadcastAddBGradient;
+  using nlp::Logistic;
   using nlp::MatrixMultiply;
   using nlp::MatrixMultiplyWGradient;
   using nlp::MatrixMultiplyXGradient;
@@ -192,6 +194,26 @@ int main(int argument_count, char *arguments[]) {
     cout << "dy = " << dy << endl
         << "BroadcastAddXGradient(dy) = " << dx.Read(command_queue) << endl
         << "BroadcastAddBGradient(dy) = " << db.Read(command_queue) << endl << endl;
+  }
+
+  {
+    auto logistic = Logistic(context, devices, command_queue);
+
+    auto x = Tensor{{4, 3}, {3, 1}, {
+      1, 2, 3,
+      2, 3, 4,
+      3, 4, 5,
+      4, 5, 6,
+    }},
+    y = Tensor{{4, 3}, {3, 1}, vector<float>(4 * 3)};
+
+    x.Allocate(context);
+    y.Allocate(context);
+
+    logistic(x, y);
+
+    cout << "x = " << x << endl
+        << "Logistic(x) = " << y.Read(command_queue) << endl << endl;
   }
 
   return 0;
