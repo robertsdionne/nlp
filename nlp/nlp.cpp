@@ -5,11 +5,15 @@
 #include <vector>
 
 #include "nlp/broadcast_add.hpp"
+#include "nlp/broadcast_add_gradient.hpp"
 #include "nlp/matrix_multiply.hpp"
 #include "nlp/matrix_multiply_gradient.hpp"
 #include "nlp/rectified_linear.hpp"
 #include "nlp/rectified_linear_gradient.hpp"
+#include "nlp/tensor.hpp"
 #include "opencl/cl.hpp"
+
+using namespace nlp;
 
 int main(int argument_count, char *arguments[]) {
   using cl::CommandQueue;
@@ -18,6 +22,8 @@ int main(int argument_count, char *arguments[]) {
   using cl::Platform;
 
   using nlp::BroadcastAdd;
+  using nlp::BroadcastAddXGradient;
+  using nlp::BroadcastAddBGradient;
   using nlp::MatrixMultiply;
   using nlp::MatrixMultiplyWGradient;
   using nlp::MatrixMultiplyXGradient;
@@ -140,6 +146,8 @@ int main(int argument_count, char *arguments[]) {
 
   {
     auto broadcast_add = BroadcastAdd(context, devices, command_queue);
+    auto broadcast_add_x_gradient = BroadcastAddXGradient(context, devices, command_queue);
+    auto broadcast_add_b_gradient = BroadcastAddBGradient(context, devices, command_queue);
 
     auto x = Tensor{{4, 3}, {3, 1}, {
       1, 2, 3,
@@ -163,7 +171,27 @@ int main(int argument_count, char *arguments[]) {
 
     cout << "x = " << x << endl
         << "b = " << b << endl
-        << "BroadcastAdd(x, b) = " << y.Read(command_queue) << endl;
+        << "BroadcastAdd(x, b) = " << y.Read(command_queue) << endl << endl;
+
+    auto dy = Tensor{{4, 3}, {3, 1}, {
+      1, 1, 1,
+      1, 1, 1,
+      1, 1, 1,
+      1, 1, 1,
+    }},
+    dx = Tensor{{4, 3}, {3, 1}, vector<float>(4 * 3)},
+    db = Tensor{{4}, {1}, vector<float>(4)};
+
+    dy.Allocate(context);
+    dx.Allocate(context);
+    db.Allocate(context);
+
+    broadcast_add_x_gradient(dy, dx);
+    broadcast_add_b_gradient(dy, db);
+
+    cout << "dy = " << dy << endl
+        << "BroadcastAddXGradient(dy) = " << dx.Read(command_queue) << endl
+        << "BroadcastAddBGradient(dy) = " << db.Read(command_queue) << endl << endl;
   }
 
   return 0;

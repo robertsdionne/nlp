@@ -14,6 +14,21 @@ cc_library(
 )
 
 cc_library(
+  name = 'broadcast_add_gradient',
+  srcs = [
+    'broadcast_add_gradient.hpp',
+  ],
+  deps = [
+    ':kernels',
+    ':tensor',
+    '//opencl',
+  ],
+  data = [
+    'broadcast_add_gradient.cl',
+  ],
+)
+
+cc_library(
   name = 'kernels',
   srcs = [
     'kernels.hpp',
@@ -61,6 +76,7 @@ cc_binary(
   ],
   deps = [
     ':broadcast_add',
+    ':broadcast_add_gradient',
     ':matrix_multiply',
     ':matrix_multiply_gradient',
     ':rectified_linear',
