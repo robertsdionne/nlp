@@ -28,6 +28,21 @@ cc_library(
   ],
 )
 
+cc_test(
+  name = 'broadcast_add_test',
+  srcs = [
+    'broadcast_add_test.cpp',
+  ],
+  deps = [
+    ':opencl',
+    ':broadcast_add',
+    ':broadcast_add_gradient',
+    ':tensor',
+    '//opencl',
+    '//third_party:gtest',
+  ]
+)
+
 cc_library(
   name = 'default_types',
   srcs = [
