@@ -151,11 +151,19 @@ cc_binary(
     ':logistic_gradient',
     ':matrix_multiply',
     ':matrix_multiply_gradient',
+    ':opencl',
     ':rectified_linear',
     ':rectified_linear_gradient',
   ],
-  linkopts = [
-    '-framework OpenCL',
+)
+
+cc_library(
+  name = 'opencl',
+  srcs = [
+    'opencl.hpp',
+  ],
+  deps = [
+    '//opencl',
   ],
 )
 
@@ -187,6 +195,21 @@ cc_library(
   data = [
     'rectified_linear_gradient.cl',
   ],
+)
+
+cc_test(
+  name = 'rectified_linear_test',
+  srcs = [
+    'rectified_linear_test.cpp',
+  ],
+  deps = [
+    ':opencl',
+    ':rectified_linear',
+    ':rectified_linear_gradient',
+    ':tensor',
+    '//opencl',
+    '//third_party:gtest',
+  ]
 )
 
 cc_library(

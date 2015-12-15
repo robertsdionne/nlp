@@ -7,4 +7,7 @@ cc_library(
   srcs = [
     'cl.hpp',
   ],
+  linkopts = [
+    '-framework OpenCL',
+  ],
 )
