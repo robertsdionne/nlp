@@ -49,43 +49,6 @@ int main(int argument_count, char *arguments[]) {
   auto command_queue = get<2>(opencl);
 
   {
-    auto logistic = Logistic(context, devices, command_queue);
-    auto logistic_gradient = LogisticGradient(context, devices, command_queue);
-
-    auto x = Tensor<>{{4, 3}, {3, 1}, {
-      1, 2, 3,
-      2, 3, 4,
-      3, 4, 5,
-      4, 5, 6,
-    }},
-    y = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)};
-
-    x.Allocate(context);
-    y.Allocate(context);
-
-    logistic(x, y);
-
-    cout << "x = " << x << endl
-        << "Logistic(x) = " << y.Read(command_queue) << endl << endl;
-
-    auto dy = Tensor<>{{4, 3}, {3, 1}, {
-      1, 1, 1,
-      1, 1, 1,
-      1, 1, 1,
-      1, 1, 1,
-    }},
-    dx = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)};
-
-    dy.Allocate(context);
-    dx.Allocate(context);
-
-    logistic_gradient(dy, y, dx);
-
-    cout << "dy = " << dy << endl
-        << "LogisticGradient(dy, y) = " << dx.Read(command_queue) << endl << endl;
-  }
-
-  {
     auto embeddings = Embeddings(context, devices, command_queue);
     auto embeddings_gradient = EmbeddingsGradient(context, devices, command_queue);
 

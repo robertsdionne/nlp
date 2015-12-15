@@ -122,6 +122,21 @@ cc_library(
   ],
 )
 
+cc_test(
+  name = 'logistic_test',
+  srcs = [
+    'logistic_test.cpp',
+  ],
+  deps = [
+    ':opencl',
+    ':logistic',
+    ':logistic_gradient',
+    ':tensor',
+    '//opencl',
+    '//third_party:gtest',
+  ]
+)
+
 cc_library(
   name = 'matrix_multiply',
   srcs = [
