@@ -51,6 +51,21 @@ cc_library(
 )
 
 cc_library(
+  name = 'embeddings_gradient',
+  srcs = [
+    'embeddings_gradient.hpp',
+  ],
+  deps = [
+    ':kernels',
+    ':tensor',
+    '//opencl',
+  ],
+  data = [
+    'embeddings_gradient.cl',
+  ],
+)
+
+cc_library(
   name = 'kernels',
   srcs = [
     'kernels.hpp',
@@ -131,6 +146,7 @@ cc_binary(
     ':broadcast_add',
     ':broadcast_add_gradient',
     ':embeddings',
+    ':embeddings_gradient',
     ':logistic',
     ':logistic_gradient',
     ':matrix_multiply',

@@ -7,6 +7,7 @@
 #include "nlp/broadcast_add.hpp"
 #include "nlp/broadcast_add_gradient.hpp"
 #include "nlp/embeddings.hpp"
+#include "nlp/embeddings_gradient.hpp"
 #include "nlp/logistic.hpp"
 #include "nlp/logistic_gradient.hpp"
 #include "nlp/matrix_multiply.hpp"
@@ -28,6 +29,7 @@ int main(int argument_count, char *arguments[]) {
   using nlp::BroadcastAddXGradient;
   using nlp::BroadcastAddBGradient;
   using nlp::Embeddings;
+  using nlp::EmbeddingsGradient;
   using nlp::Logistic;
   using nlp::LogisticGradient;
   using nlp::MatrixMultiply;
@@ -239,6 +241,7 @@ int main(int argument_count, char *arguments[]) {
 
   {
     auto embeddings = Embeddings(context, devices, command_queue);
+    auto embeddings_gradient = EmbeddingsGradient(context, devices, command_queue);
 
     auto w = Tensor<>{{4, 3}, {3, 1}, {
       1, 2, 3,
@@ -261,6 +264,23 @@ int main(int argument_count, char *arguments[]) {
     cout << "w = " << w << endl
         << "x = " << x << endl
         << "Embeddings(w, x) = " << y.Read(command_queue) << endl << endl;
+
+    auto dy = Tensor<>{{4, 9}, {9, 1}, {
+      1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1,
+    }}, dw = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)},
+    dx = Tensor<>{{3, 2}, {2, 1}, vector<float>(3 * 2)};
+
+    dy.Allocate(context);
+    dw.Allocate(context);
+    dx.Allocate(context);
+
+    embeddings_gradient(dy, x, dw);
+
+    cout << "dy = " << dy << endl
+        << "EmbeddingsGradient(dy, x) = " << dw.Read(command_queue) << endl << endl;
   }
 
   return 0;
