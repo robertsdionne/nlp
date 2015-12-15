@@ -65,14 +65,14 @@ int main(int argument_count, char *arguments[]) {
     auto rectified_linear = RectifiedLinear(context, devices, command_queue);
     auto rectified_linear_gradient = RectifiedLinearGradient(context, devices, command_queue);
 
-    auto x = Tensor{{5, 5}, {5, 1}, {
+    auto x = Tensor<>{{5, 5}, {5, 1}, {
       1, -2, 3, -4, 5,
       -2, 3, -4, 5, -6,
       3, -4, 5, -6, 7,
       -4, 5, -6, 7, -8,
       5, -6, 7, -8, 9,
     }},
-    y = Tensor{{5, 5}, {5, 1}, vector<float>(5 * 5)};
+    y = Tensor<>{{5, 5}, {5, 1}, vector<float>(5 * 5)};
 
     x.Allocate(context);
     y.Allocate(context);
@@ -82,14 +82,14 @@ int main(int argument_count, char *arguments[]) {
     cout << "x = " << x << endl
         << "RectifiedLinear(x) = " << y.Read(command_queue) << endl << endl;
 
-    auto dy = Tensor{{5, 5}, {5, 1}, {
+    auto dy = Tensor<>{{5, 5}, {5, 1}, {
       1, 1, 1, 1, 1,
       1, 1, 1, 1, 1,
       1, 1, 1, 1, 1,
       1, 1, 1, 1, 1,
       1, 1, 1, 1, 1,
     }},
-    dx = Tensor{{5, 5}, {5, 1}, vector<float>(5 * 5)};
+    dx = Tensor<>{{5, 5}, {5, 1}, vector<float>(5 * 5)};
 
     dy.Allocate(context);
     dx.Allocate(context);
@@ -105,18 +105,18 @@ int main(int argument_count, char *arguments[]) {
     auto matrix_multiply_w_gradient = MatrixMultiplyWGradient(context, devices, command_queue);
     auto matrix_multiply_x_gradient = MatrixMultiplyXGradient(context, devices, command_queue);
 
-    auto w = Tensor{{4, 3}, {3, 1}, {
+    auto w = Tensor<>{{4, 3}, {3, 1}, {
       1, 2, 3,
       2, 3, 4,
       3, 4, 5,
       4, 5, 6,
     }},
-    x = Tensor{{3, 2}, {2, 1}, {
+    x = Tensor<>{{3, 2}, {2, 1}, {
       1, 2,
       2, 3,
       3, 4,
     }},
-    y = Tensor({{4, 2}, {2, 1}, vector<float>(4 * 2)});
+    y = Tensor<>({{4, 2}, {2, 1}, vector<float>(4 * 2)});
 
     w.Allocate(context);
     x.Allocate(context);
@@ -128,13 +128,13 @@ int main(int argument_count, char *arguments[]) {
         << "x = " << x << endl
         << "MatrixMultiply(w, x) = " << y.Read(command_queue) << endl << endl;
 
-    auto dy = Tensor{{4, 2}, {2, 1}, {
+    auto dy = Tensor<>{{4, 2}, {2, 1}, {
       1, 1,
       1, 1,
       1, 1,
       1, 1,
-    }}, dw = Tensor{{4, 3}, {3, 1}, vector<float>(4 * 3)},
-    dx = Tensor{{3, 2}, {2, 1}, vector<float>(3 * 2)};
+    }}, dw = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)},
+    dx = Tensor<>{{3, 2}, {2, 1}, vector<float>(3 * 2)};
 
     dy.Allocate(context);
     dw.Allocate(context);
@@ -153,19 +153,19 @@ int main(int argument_count, char *arguments[]) {
     auto broadcast_add_x_gradient = BroadcastAddXGradient(context, devices, command_queue);
     auto broadcast_add_b_gradient = BroadcastAddBGradient(context, devices, command_queue);
 
-    auto x = Tensor{{4, 3}, {3, 1}, {
+    auto x = Tensor<>{{4, 3}, {3, 1}, {
       1, 2, 3,
       2, 3, 4,
       3, 4, 5,
       4, 5, 6,
     }},
-    b = Tensor{{4}, {1}, {
+    b = Tensor<>{{4}, {1}, {
       1,
       2,
       3,
       4,
     }},
-    y = Tensor{{4, 3}, {3, 1}, vector<float>(4 * 3)};
+    y = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)};
 
     x.Allocate(context);
     b.Allocate(context);
@@ -177,14 +177,14 @@ int main(int argument_count, char *arguments[]) {
         << "b = " << b << endl
         << "BroadcastAdd(x, b) = " << y.Read(command_queue) << endl << endl;
 
-    auto dy = Tensor{{4, 3}, {3, 1}, {
+    auto dy = Tensor<>{{4, 3}, {3, 1}, {
       1, 1, 1,
       1, 1, 1,
       1, 1, 1,
       1, 1, 1,
     }},
-    dx = Tensor{{4, 3}, {3, 1}, vector<float>(4 * 3)},
-    db = Tensor{{4}, {1}, vector<float>(4)};
+    dx = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)},
+    db = Tensor<>{{4}, {1}, vector<float>(4)};
 
     dy.Allocate(context);
     dx.Allocate(context);
@@ -202,13 +202,13 @@ int main(int argument_count, char *arguments[]) {
     auto logistic = Logistic(context, devices, command_queue);
     auto logistic_gradient = LogisticGradient(context, devices, command_queue);
 
-    auto x = Tensor{{4, 3}, {3, 1}, {
+    auto x = Tensor<>{{4, 3}, {3, 1}, {
       1, 2, 3,
       2, 3, 4,
       3, 4, 5,
       4, 5, 6,
     }},
-    y = Tensor{{4, 3}, {3, 1}, vector<float>(4 * 3)};
+    y = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)};
 
     x.Allocate(context);
     y.Allocate(context);
@@ -218,13 +218,13 @@ int main(int argument_count, char *arguments[]) {
     cout << "x = " << x << endl
         << "Logistic(x) = " << y.Read(command_queue) << endl << endl;
 
-    auto dy = Tensor{{4, 3}, {3, 1}, {
+    auto dy = Tensor<>{{4, 3}, {3, 1}, {
       1, 1, 1,
       1, 1, 1,
       1, 1, 1,
       1, 1, 1,
     }},
-    dx = Tensor{{4, 3}, {3, 1}, vector<float>(4 * 3)};
+    dx = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)};
 
     dy.Allocate(context);
     dx.Allocate(context);

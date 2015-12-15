@@ -23,7 +23,7 @@ public:
       command_queue_(command_queue),
       kernel_(BuildKernel(context, devices, "nlp/rectified_linear_gradient.cl", "RectifiedLinearGradient")) {}
 
-  void operator ()(const Tensor &dy, const Tensor &x, Tensor &dx) {
+  void operator ()(const Tensor<> &dy, const Tensor<> &x, Tensor<> &dx) {
     assert(CL_SUCCESS == SetTensorArg(kernel_, 0, dy));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 1, x));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 2, dx));

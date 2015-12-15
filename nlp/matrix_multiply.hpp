@@ -23,7 +23,7 @@ public:
       command_queue_(command_queue),
       kernel_(BuildKernel(context, devices, "nlp/matrix_multiply.cl", "MatrixMultiply")) {}
 
-  void operator ()(const Tensor &w, const Tensor &x, Tensor &y) {
+  void operator ()(const Tensor<> &w, const Tensor<> &x, Tensor<> &y) {
     assert(CL_SUCCESS == SetTensorArg(kernel_, 0, w));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 1, x));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 2, y));

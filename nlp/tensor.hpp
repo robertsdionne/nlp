@@ -1,9 +1,11 @@
 #ifndef NLP_TENSOR_HPP_
 #define NLP_TENSOR_HPP_
 
+#include <cxxabi.h>
 #include <ostream>
 #include <vector>
 
+#include "nlp/default_types.hpp"
 #include "opencl/cl.hpp"
 
 namespace nlp {
@@ -16,20 +18,21 @@ using std::ostream;
 using std::ostream_iterator;
 using std::vector;
 
+template <typename F = default_floating_point_type, typename I = default_integer_type>
 struct Tensor {
   void Allocate(Context &context) {
-    shape_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, shape.size() * sizeof(int), shape.data());
-    stride_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, stride.size() * sizeof(int), stride.data());
-    data_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, data.size() * sizeof(float), data.data());
+    shape_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, shape.size() * sizeof(I), shape.data());
+    stride_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, stride.size() * sizeof(I), stride.data());
+    data_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, data.size() * sizeof(F), data.data());
   }
 
-  Tensor &Read(CommandQueue &command_queue) {
-    command_queue.enqueueReadBuffer(data_buffer, true, 0, data.size() * sizeof(float), data.data());
+  Tensor<F> &Read(CommandQueue &command_queue) {
+    command_queue.enqueueReadBuffer(data_buffer, true, 0, data.size() * sizeof(F), data.data());
     return *this;
   }
 
-  vector<int> shape, stride;
-  vector<float> data;
+  vector<I> shape, stride;
+  vector<F> data;
   Buffer shape_buffer, stride_buffer, data_buffer;
 };
 
@@ -43,8 +46,13 @@ template <typename F> ostream &operator <<(ostream &out, const vector<F> &v) {
   return out;
 }
 
-ostream &operator <<(ostream &out, const Tensor &tensor) {
-  return out << "Tensor(" << tensor.shape << ", " << tensor.data << ")";
+#define DESCRIBE_T(T) abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr)
+
+template <typename F = default_floating_point_type, typename I = default_integer_type>
+ostream &operator <<(ostream &out, const Tensor<F, I> &tensor) {
+  return out << "Tensor<"
+      << DESCRIBE_T(F) << ", " << DESCRIBE_T(I)
+      << ">(" << tensor.shape << ", " << tensor.data << ")";
 }
 
 }  // namespace nlp

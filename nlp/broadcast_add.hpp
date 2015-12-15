@@ -23,7 +23,7 @@ public:
       command_queue_(command_queue),
       kernel_(BuildKernel(context, devices, "nlp/broadcast_add.cl", "BroadcastAdd")) {}
 
-  void operator ()(const Tensor &x, const Tensor &b, Tensor &y) {
+  void operator ()(const Tensor<> &x, const Tensor<> &b, Tensor<> &y) {
     assert(CL_SUCCESS == SetTensorArg(kernel_, 0, x));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 1, b));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 2, y));

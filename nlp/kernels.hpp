@@ -65,7 +65,7 @@ Kernel BuildKernel(Context &context, vector<Device> &devices, const string &sour
   return kernel;
 }
 
-cl_int SetTensorArg(Kernel &kernel, unsigned int index, const Tensor &tensor) {
+cl_int SetTensorArg(Kernel &kernel, unsigned int index, const Tensor<> &tensor) {
   assert(CL_SUCCESS == kernel.setArg(5 * index + 0, tensor.shape.size()));
   assert(CL_SUCCESS == kernel.setArg(5 * index + 1, tensor.shape_buffer));
   assert(CL_SUCCESS == kernel.setArg(5 * index + 2, tensor.stride_buffer));

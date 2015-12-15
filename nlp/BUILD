@@ -29,6 +29,13 @@ cc_library(
 )
 
 cc_library(
+  name = 'default_types',
+  srcs = [
+    'default_types.hpp',
+  ],
+)
+
+cc_library(
   name = 'kernels',
   srcs = [
     'kernels.hpp',
@@ -155,6 +162,7 @@ cc_library(
     'tensor.hpp',
   ],
   deps = [
+    ':default_types',
     '//opencl',
   ],
 )

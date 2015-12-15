@@ -23,7 +23,7 @@ public:
       command_queue_(command_queue),
       kernel_(BuildKernel(context, devices, "nlp/logistic_gradient.cl", "LogisticGradient")) {}
 
-  void operator ()(const Tensor &dy, const Tensor &y, Tensor &dx) {
+  void operator ()(const Tensor<> &dy, const Tensor<> &y, Tensor<> &dx) {
     assert(CL_SUCCESS == SetTensorArg(kernel_, 0, dy));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 1, y));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 2, dx));

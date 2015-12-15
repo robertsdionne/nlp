@@ -23,7 +23,7 @@ public:
       command_queue_(command_queue),
       kernel_(BuildKernel(context, devices, "nlp/matrix_multiply_gradient.cl", "MatrixMultiplyWGradient")) {}
 
-  void operator ()(const Tensor &dy, const Tensor &x, Tensor &dw) {
+  void operator ()(const Tensor<> &dy, const Tensor<> &x, Tensor<> &dw) {
     assert(CL_SUCCESS == SetTensorArg(kernel_, 0, dy));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 1, x));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 2, dw));
@@ -42,7 +42,7 @@ public:
       command_queue_(command_queue),
       kernel_(BuildKernel(context, devices, "nlp/matrix_multiply_gradient.cl", "MatrixMultiplyXGradient")) {}
 
-  void operator ()(const Tensor &dy, const Tensor &w, Tensor &dx) {
+  void operator ()(const Tensor<> &dy, const Tensor<> &w, Tensor<> &dx) {
     assert(CL_SUCCESS == SetTensorArg(kernel_, 0, dy));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 1, w));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 2, dx));
