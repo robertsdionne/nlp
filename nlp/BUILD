@@ -137,6 +137,21 @@ cc_library(
   ],
 )
 
+cc_test(
+  name = 'matrix_multiply_test',
+  srcs = [
+    'matrix_multiply_test.cpp',
+  ],
+  deps = [
+    ':opencl',
+    ':matrix_multiply',
+    ':matrix_multiply_gradient',
+    ':tensor',
+    '//opencl',
+    '//third_party:gtest',
+  ]
+)
+
 cc_binary(
   name = 'nlp',
   srcs = [
