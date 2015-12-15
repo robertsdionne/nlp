@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "nlp/default_types.hpp"
 #include "nlp/tensor.hpp"
 #include "opencl/cl.hpp"
 
@@ -65,7 +66,8 @@ Kernel BuildKernel(Context &context, vector<Device> &devices, const string &sour
   return kernel;
 }
 
-cl_int SetTensorArg(Kernel &kernel, unsigned int index, const Tensor<> &tensor) {
+template <typename F = default_floating_point_type, typename I = default_integer_type>
+cl_int SetTensorArg(Kernel &kernel, unsigned int index, const Tensor<F, I> &tensor) {
   assert(CL_SUCCESS == kernel.setArg(5 * index + 0, tensor.shape.size()));
   assert(CL_SUCCESS == kernel.setArg(5 * index + 1, tensor.shape_buffer));
   assert(CL_SUCCESS == kernel.setArg(5 * index + 2, tensor.stride_buffer));
