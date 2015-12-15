@@ -40,7 +40,7 @@ cc_test(
     ':tensor',
     '//opencl',
     '//third_party:gtest',
-  ]
+  ],
 )
 
 cc_library(
@@ -77,6 +77,21 @@ cc_library(
   ],
   data = [
     'embeddings_gradient.cl',
+  ],
+)
+
+cc_test(
+  name = 'embeddings_test',
+  srcs = [
+    'embeddings_test.cpp',
+  ],
+  deps = [
+    ':opencl',
+    ':embeddings',
+    ':embeddings_gradient',
+    ':tensor',
+    '//opencl',
+    '//third_party:gtest',
   ],
 )
 
@@ -134,7 +149,7 @@ cc_test(
     ':tensor',
     '//opencl',
     '//third_party:gtest',
-  ]
+  ],
 )
 
 cc_library(
@@ -179,7 +194,7 @@ cc_test(
     ':tensor',
     '//opencl',
     '//third_party:gtest',
-  ]
+  ],
 )
 
 cc_binary(
@@ -254,7 +269,7 @@ cc_test(
     ':tensor',
     '//opencl',
     '//third_party:gtest',
-  ]
+  ],
 )
 
 cc_library(

@@ -48,49 +48,5 @@ int main(int argument_count, char *arguments[]) {
   auto devices = get<1>(opencl);
   auto command_queue = get<2>(opencl);
 
-  {
-    auto embeddings = Embeddings(context, devices, command_queue);
-    auto embeddings_gradient = EmbeddingsGradient(context, devices, command_queue);
-
-    auto w = Tensor<>{{4, 3}, {3, 1}, {
-      1, 2, 3,
-      2, 3, 4,
-      3, 4, 5,
-      4, 5, 6,
-    }},
-    y = Tensor<>({{4, 9}, {9, 1}, vector<float>(4 * 9)});
-
-    auto x = Tensor<int>{{9}, {1}, {
-      0, 0, 0, 1, 1, 1, 2, 2, 2,
-    }};
-
-    w.Allocate(context);
-    x.Allocate(context);
-    y.Allocate(context);
-
-    embeddings(w, x, y);
-
-    cout << "w = " << w << endl
-        << "x = " << x << endl
-        << "Embeddings(w, x) = " << y.Read(command_queue) << endl << endl;
-
-    auto dy = Tensor<>{{4, 9}, {9, 1}, {
-      1, 1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1,
-    }}, dw = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)},
-    dx = Tensor<>{{3, 2}, {2, 1}, vector<float>(3 * 2)};
-
-    dy.Allocate(context);
-    dw.Allocate(context);
-    dx.Allocate(context);
-
-    embeddings_gradient(dy, x, dw);
-
-    cout << "dy = " << dy << endl
-        << "EmbeddingsGradient(dy, x) = " << dw.Read(command_queue) << endl << endl;
-  }
-
   return 0;
 }
