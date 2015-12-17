@@ -18,7 +18,7 @@ using std::ostream;
 using std::ostream_iterator;
 using std::vector;
 
-template <typename F = default_floating_point_type, typename I = default_integer_type>
+template <typename F=default_floating_point_type, typename I=default_integer_type>
 struct Tensor {
   void Allocate(Context &context) {
     shape_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, shape.size() * sizeof(I), shape.data());
@@ -48,7 +48,7 @@ template <typename F> ostream &operator <<(ostream &out, const vector<F> &v) {
 
 #define DESCRIBE_T(T) abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr)
 
-template <typename F = default_floating_point_type, typename I = default_integer_type>
+template <typename F=default_floating_point_type, typename I=default_integer_type>
 ostream &operator <<(ostream &out, const Tensor<F, I> &tensor) {
   return out << "Tensor<"
       << DESCRIBE_T(F) << ", " << DESCRIBE_T(I)

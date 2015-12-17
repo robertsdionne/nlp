@@ -20,12 +20,12 @@ struct epsilon {
 template <typename F>
 const F epsilon<F>::value = numeric_limits<F>::epsilon();
 
-template <typename F = default_floating_point_type>
+template <typename F=default_floating_point_type>
 struct default_storage_type {
   using value = vector<F>;
 };
 
-template <typename I = default_integer_type>
+template <typename I=default_integer_type>
 struct default_index_type {
   using value = vector<I>;
 };
