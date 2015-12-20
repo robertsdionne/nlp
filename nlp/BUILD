@@ -96,6 +96,27 @@ cc_test(
 )
 
 cc_library(
+  name = 'feedforward_model',
+  srcs = [
+    'feedforward_model.hpp',
+  ],
+  deps = [
+    ':broadcast_add',
+    ':broadcast_add_gradient',
+    ':embeddings',
+    ':embeddings_gradient',
+    ':logistic',
+    ':logistic_gradient',
+    ':matrix_multiply',
+    ':matrix_multiply_gradient',
+    ':rectified_linear',
+    ':rectified_linear_gradient',
+    ':tensor',
+    '//opencl',
+  ],
+)
+
+cc_library(
   name = 'kernels',
   srcs = [
     'kernels.hpp',
@@ -207,6 +228,7 @@ cc_binary(
     ':broadcast_add_gradient',
     ':embeddings',
     ':embeddings_gradient',
+    ':feedforward_model',
     ':logistic',
     ':logistic_gradient',
     ':matrix_multiply',

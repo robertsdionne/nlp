@@ -27,7 +27,7 @@ public:
     assert(CL_SUCCESS == SetTensorArg(kernel_, 0, dy));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 1, x));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 2, dx));
-    assert(CL_SUCCESS == command_queue_.enqueueNDRangeKernel(kernel_, NullRange, NDRange(dx.data.size()), NullRange));
+    assert(CL_SUCCESS == command_queue_.enqueueNDRangeKernel(kernel_, NullRange, NDRange(dx.size()), NullRange));
   }
 
 private:

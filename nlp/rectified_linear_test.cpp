@@ -33,8 +33,8 @@ TEST(RectifiedLinear, Run) {
   }},
   y = Tensor<>{{5, 5}, {5, 1}, vector<float>(5 * 5)};
 
-  x.Allocate(context);
-  y.Allocate(context);
+  x.Allocate(context, command_queue);
+  y.Allocate(context, command_queue);
 
   rectified_linear(x, y);
 
@@ -50,8 +50,8 @@ TEST(RectifiedLinear, Run) {
   }},
   dx = Tensor<>{{5, 5}, {5, 1}, vector<float>(5 * 5)};
 
-  dy.Allocate(context);
-  dx.Allocate(context);
+  dy.Allocate(context, command_queue);
+  dx.Allocate(context, command_queue);
 
   rectified_linear_gradient(dy, x, dx);
 

@@ -32,8 +32,8 @@ TEST(Logistic, Run) {
   }},
   y = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)};
 
-  x.Allocate(context);
-  y.Allocate(context);
+  x.Allocate(context, command_queue);
+  y.Allocate(context, command_queue);
 
   logistic(x, y);
 
@@ -48,8 +48,8 @@ TEST(Logistic, Run) {
   }},
   dx = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)};
 
-  dy.Allocate(context);
-  dx.Allocate(context);
+  dy.Allocate(context, command_queue);
+  dx.Allocate(context, command_queue);
 
   logistic_gradient(dy, y, dx);
 

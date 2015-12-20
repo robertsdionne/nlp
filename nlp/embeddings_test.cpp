@@ -36,9 +36,9 @@ TEST(Embeddings, Run) {
     0, 0, 0, 1, 1, 1, 2, 2, 2,
   }};
 
-  w.Allocate(context);
-  x.Allocate(context);
-  y.Allocate(context);
+  w.Allocate(context, command_queue);
+  x.Allocate(context, command_queue);
+  y.Allocate(context, command_queue);
 
   embeddings(w, x, y);
 
@@ -54,9 +54,9 @@ TEST(Embeddings, Run) {
   }}, dw = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)},
   dx = Tensor<>{{3, 2}, {2, 1}, vector<float>(3 * 2)};
 
-  dy.Allocate(context);
-  dw.Allocate(context);
-  dx.Allocate(context);
+  dy.Allocate(context, command_queue);
+  dw.Allocate(context, command_queue);
+  dx.Allocate(context, command_queue);
 
   embeddings_gradient(dy, x, dw);
 

@@ -38,9 +38,9 @@ TEST(MatrixMultiply, Run) {
   }},
   y = Tensor<>({{4, 2}, {2, 1}, vector<float>(4 * 2)});
 
-  w.Allocate(context);
-  x.Allocate(context);
-  y.Allocate(context);
+  w.Allocate(context, command_queue);
+  x.Allocate(context, command_queue);
+  y.Allocate(context, command_queue);
 
   matrix_multiply(w, x, y);
 
@@ -56,9 +56,9 @@ TEST(MatrixMultiply, Run) {
   }}, dw = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)},
   dx = Tensor<>{{3, 2}, {2, 1}, vector<float>(3 * 2)};
 
-  dy.Allocate(context);
-  dw.Allocate(context);
-  dx.Allocate(context);
+  dy.Allocate(context, command_queue);
+  dw.Allocate(context, command_queue);
+  dx.Allocate(context, command_queue);
 
   matrix_multiply_w_gradient(dy, x, dw);
   matrix_multiply_x_gradient(dy, w, dx);

@@ -13,6 +13,7 @@ namespace nlp {
 using cl::Buffer;
 using cl::CommandQueue;
 using cl::Context;
+using cl::Event;
 
 using std::ostream;
 using std::ostream_iterator;
@@ -20,14 +21,41 @@ using std::vector;
 
 template <typename F=default_floating_point_type, typename I=default_integer_type>
 struct Tensor {
-  void Allocate(Context &context) {
-    shape_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, shape.size() * sizeof(I), shape.data());
-    stride_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, stride.size() * sizeof(I), stride.data());
-    data_buffer = Buffer(context, CL_MEM_USE_HOST_PTR, data.size() * sizeof(F), data.data());
+
+  I size() const {
+    auto total= 1;
+    for (auto &s : shape) {
+      total *= s;
+    }
+    return total;
+  }
+
+  void Allocate(Context &context, CommandQueue &command_queue) {
+    shape_buffer = Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, shape.size() * sizeof(I), shape.data());
+    command_queue.enqueueWriteBuffer(shape_buffer, true, 0, shape.size() * sizeof(I), shape.data());
+
+    stride_buffer = Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, stride.size() * sizeof(I), stride.data());
+    command_queue.enqueueWriteBuffer(stride_buffer, true, 0, stride.size() * sizeof(I), stride.data());
+
+    data_buffer = Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, size() * sizeof(F), data.data());
+    command_queue.enqueueWriteBuffer(data_buffer, true, 0, size() * sizeof(F), data.data());
+  }
+
+  void Temporary(Context &context, CommandQueue &command_queue) {
+    shape_buffer = Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, shape.size() * sizeof(I), shape.data());
+    command_queue.enqueueWriteBuffer(shape_buffer, true, 0, shape.size() * sizeof(I), shape.data());
+
+    stride_buffer = Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, stride.size() * sizeof(I), stride.data());
+    command_queue.enqueueWriteBuffer(stride_buffer, true, 0, stride.size() * sizeof(I), stride.data());
+
+    data_buffer = Buffer(context, CL_MEM_READ_WRITE | CL_MEM_HOST_NO_ACCESS, size() * sizeof(F));
+    Event event;
+    command_queue.enqueueFillBuffer(data_buffer, F(0), 0, size() * sizeof(F), nullptr, &event);
+    event.wait();
   }
 
   Tensor<F> &Read(CommandQueue &command_queue) {
-    command_queue.enqueueReadBuffer(data_buffer, true, 0, data.size() * sizeof(F), data.data());
+    command_queue.enqueueReadBuffer(data_buffer, true, 0, size() * sizeof(F), data.data());
     return *this;
   }
 

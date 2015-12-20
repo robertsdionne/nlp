@@ -39,9 +39,9 @@ TEST(BroadcastAdd, Run) {
   }},
   y = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)};
 
-  x.Allocate(context);
-  b.Allocate(context);
-  y.Allocate(context);
+  x.Allocate(context, command_queue);
+  b.Allocate(context, command_queue);
+  y.Allocate(context, command_queue);
 
   broadcast_add(x, b, y);
 
@@ -58,9 +58,9 @@ TEST(BroadcastAdd, Run) {
   dx = Tensor<>{{4, 3}, {3, 1}, vector<float>(4 * 3)},
   db = Tensor<>{{4}, {1}, vector<float>(4)};
 
-  dy.Allocate(context);
-  dx.Allocate(context);
-  db.Allocate(context);
+  dy.Allocate(context, command_queue);
+  dx.Allocate(context, command_queue);
+  db.Allocate(context, command_queue);
 
   broadcast_add_x_gradient(dy, dx);
   broadcast_add_b_gradient(dy, db);

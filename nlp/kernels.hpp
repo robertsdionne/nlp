@@ -71,7 +71,7 @@ cl_int SetTensorArg(Kernel &kernel, unsigned int index, const Tensor<F, I> &tens
   assert(CL_SUCCESS == kernel.setArg(5 * index + 0, tensor.shape.size()));
   assert(CL_SUCCESS == kernel.setArg(5 * index + 1, tensor.shape_buffer));
   assert(CL_SUCCESS == kernel.setArg(5 * index + 2, tensor.stride_buffer));
-  assert(CL_SUCCESS == kernel.setArg(5 * index + 3, tensor.data.size()));
+  assert(CL_SUCCESS == kernel.setArg(5 * index + 3, tensor.size()));
   assert(CL_SUCCESS == kernel.setArg(5 * index + 4, tensor.data_buffer));
   return CL_SUCCESS;
 }

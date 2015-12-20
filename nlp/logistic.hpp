@@ -26,7 +26,7 @@ public:
   void operator ()(const Tensor<> &x, Tensor<> &y) {
     assert(CL_SUCCESS == SetTensorArg(kernel_, 0, x));
     assert(CL_SUCCESS == SetTensorArg(kernel_, 1, y));
-    assert(CL_SUCCESS == command_queue_.enqueueNDRangeKernel(kernel_, NullRange, NDRange(y.data.size()), NullRange));
+    assert(CL_SUCCESS == command_queue_.enqueueNDRangeKernel(kernel_, NullRange, NDRange(y.size()), NullRange));
   }
 
 private:
