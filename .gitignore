@@ -1,7 +1,8 @@
 *.aux
+.DS_Store
 *.log
+model
 *.out
+__pycache__/
 *.swp
 *.synctex.gz
-.DS_Store
-model
