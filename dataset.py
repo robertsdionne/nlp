@@ -8,7 +8,7 @@ tf.flags.DEFINE_string('dataset-test', 'data/en-web-test.tagged', 'The test data
 FLAGS = tf.flags.FLAGS
 
 
-def load_datasets(train_file=None, validate_file_0=None, validate_file_1=None, test_file=None):
+def load_datasets(train_file=None, validate_file_0=None, validate_file_1=None, test_file=None, indices=None):
     if train_file is None:
         train_file = open(FLAGS.dataset_train)
 
@@ -28,6 +28,11 @@ def load_datasets(train_file=None, validate_file_0=None, validate_file_1=None, t
     for _, labels in (train, validate, test):
         parts_of_speech |= {part_of_speech for label in labels for part_of_speech in label}
     parts_of_speech = sorted(parts_of_speech)
+
+    if indices:
+        train = make_flyweight(train, indices, parts_of_speech)
+        validate = make_flyweight(validate, indices, parts_of_speech)
+        test = make_flyweight(test, indices, parts_of_speech)
 
     return train, validate, test, parts_of_speech
 

@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import tensorflow as tf
 
 import dataset
+import embeddings
 
 
 class DatasetTest(tf.test.TestCase):
@@ -124,6 +125,22 @@ class DatasetTest(tf.test.TestCase):
             'WRB',
             '``',
         ], parts_of_speech)
+
+    def test_load_flyweight_datasets(self):
+        _, indices, _ = embeddings.load()
+        train, validate, test, parts_of_speech = dataset.load_datasets(indices={**indices, **{'<unknown/>': -1}})
+
+        self.assertEqual(39815, len(train[0]))
+        self.assertEqual(39815, len(train[1]))
+
+        self.assertEqual((76844, 49387, 89205, -1, 693), train[0][1])
+        self.assertEqual((22, 22, 41, 22, 5), train[1][1])
+
+        self.assertEqual(2716, len(validate[0]))
+        self.assertEqual(2716, len(validate[1]))
+
+        self.assertEqual(1015, len(test[0]))
+        self.assertEqual(1015, len(test[1]))
 
     @contextmanager
     def fake_file(self, lines):
