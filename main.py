@@ -1,3 +1,6 @@
+import keras
+from keras.preprocessing.sequence import pad_sequences
+import numpy as np
 import tensorflow as tf
 
 import dataset
@@ -36,10 +39,12 @@ def main():
             ], 0, name='word_embeddings')
             print(word_embeddings)
 
-            word_batch = tf.nn.embedding_lookup(word_embeddings, sentence_batch, name='word_batch')
+            word_batch = tf.nn.embedding_lookup(word_embeddings, sentence_batch)
+            word_batch = tf.expand_dims(word_batch, axis=1, name='word_batch')
             print(word_batch)
 
-            normalized_word_batch = tf.nn.relu(batch_normalization(word_batch))
+            normalized_word_batch = tf.nn.relu(batch_normalization(word_batch), name='normalized_word_batch')
+            print(normalized_word_batch)
 
         with tf.variable_scope('bytenet'):
             bias_initializer = tf.zeros_initializer()
@@ -83,16 +88,87 @@ def main():
             w6 = tf.get_variable('w6', shape=[1, SIZE, CHANNELS, CHANNELS])
             b6 = tf.get_variable('b6', shape=[CHANNELS], initializer=bias_initializer)
 
-            h6 = tf.identity(tf.nn.atrous_conv2d(normalized_h5, w6, 2**6, 'SAME') + b6 + normalized_h4, name='h6')
+            h6 = tf.identity(tf.nn.atrous_conv2d(normalized_h5, w6, 2**0, 'SAME') + b6 + normalized_h4, name='h6')
             normalized_h6 = tf.nn.relu(batch_normalization(h6))
+
+            w7 = tf.get_variable('w7', shape=[1, SIZE, CHANNELS, CHANNELS])
+            b7 = tf.get_variable('b7', shape=[CHANNELS], initializer=bias_initializer)
+
+            h7 = tf.identity(tf.nn.atrous_conv2d(normalized_h6, w7, 2**1, 'SAME') + b7, name='h7')
+            normalized_h7 = tf.nn.relu(batch_normalization(h7))
+
+            w8 = tf.get_variable('w8', shape=[1, SIZE, CHANNELS, CHANNELS])
+            b8 = tf.get_variable('b8', shape=[CHANNELS], initializer=bias_initializer)
+
+            h8 = tf.identity(tf.nn.atrous_conv2d(normalized_h7, w8, 2**2, 'SAME') + b8 + normalized_h6, name='h8')
+            normalized_h8 = tf.nn.relu(batch_normalization(h8))
+
+            w9 = tf.get_variable('w9', shape=[1, SIZE, CHANNELS, CHANNELS])
+            b9 = tf.get_variable('b9', shape=[CHANNELS], initializer=bias_initializer)
+
+            h9 = tf.identity(tf.nn.atrous_conv2d(normalized_h8, w9, 2**3, 'SAME') + b9, name='h9')
+            normalized_h9 = tf.nn.relu(batch_normalization(h9))
+
+            w10 = tf.get_variable('w10', shape=[1, SIZE, CHANNELS, CHANNELS])
+            b10 = tf.get_variable('b10', shape=[CHANNELS], initializer=bias_initializer)
+
+            h10 = tf.identity(tf.nn.atrous_conv2d(normalized_h9, w10, 2**4, 'SAME') + b10 + normalized_h8, name='h10')
+            normalized_h10 = tf.nn.relu(batch_normalization(h10))
+
+            w11 = tf.get_variable('w11', shape=[1, SIZE, CHANNELS, CHANNELS])
+            b11 = tf.get_variable('b11', shape=[CHANNELS], initializer=bias_initializer)
+
+            h11 = tf.identity(tf.nn.atrous_conv2d(normalized_h10, w11, 2**5, 'SAME') + b11, name='h11')
+            normalized_h11 = tf.nn.relu(batch_normalization(h11))
+
+            w12 = tf.get_variable('w12', shape=[1, SIZE, CHANNELS, len(parts_of_speech)])
+            b12 = tf.get_variable('b12', shape=[len(parts_of_speech)], initializer=bias_initializer)
+
+            h12 = tf.identity(tf.nn.atrous_conv2d(normalized_h11, w12, 2**0, 'SAME') + b12, name='h12')
+            h12 = tf.squeeze(h12, axis=[1])
+
+        weights = tf.sequence_mask(sentence_length, name='weights')
+        correct = tf.logical_and(tf.equal(tf.argmax(h12, -1), labels_batch), weights)
+        weights = tf.cast(weights, tf.float32)
+        accuracy = tf.reduce_sum(tf.cast(correct, tf.float32)) / tf.reduce_sum(weights)
+        sequence_loss = tf.contrib.seq2seq.sequence_loss(h12, labels_batch, weights)
+        y = tf.nn.softmax(h12, name='y')
+
+        train_step = tf.train.AdamOptimizer(1e-3).minimize(sequence_loss)
+
+        session.run(tf.global_variables_initializer())
+
+        M = 128
+
+        for e in range(20):
+            examples, labels = train
+            indices = np.arange(len(examples))
+            np.random.shuffle(indices)
+
+            for i in range(len(examples) // M):
+                index = indices[i:i+M]
+                sentences = np.take(examples, index)
+                lengths = list(map(len, sentences))
+                sentences = pad_sequences(sentences, dtype=np.int64, padding='post')
+                label = np.take(labels, index)
+                label = pad_sequences(label, dtype=np.int64, padding='post')
+
+                train_loss, train_accuracy, _ = session.run([sequence_loss, accuracy, train_step], feed_dict={
+                    sentence_batch: sentences,
+                    labels_batch: label,
+                    sentence_length: lengths,
+                })
+
+                print(e, i, train_loss, train_accuracy)
+
 
 
 def batch_normalization(x):
     with tf.variable_scope('batch_norm'):
-        population_mean = tf.Variable(tf.zeros([x.get_shape()[-1]]), trainable=False, name='population_mean')
-        population_variance = tf.Variable(tf.zeros([x.get_shape()[-1]]), trainable=False, name='population_variance')
+        population_mean = tf.Variable(tf.zeros([1, x.get_shape()[-1]]), trainable=False, name='population_mean')
+        population_variance = tf.Variable(tf.zeros([1, x.get_shape()[-1]]), trainable=False, name='population_variance')
 
-        mu, sigma2 = tf.nn.moments(x, axes=[0, 1])
+        mu, sigma2 = tf.nn.moments(x, axes=[0, 2])
         train_mean = tf.assign(population_mean, DECAY * population_mean + (1 - DECAY) * mu)
         train_variance = tf.assign(population_variance, DECAY * population_variance + (1 - DECAY) * sigma2)
 
