@@ -30,6 +30,39 @@ class DatasetTest(tf.test.TestCase):
             ],
         ), train)
 
+    def test_flyweight(self):
+        train = dataset.load_dataset(self.fake_file([
+            'Hello EXCL',
+            'world NN',
+            '! .',
+            '',
+            'Hi EXCL',
+            'planet NN',
+            '. .',
+            '',
+        ]))
+
+        train_flyweight = dataset.make_flyweight(train, {
+            '.': 0,
+            '!': 1,
+            'hello': 2,
+            'hi': 3,
+            'world': 4,
+            '<padding/>': 1000,
+            '<unknown/>': 1001,
+        }, ['.', 'EXCL', 'NN'])
+
+        self.assertEqual((
+            [
+                (2, 4, 1),
+                (3, 1001, 0),
+            ],
+            [
+                (1, 2, 0),
+                (1, 2, 0),
+            ],
+        ), train_flyweight)
+
     def test_load_datasets(self):
         train, validate, test, parts_of_speech = dataset.load_datasets()
 

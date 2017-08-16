@@ -50,9 +50,16 @@ def load_dataset(*dataset_files):
     return examples, labels
 
 
+def make_flyweight(dataset, indices, parts_of_speech):
+    examples, labels = dataset
 
-class Dataset(object):
+    def index_of(word):
+        try:
+            return indices[word.lower()]
+        except KeyError:
+            return indices['<unknown/>']
 
-    def __init__(self, examples, labels):
-        self.examples = examples
-        self.labels = labels
+    examples = [tuple(map(index_of, example)) for example in examples]
+    labels = [tuple(map(lambda x: parts_of_speech.index(x), label)) for label in labels]
+
+    return (examples, labels)
