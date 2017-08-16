@@ -23,7 +23,13 @@ def load_datasets(train_file=None, validate_file_0=None, validate_file_1=None, t
 
     train, validate, test = (
         load_dataset(train_file), load_dataset(validate_file_0, validate_file_1), load_dataset(test_file))
-    return train, validate, test
+
+    parts_of_speech = set()
+    for _, labels in (train, validate, test):
+        parts_of_speech |= {part_of_speech for label in labels for part_of_speech in label}
+    parts_of_speech = sorted(parts_of_speech)
+
+    return train, validate, test, parts_of_speech
 
 
 def load_dataset(*dataset_files):

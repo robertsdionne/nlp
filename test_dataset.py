@@ -31,7 +31,7 @@ class DatasetTest(tf.test.TestCase):
         ), train)
 
     def test_load_datasets(self):
-        train, validate, test = dataset.load_datasets()
+        train, validate, test, parts_of_speech = dataset.load_datasets()
 
         self.assertEqual(39815, len(train[0]))
         self.assertEqual(39815, len(train[1]))
@@ -41,6 +41,56 @@ class DatasetTest(tf.test.TestCase):
 
         self.assertEqual(1015, len(test[0]))
         self.assertEqual(1015, len(test[1]))
+
+        self.assertEqual([
+            '$',
+            "''",
+            '(',
+            ')',
+            ',',
+            '.',
+            ':',
+            'AFX',
+            'CC',
+            'CD',
+            'DT',
+            'EX',
+            'FW',
+            'HYPH',
+            'IN',
+            'JJ',
+            'JJR',
+            'JJS',
+            'LS',
+            'MD',
+            'NFP',
+            'NN',
+            'NNP',
+            'NNPS',
+            'NNS',
+            'PDT',
+            'POS',
+            'PRP',
+            'PRP$',
+            'RB',
+            'RBR',
+            'RBS',
+            'RP',
+            'SYM',
+            'TO',
+            'UH',
+            'VB',
+            'VBD',
+            'VBG',
+            'VBN',
+            'VBP',
+            'VBZ',
+            'WDT',
+            'WP',
+            'WP$',
+            'WRB',
+            '``',
+        ], parts_of_speech)
 
     @contextmanager
     def fake_file(self, lines):
